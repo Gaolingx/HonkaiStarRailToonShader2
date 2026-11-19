@@ -31,6 +31,9 @@ namespace SRCharacter
                         hideFlags = HideFlags.HideAndDontSave
                     };
                     material.SetInt(SRCharacterShaderIDs.ShadeRef, group << SRCharacterStencil.GroupShift);
+                    // Capture DSS 655 (groups 1..3): clear bit0 after use. DSS 662 (group 0): no write.
+                    material.SetInt(SRCharacterShaderIDs.ShadeWriteMask, group == 0 ? 0 : SRCharacterStencil.FlagMask);
+                    material.SetInt(SRCharacterShaderIDs.ShadePassOp, group == 0 ? (int)StencilOp.Keep : (int)StencilOp.Zero);
                     if (group == 3)
                         material.EnableKeyword(SRCharacterShaderIDs.HairShadeKeyword);
                     m_Materials[group] = material;

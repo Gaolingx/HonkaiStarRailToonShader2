@@ -50,12 +50,15 @@ namespace SRCharacter
             Check(SRCharacterStencil.MakePackedMaterialId(1, 16) == 0x50, "packed(area=body,id=16) == 0x50");
             Check(SRCharacterStencil.MakePackedMaterialId(2, 31) == 0x9F, "packed(area=face,id=31) == 0x9F");
             Check(SRCharacterStencil.GroupFromRef(0xE0) == 3, "GroupFromRef(0xE0) == 3");
+            Check(SRCharacterStencil.EyeReadMask == 0x81, "eye stencil read mask == 0x81");
+            Check((SRCharacterStencil.FlagEyeOccluded & SRCharacterStencil.GroupMask) == 0, "bit0 flag does not overlap the group bits");
         }
 
         private static void VerifyShaders()
         {
             Shader characterShader = Shader.Find("SRCharacter/Character");
             Shader shadingShader = Shader.Find("SRCharacter/Shading");
+            Shader transparentShader = Shader.Find(SRCharacterShaderIDs.TransparentShaderName);
 
             if (characterShader == null)
             {
@@ -69,17 +72,26 @@ namespace SRCharacter
                 return;
             }
 
+            if (transparentShader == null)
+            {
+                Error("Shader.Find(\"SRCharacter/Transparent\") failed (is the Shaders folder imported?)");
+                return;
+            }
+
             AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(characterShader), ImportAssetOptions.ForceUpdate);
             AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(shadingShader), ImportAssetOptions.ForceUpdate);
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(transparentShader), ImportAssetOptions.ForceUpdate);
 
             CheckShader(characterShader);
             CheckShader(shadingShader);
+            CheckShader(transparentShader);
 
             SRCharacterFeature feature = ScriptableObject.CreateInstance<SRCharacterFeature>();
             feature.settings.ResolveShaders();
             feature.Create();
             Check(feature.settings.characterShader != null, "feature resolves the character shader");
             Check(feature.settings.shadingShader != null, "feature resolves the shading shader");
+            Check(feature.settings.transparentShader != null, "feature resolves the transparent shader");
             Object.DestroyImmediate(feature);
         }
 
@@ -198,9 +210,9 @@ namespace SRCharacter
                 Debug.Log($"[SRCharacterVerify] warm-up: currentPipeline={DescribePipeline()}, " +
                           $"rendererFeatures={rendererData.rendererFeatures.Count}");
 
-                int characterPixels = RenderAndCount(camera, rt, out Color32 background, out int baselinePixels, out _);
+                int characterPixels = RenderAndCount(camera, rt, out Color32 background, out int baselinePixels, out Color32 capsuleCenter);
                 Debug.Log($"[SRCharacterVerify] pipeline={DescribePipeline()}, background={background}, " +
-                          $"baseline green pixels={baselinePixels}, character pixels={characterPixels}");
+                          $"baseline green pixels={baselinePixels}, character pixels={characterPixels}, capsule center={capsuleCenter}");
 
                 SaveRenderTexture(rt, "smoke_render.png");
 
@@ -232,6 +244,88 @@ namespace SRCharacter
 
                 Object.DestroyImmediate(occluder);
                 Object.DestroyImmediate(occluderMaterial);
+
+                // --- Semi-transparent bangs (capture P35 eids 5349..5595): the mesh is never in the
+                // G-buffer; it alpha-blends over the already shaded character with a stencil guard.
+                Material transparentMaterial = new Material(Shader.Find(SRCharacterShaderIDs.TransparentShaderName));
+                transparentMaterial.SetColor("_BaseColor", new Color(1f, 0.1f, 0.1f, 1f));
+                transparentMaterial.SetFloat(SRCharacterShaderIDs.Alpha, 0.5f);
+                transparentMaterial.SetFloat(SRCharacterShaderIDs.StencilRef, SRCharacterStencil.MakeRef(0, 24));
+                transparentMaterial.SetFloat(SRCharacterShaderIDs.Area, 1);
+                transparentMaterial.SetFloat(SRCharacterShaderIDs.ShadingGroup, 0);
+                transparentMaterial.SetFloat(SRCharacterShaderIDs.MaterialID, 24);
+
+                GameObject bangs = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                bangs.name = "SRCharacterVerifyBangs";
+                bangs.transform.position = new Vector3(0f, 0f, -0.8f);
+                bangs.transform.localScale = new Vector3(1.4f, 2.2f, 1f);
+                bangs.GetComponent<Renderer>().sharedMaterial = transparentMaterial;
+
+                Color32[] transparentPixels = RenderAndGetPixels(camera, rt);
+                Color32 transparentCenter = transparentPixels[(rt.height / 2) * rt.width + rt.width / 2];
+                Debug.Log($"[SRCharacterVerify] transparent bangs center={transparentCenter} (capsule center was {capsuleCenter})");
+                Check(transparentCenter.r > capsuleCenter.r + 12 && transparentCenter.g < capsuleCenter.g - 12,
+                    "semi-transparent bangs alpha-blend over the shaded character");
+                SaveRenderTexture(rt, "smoke_transparent.png");
+
+                Object.DestroyImmediate(bangs);
+                Object.DestroyImmediate(transparentMaterial);
+
+                // --- Eye overlay (capture eids 4968/4989): the proxy is redrawn against the G-buffer
+                // depth; where it is covered (the green bangs bar) the ZFail marks stencil bit 0 and
+                // the additive highlight is skipped. Visible eye pixels must get brighter.
+                Material eyeMaterial = new Material(characterShader);
+                eyeMaterial.SetColor("_BaseColor", new Color(0.35f, 0.35f, 0.35f, 1f));
+                eyeMaterial.SetColor("_SREyeColor", Color.white);
+                eyeMaterial.SetFloat("_SREyeSpecIntensity", 1f);
+                eyeMaterial.SetFloat("_SREyeShininess", 8f);
+                eyeMaterial.SetFloat("_SREyeRimIntensity", 1f);
+
+                GameObject eye = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                eye.name = "SRCharacterVerifyEyeProxy";
+                eye.transform.position = new Vector3(0f, 0f, -0.62f);
+                eye.transform.localScale = Vector3.one * 0.4f;
+                eye.GetComponent<Renderer>().sharedMaterial = eyeMaterial;
+                SRCharacterRenderer eyeSettings = eye.AddComponent<SRCharacterRenderer>();
+                eyeSettings.area = SRCharacterRenderer.Area.Face;
+                eyeSettings.shadingGroup = 2;
+                eyeSettings.materialId = 16;
+                eyeSettings.eyeProxy = true;
+                eyeSettings.Apply();
+
+                Material eyeOccluderMaterial = new Material(characterShader);
+                eyeOccluderMaterial.SetColor("_BaseColor", new Color(0.2f, 0.6f, 0.2f, 1f));
+                GameObject eyeOccluder = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                eyeOccluder.name = "SRCharacterVerifyBangsShadow";
+                eyeOccluder.transform.position = new Vector3(-0.11f, 0f, -0.92f);
+                eyeOccluder.transform.localScale = new Vector3(0.18f, 0.4f, 0.02f);
+                eyeOccluder.GetComponent<Renderer>().sharedMaterial = eyeOccluderMaterial;
+                SRCharacterRenderer eyeOccluderSettings = eyeOccluder.AddComponent<SRCharacterRenderer>();
+                eyeOccluderSettings.area = SRCharacterRenderer.Area.Face;
+                eyeOccluderSettings.shadingGroup = 2;
+                eyeOccluderSettings.materialId = 17;
+                eyeOccluderSettings.Apply();
+
+                feature.settings.enableEye = false;
+                Color32[] eyeOff = RenderAndGetPixels(camera, rt);
+                feature.settings.enableEye = true;
+                Color32[] eyeOn = RenderAndGetPixels(camera, rt);
+
+                int visibleIndex = (rt.height / 2) * rt.width + rt.width / 2 + 8;
+                int coveredIndex = (rt.height / 2) * rt.width + rt.width / 2 - 8;
+                int visibleDelta = Brightness(eyeOn[visibleIndex]) - Brightness(eyeOff[visibleIndex]);
+                int coveredDelta = Brightness(eyeOn[coveredIndex]) - Brightness(eyeOff[coveredIndex]);
+                Debug.Log($"[SRCharacterVerify] eye overlay: visible delta={visibleDelta} " +
+                          $"(off={eyeOff[visibleIndex]}, on={eyeOn[visibleIndex]}), " +
+                          $"covered delta={coveredDelta} (off={eyeOff[coveredIndex]}, on={eyeOn[coveredIndex]})");
+                Check(visibleDelta > 8, "eye overlay adds a highlight on visible eye pixels");
+                Check(coveredDelta <= 3 && coveredDelta >= -3, "eye overlay is skipped where stencil bit0 marks bangs occlusion");
+                SaveRenderTexture(rt, "smoke_eye.png");
+
+                Object.DestroyImmediate(eyeOccluder);
+                Object.DestroyImmediate(eyeOccluderMaterial);
+                Object.DestroyImmediate(eye);
+                Object.DestroyImmediate(eyeMaterial);
 
                 feature.SetActive(false);
                 int disabledPixels = RenderAndCount(camera, rt, out _, out _, out _);
@@ -354,7 +448,7 @@ namespace SRCharacter
             Debug.Log("[SRCharacterVerify] wrote " + fileName);
         }
 
-        private static int RenderAndCount(Camera camera, RenderTexture rt, out Color32 background, out int baselinePixels, out Color32 center)
+        private static Color32[] RenderAndGetPixels(Camera camera, RenderTexture rt)
         {
             RenderCamera(camera, rt);
 
@@ -366,12 +460,23 @@ namespace SRCharacter
             RenderTexture.active = previous;
 
             Color32[] pixels = texture.GetPixels32();
+            Object.DestroyImmediate(texture);
+            return pixels;
+        }
+
+        private static int RenderAndCount(Camera camera, RenderTexture rt, out Color32 background, out int baselinePixels, out Color32 center)
+        {
+            Color32[] pixels = RenderAndGetPixels(camera, rt);
             background = pixels[0];
             center = pixels[(rt.height / 2) * rt.width + rt.width / 2];
-            Object.DestroyImmediate(texture);
 
             baselinePixels = pixels.Count(p => p.g > 96 && p.r < 64 && p.b < 64);
             return pixels.Count(p => p.r > 96 && p.g > 96 && p.b > 96);
+        }
+
+        private static int Brightness(Color32 pixel)
+        {
+            return pixel.r + pixel.g + pixel.b;
         }
     }
 }

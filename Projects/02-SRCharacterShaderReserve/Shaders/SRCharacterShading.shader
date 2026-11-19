@@ -9,6 +9,8 @@ Shader "SRCharacter/Shading"
     Properties
     {
         _SRShadeRef ("Stencil Ref (group << 6)", Int) = 0
+        _SRShadeWriteMask ("Stencil Write Mask", Int) = 1
+        _SRShadePassOp ("Stencil Pass Op (0 Keep, 1 Zero)", Int) = 1
         _SRToonShadowSoftness ("Shadow Softness", Range(0.001, 0.5)) = 0.1
         _SRShadowAttenuationStrength ("Main Light Shadow Strength", Range(0, 1)) = 1
         _SRIndirectIntensity ("Indirect Intensity", Range(0, 4)) = 1
@@ -30,14 +32,16 @@ Shader "SRCharacter/Shading"
             ColorMask RGB
 
             // ReadMask 0xC0 reproduces the capture: only the two group bits select the material class.
+            // Groups 1..3 also clear the transient bit0 flag (capture DSS 655: WriteMask 1,
+            // Pass/Fail = Zero); group 0 keeps it untouched (capture DSS 662: WriteMask 0).
             Stencil
             {
                 Ref [_SRShadeRef]
                 ReadMask 192
-                WriteMask 0
+                WriteMask [_SRShadeWriteMask]
                 Comp Equal
-                Pass Keep
-                Fail Keep
+                Pass [_SRShadePassOp]
+                Fail [_SRShadePassOp]
                 ZFail Keep
             }
 
@@ -64,6 +68,8 @@ Shader "SRCharacter/Shading"
 
             CBUFFER_START(UnityPerMaterial)
                 float _SRShadeRef;
+                float _SRShadeWriteMask;
+                float _SRShadePassOp;
                 float _SRToonShadowSoftness;
                 float _SRShadowAttenuationStrength;
                 float _SRIndirectIntensity;

@@ -52,7 +52,18 @@ CBUFFER_START(UnityPerMaterial)
     float  _SREmissionIntensity;
     float  _SRIndirectIntensity;
     float  _SRVertexColorWeight;
-    float  _SRPadding0;
+
+    // Semi-transparent hair: output alpha = base alpha * _SRAlpha * vertex alpha.
+    float  _SRAlpha;
+
+    // Eye overlay (stencil bit0): only meshes flagged as eye proxies run the two eye passes.
+    float  _SREyeProxy;
+    float4 _SREyeColor;
+    float  _SREyeSpecIntensity;
+    float  _SREyeShininess;
+    float  _SREyeFresnelPower;
+    float  _SREyeRimIntensity;
+    float  _SREyeShadowStrength;
 CBUFFER_END
 
 struct SRCharacterAttributes

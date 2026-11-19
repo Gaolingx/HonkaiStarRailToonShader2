@@ -16,7 +16,9 @@ API：D3D11 / NVIDIA RTX 3050 Laptop / 622 actions / 581 draws / 无 debug marke
 | `raw/xml_events_with_eid.json` | 632 个动作的完整状态快照 + `chunkIndex ↔ mcp eventId` 映射 |
 | `raw/state_objects.json` | 17 blend / 28 depth-stencil / 18 rasterizer / 8 sampler 状态对象定义 |
 | `raw/xml_resources.json` | 纹理/缓冲/视图/着色器/输入布局定义 |
+| `raw/mesh_4968.json` / `mesh_5349.json` | P35 眼睛 proxy（42 顶点 / 80 三角形）与半透明刘海（219 顶点 / 352 三角形）的 post-VS 网格导出 |
 | `img/` | 关键 RT 导出（GBuffer、HDR、遮罩、SS 阴影） |
+| `img/eye/` | P35 眼睛 pass 前后的 HDR 帧（eid 4956 / 5015）与面部裁切 |
 
 ## 数据来源与方法
 
@@ -34,6 +36,8 @@ API：D3D11 / NVIDIA RTX 3050 Laptop / 622 actions / 581 draws / 无 debug marke
 - **描边**是独立 draw：`CULL_FRONT` + backface stencil REPLACE（eid 3194/3366），与 GBuffer 共用 GPU 蒙皮输出缓冲。
 - **GPU 蒙皮**：P00–P02 用 VS+GS+StreamOut 把蒙皮结果写入 `VERTEX_BUFFER|STREAM_OUTPUT` 缓冲（如 buf20481），骨骼矩阵来自 SRV buffer 7211（float4 数组）。
 - 屏幕空间阴影（P27，tex9580）与角色剪影（P36，tex5288）作为后续着色/bloom 的输入。
+- P35 用 **stencil bit0** 传递“眼睛是否被挡住”（eid 4968/4989/4999/5015）；半透明刘海不进 GBuffer，
+  以 alpha 混合 + `NOT_EQUAL` 第一层去重绘制（eid 5349/5361/5404/5585/5595，见 04 §4.4）。
 
 ## 已知限制
 

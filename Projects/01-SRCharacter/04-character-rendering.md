@@ -101,6 +101,36 @@ HSR 的角色不是"一个前向 pass 画完"：**几何在 P08 写入 GBuffer�
 
 所有绑定（slot→资源 ID→格式尺寸）见 `02-pass-bindings.md` 的 P08/P35 表，逐 draw 见 `raw/draws.csv`。
 
+### 4.4 低 2 位模板：眼睛遮挡（bit0）与半透明刘海（第二轮补证）
+
+P35 的前 4 个全屏材质 pass 之后还有 4 个 240-index draw（eid 4968/4989/4999/5015），
+用 stencil **bit0** 做“眼睛被头发/眼皮遮住”的临时标记，再决定是否叠加眼睛高光：
+
+| eid | 几何 | DSS | StencilRef | 关键状态 | 作用 |
+|---|---|---|---|---|---|
+| 4968 / 4999 | 眼睛 proxy：42 顶点 / 80 三角形，VB 463 / IB 464 | 1303 | 1 | depth `GREATER_EQUAL`，Stencil `Always`，**`ZFail=Replace`**，WriteMask 1，ColorMask 0 | proxy 深度测试失败（被前方的刘海/眼皮盖住）时置 bit0=1 |
+| 4989 / 5015 | 同一 proxy 的背面 | 1305 | 128 | depth `LESS_EQUAL`，ReadMask **0x81**，WriteMask 1，Pass/Fail/ZFail=`Zero`，blend 204（ONE/ONE，RGB） | 仅当“bit7=1 且 bit0=0”时做加法眼睛高光，同时清 bit0 |
+
+全屏材质 pass 的 bit0 清理：4906/4924/4948（组 1–3）用 DSS 655（ReadMask 0xC0 / WriteMask 1 / Pass=Zero）；
+4956（组 0）用 DSS 662（WriteMask 0，不清）。P27 的屏幕空间阴影也用同一 bit0 做标记（Ref 1 / W1 / ZFail Replace，eid 4371…）。
+
+`4989` 的 PS（9584）用屏幕空间 GBuffer 采样：t0=tex9503 albedo、t1=tex9507 normal（`normal.a*65535 & 7` 解材质类型）、
+t3=tex514 深度、t4=tex3403，并用 `unity_MatrixInvVP` 反推世界坐标——即“屏幕空间眼睛着色”，不是简单的几何高光。
+常量内容仍不可得（见 §6），本仓库只复现其模板门控与加法载荷。
+
+半透明刘海：VB 41839 / IB 15331（219 顶点 / 352 三角形）只在 P16 阴影与 P35 出现，**从不进入 P08 GBuffer**：
+
+| eid | blend | DSS | StencilRef | 状态 | 说明 |
+|---|---|---|---|---|---|
+| 3836（P16） | 213 | 15533 | 11 | `NOT_EQUAL` → Replace | 阴影图里只写第一层 |
+| 5349 | 213 | 1342（无 stencil） | 0 | ZWrite Off | 该部件的无模板绘制 |
+| 5361 | 213 | 8553 | 24 | `Always` → Replace | 写入自己的材质 ID |
+| 5404 | 213 | 1935 | 10 | 背面 Replace / ZWrite ALL / Cull Front | 描边 |
+| 5585 / 5595 | 213 | 15533 / 15538 | 11 | `NOT_EQUAL` → Replace（背面同样） | 多层发片在同一像素只画第一层 |
+
+blend 213 = `SRC_ALPHA / INV_SRC_ALPHA`；PS 15531 输出 alpha = 软边系数 × 顶点 alpha，即发梢淡出。
+因为不进 GBuffer，半透明刘海不会覆盖脸部 stencil，也不会被全屏材质 pass 二次着色（眼睛遮挡标记因此仍需 bit0）。
+
 ## 5. 角色相关后处理
 
 - **P27 屏幕空间阴影**（tex9580 R8，`img/tex9580_screenspace_shadowmask.png`）：27 draws，其中 3-index/36-index 全屏+小几何；采样主深度与阴影图集 18188/17638，输出柔和阴影轮廓，P35 的 ps0 使用。
@@ -147,3 +177,4 @@ HSR 的角色不是"一个前向 pass 画完"：**几何在 P08 写入 GBuffer�
 | tex9511 / tex5288 消费者语义 | 部分 | 重建中 9511 语义映射为角色 mask（R=剪影/G=阴影形状/A=面部 lit），5288 未重建 |
 | P30/P31 与 P32–P34 功能 | 仍未知 | 未重建 |
 | 描边外扩阶段 | 部分 | 重建采用 VS 法线外扩（与 StarRailNPRShader / HonkaiStarRailToonShader 一致），抓帧未做 `debug_vertex` 验证 |
+| 低 2 位模板 / 半透明刘海 | 已补证 | 见 §4.4：bit0 用于眼睛遮挡标记（DSS 1303/1305），透明刘海走 alpha 混合 + `NOT_EQUAL` 第一层去重 |

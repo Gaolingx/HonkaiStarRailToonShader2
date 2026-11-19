@@ -60,6 +60,15 @@ Shader "SRCharacter/Character"
         _SRHeadRight ("Head Right (WS)", Vector) = (1, 0, 0, 0)
         _SRHeadForward ("Head Forward (WS)", Vector) = (0, 0, 1, 0)
         _SRHeadUp ("Head Up (WS)", Vector) = (0, 1, 0, 0)
+
+        [Header(Eye Overlay and Stencil Bit 0)]
+        _SREyeProxy ("Eye Proxy (0 or 1)", Float) = 0
+        _SREyeColor ("Eye Highlight Color", Color) = (1, 1, 1, 1)
+        _SREyeSpecIntensity ("Eye Spec Intensity", Range(0, 4)) = 1
+        _SREyeShininess ("Eye Spec Shininess", Range(1, 256)) = 32
+        _SREyeFresnelPower ("Eye Fresnel Power", Range(0.1, 8)) = 3
+        _SREyeRimIntensity ("Eye Rim Intensity", Range(0, 4)) = 0.5
+        _SREyeShadowStrength ("Eye Main-light Shadow Strength", Range(0, 1)) = 1
     }
 
     CustomEditor "SRCharacter.SRCharacterShaderGUI"
@@ -338,6 +347,166 @@ Shader "SRCharacter/Character"
                 float3 rimColor = _RimColor.rgb * (_SRRimIntensity * rim) * lerp(0.3, 1.0, nDotL);
 
                 return half4(specular + rimColor + emission, 1.0);
+            }
+            ENDHLSL
+        }
+
+        // ------------------------------------------------------------------
+        // Eye overlay, step 1 (capture eids 4968/4999, DSS 1303):
+        // the eye proxy is redrawn with the same depth as the G-buffer; wherever it
+        // fails the depth test (bangs/eyelid in front) stencil bit 0 is set.
+        // Colour writes are disabled, only the transient flag is authored.
+        // ------------------------------------------------------------------
+        Pass
+        {
+            Name "SRCharacterEyeMark"
+            Tags { "LightMode" = "SRCharacterEyeMark" }
+
+            Cull Back
+            ZWrite Off
+            ZTest LEqual
+            ColorMask 0
+
+            // Capture: depth GREATER_EQUAL (LEqual under reversed Z), stencil Always,
+            // ZFail = Replace with Ref 1 / WriteMask 1, Pass and Fail = Keep.
+            Stencil
+            {
+                Ref 1
+                ReadMask 255
+                WriteMask 1
+                Comp Always
+                Pass Keep
+                Fail Keep
+                ZFail Replace
+            }
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex EyeProxyVertex
+            #pragma fragment EyeMarkFragment
+            #pragma multi_compile_instancing
+
+            #include "SRCharacterCommon.hlsl"
+
+            struct EyeVaryings
+            {
+                float4 positionCS : SV_POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            EyeVaryings EyeProxyVertex(SRCharacterAttributes input)
+            {
+                EyeVaryings output = (EyeVaryings)0;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                return output;
+            }
+
+            half4 EyeMarkFragment(EyeVaryings input) : SV_Target
+            {
+                // Every character renderer is submitted to this pass; only the proxy draws.
+                clip(_SREyeProxy - 0.5);
+                return 0;
+            }
+            ENDHLSL
+        }
+
+        // ------------------------------------------------------------------
+        // Eye overlay, step 2 (capture eids 4989/5015, DSS 1305):
+        // back faces of the eye proxy add a screen-space eye highlight, but only where
+        // (group bits | bit0) matches and bit0 is clear, i.e. the eye is not covered by hair.
+        // All stencil ops are Zero with WriteMask 1, so the flag is consumed here.
+        // ------------------------------------------------------------------
+        Pass
+        {
+            Name "SRCharacterEyeShade"
+            Tags { "LightMode" = "SRCharacterEyeShade" }
+
+            Cull Front
+            ZWrite Off
+            ZTest GEqual
+            Blend One One
+            ColorMask RGB
+
+            // Capture: back faces Equal (ReadMask 0x81), Pass/Fail/ZFail = Zero, WriteMask 1.
+            Stencil
+            {
+                Ref [_SRStencilRef]
+                ReadMask 129
+                WriteMask 1
+                Comp Equal
+                Pass Zero
+                Fail Zero
+                ZFail Zero
+            }
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex EyeShadeVertex
+            #pragma fragment EyeShadeFragment
+            #pragma multi_compile_instancing
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
+
+            #include "SRCharacterCommon.hlsl"
+
+            TEXTURE2D(_SRCharacterAlbedo);
+            TEXTURE2D(_SRCharacterNormal);
+
+            struct EyeShadeVaryings
+            {
+                float4 positionCS : SV_POSITION;
+                float2 ndc        : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            EyeShadeVaryings EyeShadeVertex(SRCharacterAttributes input)
+            {
+                EyeShadeVaryings output = (EyeShadeVaryings)0;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+
+                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                float4 positionCS = TransformWorldToHClip(positionWS);
+                output.positionCS = positionCS;
+                output.ndc = positionCS.xy / positionCS.w;
+                return output;
+            }
+
+            half4 EyeShadeFragment(EyeShadeVaryings input) : SV_Target
+            {
+                clip(_SREyeProxy - 0.5);
+
+                uint2 pixel = (uint2)input.positionCS.xy;
+                float4 albedo = LOAD_TEXTURE2D(_SRCharacterAlbedo, pixel);
+                float4 normalDepth = LOAD_TEXTURE2D(_SRCharacterNormal, pixel);
+
+                uint area;
+                uint materialId;
+                SRDecodeMaterialPayload(albedo.a, area, materialId);
+                if (area != (uint)SR_AREA_FACE)
+                    discard;
+
+                // Same reconstruction as the fullscreen shading pass: the G-buffer alpha holds
+                // the device depth, so the screen-space normal and position come from one pass.
+                float4 positionWS4 = mul(unity_MatrixInvVP, float4(input.ndc, normalDepth.a, 1.0));
+                float3 positionWS = positionWS4.xyz / positionWS4.w;
+                float3 normalWS = normalize(normalDepth.rgb);
+                float3 viewDirWS = normalize(_WorldSpaceCameraPos - positionWS);
+
+                Light mainLight = GetMainLight(TransformWorldToShadowCoord(positionWS));
+                float3 halfDirWS = normalize(mainLight.direction + viewDirWS);
+                float specular = pow(saturate(dot(normalWS, halfDirWS)), max(_SREyeShininess, 1.0));
+                float fresnel = pow(1.0 - saturate(dot(normalWS, viewDirWS)), max(_SREyeFresnelPower, 0.001));
+
+                float3 lightColor = mainLight.color * mainLight.distanceAttenuation
+                    * lerp(1.0, mainLight.shadowAttenuation, _SREyeShadowStrength);
+
+                half3 color = _SREyeColor.rgb
+                    * (specular * _SREyeSpecIntensity + fresnel * _SREyeRimIntensity)
+                    * lightColor;
+                return half4(color, 1.0);
             }
             ENDHLSL
         }

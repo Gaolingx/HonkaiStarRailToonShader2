@@ -14,10 +14,14 @@
 | 冒烟渲染（胶囊体走完整 pass 链） | 通过：角色 5608 px，关闭 feature 后 0 px |
 | 全屏模板着色独立性（关闭 overlay） | 通过：仍 5608 px |
 | 深度遮挡（相机与角色之间放不透明物体） | 通过：屏幕中心被遮挡物占据，角色像素 5608 → 24 |
-| 总体结论 | **PARTIAL**：角色核心 pass 链已重建并验证；GPU 蒙皮、P27 屏幕空间阴影、P36 遮罩 + bloom 未移植 |
+| 半透明刘海（50% alpha quad） | 通过：中心像素 `(230,178,178)` → `(243,132,132)`，红升绿降 |
+| 眼睛遮挡 bit0（proxy + 前方刘海条） | 通过：可见侧亮度 90 → 173；被挡侧保持 `(50,153,50)` 不变 |
+| 总体结论 | **PARTIAL**：角色核心 pass 链、眼睛 bit0 与半透明刘海已重建并验证；GPU 蒙皮、P27 屏幕空间阴影、P36 遮罩 + bloom 未移植 |
 
 完整证据：[02-SRCharacterShaderReserve/validation/verify.log](Projects/02-SRCharacterShaderReserve/validation/verify.log)、
-[smoke_render.png](Projects/02-SRCharacterShaderReserve/validation/smoke_render.png)。
+[smoke_render.png](Projects/02-SRCharacterShaderReserve/validation/smoke_render.png)、
+[smoke_transparent.png](Projects/02-SRCharacterShaderReserve/validation/smoke_transparent.png)、
+[smoke_eye.png](Projects/02-SRCharacterShaderReserve/validation/smoke_eye.png)。
 
 ## 仓库结构
 
@@ -34,11 +38,11 @@ Projects/
     *.py                          XML/状态解析与文档生成脚本
   02-SRCharacterShaderReserve/    URP 重建模块（第二轮）
     README.md                     模块设计、证据映射、使用步骤、验证结果
-    Runtime/                      RendererFeature + 4 个 Pass + 模板编码 + 材质设置组件
-    Shaders/                      GBuffer/描边/加法叠加 + 全屏分组着色 + 公共 HLSL
+    Runtime/                      RendererFeature + 7 个 Pass + 模板编码 + 材质设置组件
+    Shaders/                      GBuffer/描边/眼睛/加法叠加/半透明刘海 + 全屏分组着色 + 公共 HLSL
     Editor/                       材质 Inspector + 批处理验证入口
     analysis/extract_stencil_refs.py
-    validation/                   verify.log + smoke_render.png
+    validation/                   verify.log + smoke_render / smoke_transparent / smoke_eye.png
 ```
 
 ## 1. 抓帧证据摘要
@@ -54,15 +58,20 @@ Projects/
 | P08 GBuffer 第二套 | 1010 | **0x1F** | DSS 8527：W254 / REPLACE |
 | P08 GBuffer 头发 | 2130/2208/… | **0xE0** | DSS 1288（组 3） |
 | P08 描边 | 3194 / 3366 | 0x10 / 0x1F | DSS 1935 / 8545：背面 REPLACE，CULL_FRONT |
-| P35 全屏 | 4906 / 4924 / 4948 / 4956 | **192 / 64 / 128 / 0** | DSS 655/662：ReadMask **0xC0**，EQUAL |
+| P35 全屏 | 4906 / 4924 / 4948 / 4956 | **192 / 64 / 128 / 0** | DSS 655/662：ReadMask **0xC0**，EQUAL；组 1..3 `WriteMask 1 / Pass=Zero` |
+| P35 眼睛标记 | 4968 / 4999 | 1 | DSS 1303：`ZFail=Replace`，WriteMask 1，ColorMask 0 |
+| P35 眼睛高光 | 4989 / 5015 | 128 | DSS 1305：ReadMask **0x81**，WriteMask 1，Pass/Fail/ZFail=Zero，blend ONE/ONE |
 | P35 前向叠加 | 5083 / 5096 | 16 | DSS 817：stencil ALWAYS、ZWrite Off、blend **208 = ONE/ONE** |
+| P35 透明刘海 | 5349 / 5361 / 5404 / 5585 / 5595 | 0 / 24 / 10 / 11 / 11 | blend 213，`NOT_EQUAL→Replace`，描边 Cull Front + ZWrite On |
 
 由此确定的编码（模块中 `SRCharacterStencil` 与 `SRCharacterDefines.hlsl` 一致实现）：
 
 ```
 stencil bits 7..6 = shading group (0..3)
 stencil bits 5..0 = material id (0..63)
+bit0             = 临时标志（眼睛遮挡），不属于材质 ID
 全屏 pass：Ref = group << 6，ReadMask = 0xC0，Comp = Equal
+眼睛高光：Ref = 0x80，ReadMask = 0x81，Comp = Equal，所有 stencil op = Zero
 ```
 
 深度：P08 的 DSV 为 `D32S8`，全部比较为 `GREATER_EQUAL`，清深度 0（反向 Z）。
@@ -71,14 +80,17 @@ P35 的全屏 pass 深度比较为 `ALWAYS` 且不写深度；前向叠加为 `G
 ## 2. 重建管线
 
 模块入口：[SRCharacterFeature.cs](Projects/02-SRCharacterShaderReserve/Runtime/SRCharacterFeature.cs)。
-4 个 pass 统一在 `AfterRenderingOpaques` 按 enqueue 顺序执行：
+7 个 pass 统一在 `AfterRenderingOpaques` 按 enqueue 顺序执行：
 
 | 顺序 | Pass | 目标 | 关键状态 | 对应抓帧 |
 |---|---|---|---|---|
 | 1 | `SRCharacterGBuffer` | `_SRCharacterAlbedo` RGBA8 + `_SRCharacterNormal` RGBA16F + `_SRCharacterMask` RGBA8 + 相机 depth | `Stencil Replace`，`ZWrite On / ZTest LEqual` | P08 |
 | 2 | `SRCharacterOutline` | 同上（不清除） | `Cull Front`，背面 REPLACE，VS 法线外扩 | P08 eid 3194/3366 |
-| 3 | `SRCharacterShading` ×4 | 相机 color + depth | `Ref=g<<6, ReadMask 192, Equal`，`ZTest Always / ZWrite Off / ColorMask RGB` | P35 eid 4906/4924/4948/4956 |
-| 4 | `SRCharacterOverlay` | 相机 color + depth | `Blend One One / ZWrite Off / ZTest LEqual` | P35 eid 5083/5096 |
+| 3 | `SRCharacterShading` ×4 | 相机 color + depth | `Ref=g<<6, ReadMask 192, Equal`，组 1..3 清 bit0 | P35 eid 4906/4924/4948/4956 |
+| 4 | `SRCharacterEyeMark` | 相机 color（ColorMask 0）+ depth | `Ref 1 / WriteMask 1 / ZFail Replace` | P35 eid 4968/4999 |
+| 5 | `SRCharacterEyeShade` | 相机 color + depth | `Ref=0x80, ReadMask 0x81, Equal, ops Zero`，`Blend One One`，`Cull Front` | P35 eid 4989/5015 |
+| 6 | `SRCharacterOverlay` | 相机 color + depth | `Blend One One / ZWrite Off / ZTest LEqual` | P35 eid 5083/5096 |
+| 7 | `SRCharacterTransparent` | 相机 color + depth | `Blend SrcAlpha OneMinusSrcAlpha`，`Comp NotEqual / Pass Replace`，背面描边 ZWrite | P35 eid 5349/5361/5404/5585/5595 |
 
 G-Buffer 载荷：
 
@@ -103,6 +115,8 @@ G-Buffer 载荷：
 | P08 clear | color + depth + stencil | 只清 color（[GBufferPass:53](Projects/02-SRCharacterShaderReserve/Runtime/Passes/SRCharacterGBufferPass.cs#L53)） | PARTIAL（不破坏场景深度；依赖 stencil 初值为 0） |
 | P35 tex5279 | R11G11B10 HDR | 相机 color（HDR 开启时为 R11G11B10） | PASS\* |
 | P35 tex514 深度拷贝 | 供全屏 pass 采样 | device depth 存 normal.a，避免同一 pass 既绑 DSV 又采样 | PASS\* |
+| P35 眼睛 proxy | 240 idx 几何 → 相机 HDR + depth | `SRCharacterEyeMark/EyeShade` 重画同一网格 | PASS（proxy 网格由用户指定） |
+| P35 透明刘海 | 1056 idx 几何 → 相机 HDR + depth | `SRCharacterTransparent` fill/outline | PASS |
 | P36 tex9621/tex5288 | 后光照 mask/effect | 未重建；仅导出 `_SRCharacterMask` | NOT PORTED |
 | P27 tex9580 | 屏幕空间阴影 | 全屏 pass 未采样 | NOT PORTED |
 | P00–P02 SO 缓冲 | GPU 蒙皮顶点流 | Unity `SkinnedMeshRenderer` | NOT PORTED |
@@ -135,14 +149,16 @@ G-Buffer 载荷：
 | 法线贴图 | PASS\* | `SRGetNormalWS`（[Common:87](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterCommon.hlsl#L87)） |
 | GPU 蒙皮 / Stream-Out / indirect | NOT PORTED | P00–P02 |
 | 屏幕空间阴影（P27） | NOT PORTED | 抓帧 P35 ps0 的 tex9580 |
-| 眼睛/刘海阴影等额外全屏 pass | NOT PORTED | P35 eid 4989/5361/5404（低 2 位模板 + 额外 480 idx pass） |
+| 眼睛遮挡 bit0 + 眼睛高光 | PASS\* | 标记 pass（[SRCharacter.shader:SRCharacterEyeMark](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacter.shader)）+ 加法高光 pass（`SRCharacterEyeShade`）；公式为可配置的屏幕空间高光，非抓帧虹膜折射 |
+| 半透明刘海 / stencil bit0 机制 | PASS\* | [SRCharacterTransparent.shader](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterTransparent.shader)（alpha 混合 + `NOT_EQUAL` 第一层去重 + 背面描边）+ [SRCharacterTransparentPass.cs](Projects/02-SRCharacterShaderReserve/Runtime/Passes/SRCharacterTransparentPass.cs) |
+| 全屏 pass 消费 bit0 | PASS | 组 1..3 `WriteMask 1 / Pass=Zero`（DSS 655），组 0 不写（DSS 662） |
 | 角色遮罩 + bloom/tonemap（P36–P55） | NOT PORTED | 未重建后处理链 |
-| 半透明刘海 / stencil bit0 机制 | NOT PORTED | 抓帧 655/662 的 `Pass=ZERO / W1` |
 
 ### 3.4 资源绑定与“逐像素对应”
 
 **能证明的**：绑定槽位与状态语义逐项对应（见 3.1/3.5），且每个阶段都有行为证据：
-关闭 feature → 0 像素；关闭 overlay → 全屏着色仍生效；加入遮挡物 → 被遮挡像素不再被角色覆盖。
+关闭 feature → 0 像素；关闭 overlay → 全屏着色仍生效；加入遮挡物 → 被遮挡像素不再被角色覆盖；
+50% alpha 刘海 → 中心颜色按 alpha 混合；眼睛 proxy 被刘海条挡住的一侧不出现加法高光（bit0 生效）。
 
 **不能证明的**：与抓帧图像逐像素一致。原因：
 
@@ -161,8 +177,11 @@ G-Buffer 载荷：
 | GBuffer 写入 | Replace，W255 / 第二套 W254 | Replace，W255 | PASS\*（W254 未镜像；本实现的 id 在 albedo.a，低 6 位不参与着色） |
 | 描边 | CULL_FRONT + 背面 REPLACE | `Cull Front` + Replace | PASS |
 | 全屏分组 | Ref 0/64/128/192 + ReadMask 0xC0 + Equal | 相同（[Shading.shader:33-38](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterShading.shader#L33)） | PASS |
-| bit0 消费 | `Pass=ZERO / W1` | `Pass=Keep` | DEVIATION（深度已解决重叠；不影响分组） |
-| 顺序 | P08（GBuffer→描边）→ P35（全屏→前向叠加） | GBuffer→Outline→Shading×4→Overlay | PASS |
+| bit0 消费 | 组 1..3 `Pass=ZERO / W1`；组 0 不写 | 相同（组 0 `WriteMask 0`） | PASS |
+| bit0 眼睛标记 | DSS 1303 `ZFail=Replace / W1` | 相同（`SRCharacterEyeMark`） | PASS |
+| bit0 眼睛高光 | DSS 1305 `ReadMask 0x81 / W1 / ops Zero` | 相同（`SRCharacterEyeShade`） | PASS |
+| 透明刘海去重 | `NOT_EQUAL → Replace`（blend 213） | 相同 | PASS |
+| 顺序 | P08（GBuffer→描边）→ P35（全屏→眼睛→前向叠加→透明刘海） | GBuffer→Outline→Shading×4→EyeMark→EyeShade→Overlay→Transparent | PASS |
 | P27 位于 P08 与 P35 之间 | 有 | 无 | GAP |
 
 ### 3.6 深度信息
@@ -218,7 +237,7 @@ rm -rf E:/GitHub/Glx.CustomURP/URPSample01/Assets/_SRCharacterVerify*
 | 2 | P36 角色遮罩 + bloom/tonemap（P37–P55） | 角色不会参与 bloom 强度控制，最终观感差异大 |
 | 3 | GPU 蒙皮 / Stream-Out（P00–P02） | 大场景 CPU 开销与逐帧顶点流构建方式不同 |
 | 4 | CB / shader 解码（`GetCBufferVariableContents`、`debug_pixel`） | 才能把 ramp/SDF/LUT 公式从“推断”提升为“证实” |
-| 5 | 眼睛/刘海阴影、半透明刘海、stencil bit0、per-character LUT、附加光/雾 | 细节与多角色场景 |
+| 5 | per-character LUT、附加光/雾、眼睛虹膜折射公式（PS 9584）、透明刘海 3 段材质分件 | 细节与多角色场景 |
 
 ## 7. 文档索引
 

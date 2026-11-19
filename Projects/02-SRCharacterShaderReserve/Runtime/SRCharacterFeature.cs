@@ -8,7 +8,9 @@ namespace SRCharacter
     ///   1. G-buffer (3 MRT + camera depth/stencil, stencil = material ref)
     ///   2. Outline (front-face cull, back-face stencil replace, same MRT)
     ///   3. Fullscreen toon shading (one draw per stencil group, stencil Equal + ReadMask 0xC0)
-    ///   4. Additive forward overlay (specular / rim / emission)
+    ///   4. Eye overlay (stencil bit 0 marks eye pixels covered by bangs, then gates a highlight)
+    ///   5. Additive forward overlay (specular / rim / emission)
+    ///   6. Semi-transparent hair / bangs (alpha blend + stencil first-layer guard + outline)
     /// The passes must run after opaques so the camera depth already holds the scene and the
     /// main light shadow maps are resolved.
     /// </summary>
@@ -19,7 +21,10 @@ namespace SRCharacter
         private SRCharacterGBufferPass m_GBufferPass;
         private SRCharacterOutlinePass m_OutlinePass;
         private SRCharacterShadingPass m_ShadingPass;
+        private SRCharacterEyeMarkPass m_EyeMarkPass;
+        private SRCharacterEyeShadePass m_EyeShadePass;
         private SRCharacterOverlayPass m_OverlayPass;
+        private SRCharacterTransparentPass m_TransparentPass;
         private bool m_WarnedAboutMsaa;
 
         public override void Create()
@@ -38,7 +43,19 @@ namespace SRCharacter
             {
                 renderPassEvent = settings.passEvent
             };
+            m_EyeMarkPass = new SRCharacterEyeMarkPass(settings.characterLayers)
+            {
+                renderPassEvent = settings.passEvent
+            };
+            m_EyeShadePass = new SRCharacterEyeShadePass(settings.characterLayers, m_GBufferPass)
+            {
+                renderPassEvent = settings.passEvent
+            };
             m_OverlayPass = new SRCharacterOverlayPass(settings.characterLayers)
+            {
+                renderPassEvent = settings.passEvent
+            };
+            m_TransparentPass = new SRCharacterTransparentPass(settings.characterLayers, settings)
             {
                 renderPassEvent = settings.passEvent
             };
@@ -68,7 +85,10 @@ namespace SRCharacter
             m_GBufferPass.renderPassEvent = settings.passEvent;
             m_OutlinePass.renderPassEvent = settings.passEvent;
             m_ShadingPass.renderPassEvent = settings.passEvent;
+            m_EyeMarkPass.renderPassEvent = settings.passEvent;
+            m_EyeShadePass.renderPassEvent = settings.passEvent;
             m_OverlayPass.renderPassEvent = settings.passEvent;
+            m_TransparentPass.renderPassEvent = settings.passEvent;
 
             renderer.EnqueuePass(m_GBufferPass);
 
@@ -77,8 +97,17 @@ namespace SRCharacter
 
             renderer.EnqueuePass(m_ShadingPass);
 
+            if (settings.enableEye)
+            {
+                renderer.EnqueuePass(m_EyeMarkPass);
+                renderer.EnqueuePass(m_EyeShadePass);
+            }
+
             if (settings.enableOverlay)
                 renderer.EnqueuePass(m_OverlayPass);
+
+            if (settings.enableTransparent)
+                renderer.EnqueuePass(m_TransparentPass);
         }
 
         protected override void Dispose(bool disposing)
@@ -89,7 +118,10 @@ namespace SRCharacter
             m_GBufferPass = null;
             m_OutlinePass = null;
             m_ShadingPass = null;
+            m_EyeMarkPass = null;
+            m_EyeShadePass = null;
             m_OverlayPass = null;
+            m_TransparentPass = null;
         }
     }
 }

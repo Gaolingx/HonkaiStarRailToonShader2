@@ -10,6 +10,14 @@
 #define SR_STENCIL_ID_MASK      0x3F
 #define SR_STENCIL_GROUP_SHIFT  6
 
+// Bit 0 is a transient flag, not part of the material id:
+//   1 = this pixel is covered by an eye proxy surface that failed the depth test
+//       (capture DSS 1303: Stencil ZFail=Replace, WriteMask=1).
+//   The eye shading pass tests (group bits | bit0) with Equal and clears bit0
+//   (capture DSS 1305: ReadMask=0x81, WriteMask=1, Pass/Fail/ZFail=Zero).
+#define SR_STENCIL_FLAG_MASK    0x01
+#define SR_STENCIL_EYE_READ_MASK 0x81
+
 // Area type stored in the character mask (G-buffer mask R channel stays a silhouette flag).
 #define SR_AREA_BODY 1
 #define SR_AREA_FACE 2

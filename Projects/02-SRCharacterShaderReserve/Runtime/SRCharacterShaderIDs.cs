@@ -17,6 +17,8 @@ namespace SRCharacter
 
         // Shading material.
         public static readonly int ShadeRef = Shader.PropertyToID("_SRShadeRef");
+        public static readonly int ShadeWriteMask = Shader.PropertyToID("_SRShadeWriteMask");
+        public static readonly int ShadePassOp = Shader.PropertyToID("_SRShadePassOp");
         public static readonly int ToonShadowSoftness = Shader.PropertyToID("_SRToonShadowSoftness");
         public static readonly int ShadowAttenuationStrength = Shader.PropertyToID("_SRShadowAttenuationStrength");
         public static readonly int IndirectIntensity = Shader.PropertyToID("_SRIndirectIntensity");
@@ -29,8 +31,13 @@ namespace SRCharacter
         public static readonly int HeadRight = Shader.PropertyToID("_SRHeadRight");
         public static readonly int HeadForward = Shader.PropertyToID("_SRHeadForward");
         public static readonly int HeadUp = Shader.PropertyToID("_SRHeadUp");
+        public static readonly int EyeProxy = Shader.PropertyToID("_SREyeProxy");
+
+        // Transparent hair material.
+        public static readonly int Alpha = Shader.PropertyToID("_SRAlpha");
 
         public const string AreaFaceKeyword = "_SR_AREA_FACE";
         public const string HairShadeKeyword = "_SR_SHADE_HAIR";
+        public const string TransparentShaderName = "SRCharacter/Transparent";
     }
 }

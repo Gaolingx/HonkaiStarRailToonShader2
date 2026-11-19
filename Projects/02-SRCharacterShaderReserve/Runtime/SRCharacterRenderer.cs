@@ -25,6 +25,10 @@ namespace SRCharacter
         [Tooltip("Optional head bone. Its world axes drive the face SDF evaluation.")]
         public Transform head;
 
+        [Tooltip("Eye proxy: the eye mark/shade passes (stencil bit 0) only run on renderers with this enabled. " +
+                 "Use the same shading group as the face material so the highlight is gated to face pixels.")]
+        public bool eyeProxy;
+
         private readonly List<Material> m_Materials = new List<Material>();
 
         private void OnEnable()
@@ -65,11 +69,18 @@ namespace SRCharacter
                     material.SetFloat(SRCharacterShaderIDs.Area, (int)area);
                     material.SetFloat(SRCharacterShaderIDs.ShadingGroup, shadingGroup);
                     material.SetFloat(SRCharacterShaderIDs.MaterialID, materialId);
+                    material.SetFloat(SRCharacterShaderIDs.EyeProxy, eyeProxy ? 1f : 0f);
 
                     if (isFace)
                         material.EnableKeyword(SRCharacterShaderIDs.AreaFaceKeyword);
                     else
                         material.DisableKeyword(SRCharacterShaderIDs.AreaFaceKeyword);
+
+                    // The transparent hair shader picks the hair ramp pair with this keyword.
+                    if (shadingGroup == 3)
+                        material.EnableKeyword(SRCharacterShaderIDs.HairShadeKeyword);
+                    else
+                        material.DisableKeyword(SRCharacterShaderIDs.HairShadeKeyword);
 
                     m_Materials.Add(material);
                 }

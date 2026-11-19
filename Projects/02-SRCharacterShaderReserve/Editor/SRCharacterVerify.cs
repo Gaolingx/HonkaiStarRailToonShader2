@@ -198,7 +198,7 @@ namespace SRCharacter
                 Debug.Log($"[SRCharacterVerify] warm-up: currentPipeline={DescribePipeline()}, " +
                           $"rendererFeatures={rendererData.rendererFeatures.Count}");
 
-                int characterPixels = RenderAndCount(camera, rt, out Color32 background, out int baselinePixels);
+                int characterPixels = RenderAndCount(camera, rt, out Color32 background, out int baselinePixels, out _);
                 Debug.Log($"[SRCharacterVerify] pipeline={DescribePipeline()}, background={background}, " +
                           $"baseline green pixels={baselinePixels}, character pixels={characterPixels}");
 
@@ -210,13 +210,31 @@ namespace SRCharacter
                 // The fullscreen stencil shading must carry the character on its own; the additive
                 // overlay only contributes specular/rim on top of it.
                 feature.settings.enableOverlay = false;
-                int diffuseOnlyPixels = RenderAndCount(camera, rt, out _, out _);
+                int diffuseOnlyPixels = RenderAndCount(camera, rt, out _, out _, out _);
                 Debug.Log($"[SRCharacterVerify] character pixels without overlay = {diffuseOnlyPixels}");
                 Check(diffuseOnlyPixels > 200, "fullscreen stencil shading renders without the additive overlay");
                 feature.settings.enableOverlay = true;
 
+                // Depth correctness: an opaque URP object drawn in the opaque pass must occlude the
+                // character, which also proves the feature runs after opaques and depth-tests against
+                // the scene depth attachment instead of overdrawing it.
+                Material occluderMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                occluderMaterial.color = Color.red;
+                GameObject occluder = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                occluder.transform.position = new Vector3(0f, 0f, -1.5f);
+                occluder.transform.localScale = new Vector3(1.2f, 1.2f, 0.2f);
+                occluder.GetComponent<Renderer>().sharedMaterial = occluderMaterial;
+
+                int occludedCharacterPixels = RenderAndCount(camera, rt, out _, out _, out Color32 center);
+                Debug.Log($"[SRCharacterVerify] occluded center={center}, character pixels with occluder={occludedCharacterPixels}");
+                Check(center.r > 96 && center.g < 96, "occluder wins the depth test at the screen center");
+                Check(occludedCharacterPixels < characterPixels, "character pixels are reduced behind an opaque occluder");
+
+                Object.DestroyImmediate(occluder);
+                Object.DestroyImmediate(occluderMaterial);
+
                 feature.SetActive(false);
-                int disabledPixels = RenderAndCount(camera, rt, out _, out _);
+                int disabledPixels = RenderAndCount(camera, rt, out _, out _, out _);
                 Debug.Log($"[SRCharacterVerify] character pixels with feature disabled = {disabledPixels}");
                 Check(disabledPixels == 0, "no character pixels without the feature");
                 feature.SetActive(true);
@@ -336,7 +354,7 @@ namespace SRCharacter
             Debug.Log("[SRCharacterVerify] wrote " + fileName);
         }
 
-        private static int RenderAndCount(Camera camera, RenderTexture rt, out Color32 background, out int baselinePixels)
+        private static int RenderAndCount(Camera camera, RenderTexture rt, out Color32 background, out int baselinePixels, out Color32 center)
         {
             RenderCamera(camera, rt);
 
@@ -349,6 +367,7 @@ namespace SRCharacter
 
             Color32[] pixels = texture.GetPixels32();
             background = pixels[0];
+            center = pixels[(rt.height / 2) * rt.width + rt.width / 2];
             Object.DestroyImmediate(texture);
 
             baselinePixels = pixels.Count(p => p.g > 96 && p.r < 64 && p.b < 64);

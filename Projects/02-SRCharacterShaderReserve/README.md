@@ -5,6 +5,9 @@ G-Buffer（MRT + 模板材质 ID）→ 描边（front-face cull）→ 全屏分�
 
 本目录不是 Unity 工程的一部分（在 `Assets` 之外），导入方式见 [使用步骤](#使用步骤)。
 
+> 本轮（2026-11-20）的完整验收矩阵（attachment / CB / 算法 / 逐像素口径 / stencil / 深度）
+> 见仓库根 [README.md §3](../../README.md#3-本轮验收)。
+
 ## 1. 证据基线
 
 抓帧：`StarRail_2024.12.09_01.39_frame13063.rdc`（D3D11，3072×1920，无 debug marker）。
@@ -154,13 +157,18 @@ validation/
 
 ## 4. 验证
 
-命令（本机）：
+命令（本机，仓库本身不含 Unity 工程，需把本模块临时复制到宿主工程 `Assets/` 下）：
 
 ```bash
+# 1) 复制到宿主工程
+cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
+      E:/GitHub/Glx.CustomURP/URPSample01/Assets/_SRCharacterVerify/
+# 2) 批处理验证
 "D:/Program Files/Unity/Hub/Editor/2022.3.62f1/Editor/Unity.exe" \
   -batchmode -quit -projectPath E:/GitHub/Glx.CustomURP/URPSample01 \
   -executeMethod SRCharacter.SRCharacterVerify.Run \
-  -logFile <repo>/URPSample01/tmp/02-SRCharacterShaderReserve/validation/verify.log
+  -logFile Projects/02-SRCharacterShaderReserve/validation/verify.log
+# 3) 验证结束后删除 Assets/_SRCharacterVerify（连同 .meta）
 ```
 
 验证内容：
@@ -170,7 +178,8 @@ validation/
 3. 冒烟渲染：把**克隆的 renderer data**（挂上 feature）临时换进当前 URP asset，
    新建相机（`SolidColor` 深蓝背景）+ 主光 + 胶囊体（角色材质）+ 绿色 URP/Lit 立方体，
    通过 `RenderPipeline.SubmitRenderRequest` 渲染 256×256（`Camera.Render()` 在 SRP 下会走内置管线），
-   读回像素计数；随后关闭 feature / 关闭 overlay 再各渲染一次。finally 里恢复原 renderer data 与 MSAA。
+   读回像素计数；随后依次关闭 overlay、加一个位于相机与角色之间的红色不透明遮挡物、
+   关闭 feature 各渲染一次。finally 里恢复原 renderer data 与 MSAA。
 
 最近一次结果（完整日志：[validation/verify.log](validation/verify.log)）：
 
@@ -184,10 +193,16 @@ validation/
 [SRCharacterVerify] ok: character pixels rendered by the SRCharacter feature
 [SRCharacterVerify] character pixels without overlay = 5608
 [SRCharacterVerify] ok: fullscreen stencil shading renders without the additive overlay
+[SRCharacterVerify] occluded center=RGBA(218, 36, 36, 255), character pixels with occluder=24
+[SRCharacterVerify] ok: occluder wins the depth test at the screen center
+[SRCharacterVerify] ok: character pixels are reduced behind an opaque occluder
 [SRCharacterVerify] character pixels with feature disabled = 0
 [SRCharacterVerify] ok: no character pixels without the feature
 [SRCharacterVerify] finished, errors=0
 ```
+
+遮挡测试同时验证了三点：feature 确实在 opaque 之后执行、G-Buffer 对场景深度做 `ZTest LEqual`、
+全屏着色不会把被遮挡的像素重新画出来（角色像素 5608 → 24，剩余为左侧描边边缘）。
 
 渲染结果：[validation/smoke_render.png](validation/smoke_render.png)（胶囊体为粉肤色 + 高光点，
 左侧可见深色描边；右侧绿色立方体为 URP/Lit 对照）。

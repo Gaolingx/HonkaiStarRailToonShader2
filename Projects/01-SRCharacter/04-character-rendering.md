@@ -133,3 +133,17 @@ HSR 的角色不是"一个前向 pass 画完"：**几何在 P08 写入 GBuffer�
 - [ ] 确认 tex9511(R8) 与 tex5288(R8) 的具体消费者语义（是否都进 bloom mask）。
 - [ ] P30/P31（tex9596）与 P32–P34（864x540/1728x1080 RGBA16F）的功能确认（可能为 SSGI/SSR 或体积光）。
 - [ ] 对角色描边 draw(3194) 做 `debug_vertex`，确认法线外扩发生 VS 还是几何阶段。
+
+## 9. 第二轮（重建）对上述待办的状态
+
+第二轮在 [02-SRCharacterShaderReserve](../02-SRCharacterShaderReserve/README.md) 中重建了多 pass 管线，
+并新增了逐 draw 的 `StencilRef` 提取（[analysis/extract_stencil_refs.py](../02-SRCharacterShaderReserve/analysis/extract_stencil_refs.py)）。
+以下状态只反映"是否被重建工作触及"，**不等于抓帧已直接证实**：
+
+| 待办 | 状态 | 说明 |
+|---|---|---|
+| CB 内容（cb0 4560B） | 仍未知 | CB 仍未解码；重建模块用 URP 自己的 CB 布局，不声称字节级对应 |
+| toon ramp / SDF 采样方式 | 部分 | 按 256x16 与 8x8 LUT 的尺寸证据实现了 ramp 行选择与面部 SDF；HSR 的具体采样公式仍是推断 |
+| tex9511 / tex5288 消费者语义 | 部分 | 重建中 9511 语义映射为角色 mask（R=剪影/G=阴影形状/A=面部 lit），5288 未重建 |
+| P30/P31 与 P32–P34 功能 | 仍未知 | 未重建 |
+| 描边外扩阶段 | 部分 | 重建采用 VS 法线外扩（与 StarRailNPRShader / HonkaiStarRailToonShader 一致），抓帧未做 `debug_vertex` 验证 |

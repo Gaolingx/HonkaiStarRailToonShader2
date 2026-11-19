@@ -1,0 +1,572 @@
+[
+ {
+  "pass": 0,
+  "startEvent": 1596,
+  "endEvent": 1941,
+  "firstDrawOrdinal": 0,
+  "lastDrawOrdinal": 0,
+  "firstDrawEid": 23,
+  "lastDrawEid": 23,
+  "draws": 1
+ },
+ {
+  "pass": 1,
+  "startEvent": 1953,
+  "endEvent": 1995,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 2,
+  "startEvent": 1998,
+  "endEvent": 2564,
+  "firstDrawOrdinal": 1,
+  "lastDrawOrdinal": 49,
+  "firstDrawEid": 93,
+  "lastDrawEid": 651,
+  "draws": 49
+ },
+ {
+  "pass": 3,
+  "startEvent": 2581,
+  "endEvent": 2583,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 4,
+  "startEvent": 2593,
+  "endEvent": 2613,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 5,
+  "startEvent": 2618,
+  "endEvent": 2618,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 6,
+  "startEvent": 2639,
+  "endEvent": 2689,
+  "firstDrawOrdinal": 50,
+  "lastDrawOrdinal": 55,
+  "firstDrawEid": 726,
+  "lastDrawEid": 776,
+  "draws": 6
+ },
+ {
+  "pass": 7,
+  "startEvent": 2692,
+  "endEvent": 2703,
+  "firstDrawOrdinal": 56,
+  "lastDrawOrdinal": 56,
+  "firstDrawEid": 790,
+  "lastDrawEid": 790,
+  "draws": 1
+ },
+ {
+  "pass": 8,
+  "startEvent": 2706,
+  "endEvent": 5460,
+  "firstDrawOrdinal": 57,
+  "lastDrawOrdinal": 302,
+  "firstDrawEid": 812,
+  "lastDrawEid": 3546,
+  "draws": 246
+ },
+ {
+  "pass": 9,
+  "startEvent": 5463,
+  "endEvent": 5486,
+  "firstDrawOrdinal": 303,
+  "lastDrawOrdinal": 304,
+  "firstDrawEid": 3564,
+  "lastDrawEid": 3573,
+  "draws": 2
+ },
+ {
+  "pass": 10,
+  "startEvent": 5506,
+  "endEvent": 5575,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 11,
+  "startEvent": 5578,
+  "endEvent": 5579,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 12,
+  "startEvent": 5596,
+  "endEvent": 5597,
+  "firstDrawOrdinal": 305,
+  "lastDrawOrdinal": 305,
+  "firstDrawEid": 3683,
+  "lastDrawEid": 3683,
+  "draws": 1
+ },
+ {
+  "pass": 13,
+  "startEvent": 5614,
+  "endEvent": 5614,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 14,
+  "startEvent": 5617,
+  "endEvent": 5620,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 15,
+  "startEvent": 5634,
+  "endEvent": 5634,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 16,
+  "startEvent": 5657,
+  "endEvent": 5776,
+  "firstDrawOrdinal": 306,
+  "lastDrawOrdinal": 315,
+  "firstDrawEid": 3744,
+  "lastDrawEid": 3863,
+  "draws": 10
+ },
+ {
+  "pass": 17,
+  "startEvent": 5791,
+  "endEvent": 5828,
+  "firstDrawOrdinal": 316,
+  "lastDrawOrdinal": 320,
+  "firstDrawEid": 3878,
+  "lastDrawEid": 3915,
+  "draws": 5
+ },
+ {
+  "pass": 18,
+  "startEvent": 5843,
+  "endEvent": 5869,
+  "firstDrawOrdinal": 321,
+  "lastDrawOrdinal": 324,
+  "firstDrawEid": 3930,
+  "lastDrawEid": 3956,
+  "draws": 4
+ },
+ {
+  "pass": 19,
+  "startEvent": 5884,
+  "endEvent": 5921,
+  "firstDrawOrdinal": 325,
+  "lastDrawOrdinal": 329,
+  "firstDrawEid": 3971,
+  "lastDrawEid": 4008,
+  "draws": 5
+ },
+ {
+  "pass": 20,
+  "startEvent": 5936,
+  "endEvent": 5969,
+  "firstDrawOrdinal": 330,
+  "lastDrawOrdinal": 334,
+  "firstDrawEid": 4023,
+  "lastDrawEid": 4056,
+  "draws": 5
+ },
+ {
+  "pass": 21,
+  "startEvent": 5984,
+  "endEvent": 6021,
+  "firstDrawOrdinal": 335,
+  "lastDrawOrdinal": 339,
+  "firstDrawEid": 4071,
+  "lastDrawEid": 4108,
+  "draws": 5
+ },
+ {
+  "pass": 22,
+  "startEvent": 6036,
+  "endEvent": 6075,
+  "firstDrawOrdinal": 340,
+  "lastDrawOrdinal": 344,
+  "firstDrawEid": 4123,
+  "lastDrawEid": 4162,
+  "draws": 5
+ },
+ {
+  "pass": 23,
+  "startEvent": 6090,
+  "endEvent": 6120,
+  "firstDrawOrdinal": 345,
+  "lastDrawOrdinal": 348,
+  "firstDrawEid": 4177,
+  "lastDrawEid": 4207,
+  "draws": 4
+ },
+ {
+  "pass": 24,
+  "startEvent": 6135,
+  "endEvent": 6163,
+  "firstDrawOrdinal": 349,
+  "lastDrawOrdinal": 352,
+  "firstDrawEid": 4222,
+  "lastDrawEid": 4250,
+  "draws": 4
+ },
+ {
+  "pass": 25,
+  "startEvent": 6178,
+  "endEvent": 6209,
+  "firstDrawOrdinal": 353,
+  "lastDrawOrdinal": 357,
+  "firstDrawEid": 4265,
+  "lastDrawEid": 4296,
+  "draws": 5
+ },
+ {
+  "pass": 26,
+  "startEvent": 6224,
+  "endEvent": 6249,
+  "firstDrawOrdinal": 358,
+  "lastDrawOrdinal": 361,
+  "firstDrawEid": 4311,
+  "lastDrawEid": 4336,
+  "draws": 4
+ },
+ {
+  "pass": 27,
+  "startEvent": 6252,
+  "endEvent": 6535,
+  "firstDrawOrdinal": 362,
+  "lastDrawOrdinal": 388,
+  "firstDrawEid": 4357,
+  "lastDrawEid": 4622,
+  "draws": 27
+ },
+ {
+  "pass": 28,
+  "startEvent": 6563,
+  "endEvent": 6613,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 29,
+  "startEvent": 6620,
+  "endEvent": 6648,
+  "firstDrawOrdinal": 389,
+  "lastDrawOrdinal": 390,
+  "firstDrawEid": 4718,
+  "lastDrawEid": 4735,
+  "draws": 2
+ },
+ {
+  "pass": 30,
+  "startEvent": 6652,
+  "endEvent": 6675,
+  "firstDrawOrdinal": 391,
+  "lastDrawOrdinal": 391,
+  "firstDrawEid": 4762,
+  "lastDrawEid": 4762,
+  "draws": 1
+ },
+ {
+  "pass": 31,
+  "startEvent": 6696,
+  "endEvent": 6740,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 32,
+  "startEvent": 6761,
+  "endEvent": 6761,
+  "firstDrawOrdinal": 392,
+  "lastDrawOrdinal": 392,
+  "firstDrawEid": 4848,
+  "lastDrawEid": 4848,
+  "draws": 1
+ },
+ {
+  "pass": 33,
+  "startEvent": 6773,
+  "endEvent": 6773,
+  "firstDrawOrdinal": 393,
+  "lastDrawOrdinal": 393,
+  "firstDrawEid": 4860,
+  "lastDrawEid": 4860,
+  "draws": 1
+ },
+ {
+  "pass": 34,
+  "startEvent": 6785,
+  "endEvent": 6785,
+  "firstDrawOrdinal": 394,
+  "lastDrawOrdinal": 394,
+  "firstDrawEid": 4872,
+  "lastDrawEid": 4872,
+  "draws": 1
+ },
+ {
+  "pass": 35,
+  "startEvent": 6788,
+  "endEvent": 7508,
+  "firstDrawOrdinal": 395,
+  "lastDrawOrdinal": 449,
+  "firstDrawEid": 4906,
+  "lastDrawEid": 5595,
+  "draws": 55
+ },
+ {
+  "pass": 36,
+  "startEvent": 7524,
+  "endEvent": 7981,
+  "firstDrawOrdinal": 450,
+  "lastDrawOrdinal": 520,
+  "firstDrawEid": 5611,
+  "lastDrawEid": 6068,
+  "draws": 71
+ },
+ {
+  "pass": 37,
+  "startEvent": 8003,
+  "endEvent": 8003,
+  "firstDrawOrdinal": 521,
+  "lastDrawOrdinal": 521,
+  "firstDrawEid": 6090,
+  "lastDrawEid": 6090,
+  "draws": 1
+ },
+ {
+  "pass": 38,
+  "startEvent": 8017,
+  "endEvent": 8017,
+  "firstDrawOrdinal": 522,
+  "lastDrawOrdinal": 522,
+  "firstDrawEid": 6104,
+  "lastDrawEid": 6104,
+  "draws": 1
+ },
+ {
+  "pass": 39,
+  "startEvent": 8029,
+  "endEvent": 8029,
+  "firstDrawOrdinal": 523,
+  "lastDrawOrdinal": 523,
+  "firstDrawEid": 6116,
+  "lastDrawEid": 6116,
+  "draws": 1
+ },
+ {
+  "pass": 40,
+  "startEvent": 8039,
+  "endEvent": 8039,
+  "firstDrawOrdinal": 524,
+  "lastDrawOrdinal": 524,
+  "firstDrawEid": 6126,
+  "lastDrawEid": 6126,
+  "draws": 1
+ },
+ {
+  "pass": 41,
+  "startEvent": 8049,
+  "endEvent": 8049,
+  "firstDrawOrdinal": 525,
+  "lastDrawOrdinal": 525,
+  "firstDrawEid": 6136,
+  "lastDrawEid": 6136,
+  "draws": 1
+ },
+ {
+  "pass": 42,
+  "startEvent": 8059,
+  "endEvent": 8059,
+  "firstDrawOrdinal": 526,
+  "lastDrawOrdinal": 526,
+  "firstDrawEid": 6146,
+  "lastDrawEid": 6146,
+  "draws": 1
+ },
+ {
+  "pass": 43,
+  "startEvent": 8069,
+  "endEvent": 8069,
+  "firstDrawOrdinal": 527,
+  "lastDrawOrdinal": 527,
+  "firstDrawEid": 6156,
+  "lastDrawEid": 6156,
+  "draws": 1
+ },
+ {
+  "pass": 44,
+  "startEvent": 8072,
+  "endEvent": 8072,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 45,
+  "startEvent": 8084,
+  "endEvent": 8084,
+  "firstDrawOrdinal": 528,
+  "lastDrawOrdinal": 528,
+  "firstDrawEid": 6171,
+  "lastDrawEid": 6171,
+  "draws": 1
+ },
+ {
+  "pass": 46,
+  "startEvent": 8093,
+  "endEvent": 8093,
+  "firstDrawOrdinal": 529,
+  "lastDrawOrdinal": 529,
+  "firstDrawEid": 6180,
+  "lastDrawEid": 6180,
+  "draws": 1
+ },
+ {
+  "pass": 47,
+  "startEvent": 8102,
+  "endEvent": 8102,
+  "firstDrawOrdinal": 530,
+  "lastDrawOrdinal": 530,
+  "firstDrawEid": 6189,
+  "lastDrawEid": 6189,
+  "draws": 1
+ },
+ {
+  "pass": 48,
+  "startEvent": 8111,
+  "endEvent": 8111,
+  "firstDrawOrdinal": 531,
+  "lastDrawOrdinal": 531,
+  "firstDrawEid": 6198,
+  "lastDrawEid": 6198,
+  "draws": 1
+ },
+ {
+  "pass": 49,
+  "startEvent": 8114,
+  "endEvent": 8114,
+  "firstDrawOrdinal": null,
+  "lastDrawOrdinal": null,
+  "firstDrawEid": null,
+  "lastDrawEid": null,
+  "draws": 0
+ },
+ {
+  "pass": 50,
+  "startEvent": 8125,
+  "endEvent": 8125,
+  "firstDrawOrdinal": 532,
+  "lastDrawOrdinal": 532,
+  "firstDrawEid": 6212,
+  "lastDrawEid": 6212,
+  "draws": 1
+ },
+ {
+  "pass": 51,
+  "startEvent": 8133,
+  "endEvent": 8133,
+  "firstDrawOrdinal": 533,
+  "lastDrawOrdinal": 533,
+  "firstDrawEid": 6220,
+  "lastDrawEid": 6220,
+  "draws": 1
+ },
+ {
+  "pass": 52,
+  "startEvent": 8141,
+  "endEvent": 8141,
+  "firstDrawOrdinal": 534,
+  "lastDrawOrdinal": 534,
+  "firstDrawEid": 6228,
+  "lastDrawEid": 6228,
+  "draws": 1
+ },
+ {
+  "pass": 53,
+  "startEvent": 8149,
+  "endEvent": 8149,
+  "firstDrawOrdinal": 535,
+  "lastDrawOrdinal": 535,
+  "firstDrawEid": 6236,
+  "lastDrawEid": 6236,
+  "draws": 1
+ },
+ {
+  "pass": 54,
+  "startEvent": 8162,
+  "endEvent": 8162,
+  "firstDrawOrdinal": 536,
+  "lastDrawOrdinal": 536,
+  "firstDrawEid": 6249,
+  "lastDrawEid": 6249,
+  "draws": 1
+ },
+ {
+  "pass": 55,
+  "startEvent": 8181,
+  "endEvent": 8768,
+  "firstDrawOrdinal": 537,
+  "lastDrawOrdinal": 579,
+  "firstDrawEid": 6268,
+  "lastDrawEid": 6855,
+  "draws": 43
+ },
+ {
+  "pass": 56,
+  "startEvent": 8795,
+  "endEvent": 8795,
+  "firstDrawOrdinal": 580,
+  "lastDrawOrdinal": 580,
+  "firstDrawEid": 6882,
+  "lastDrawEid": 6882,
+  "draws": 1
+ }
+]

@@ -1,0 +1,8768 @@
+[
+ {
+  "index": 0,
+  "sig": [
+   [],
+   0,
+   null
+  ],
+  "rtvViews": [],
+  "dsvView": 0,
+  "viewport": null,
+  "startEvent": 1596,
+  "endEvent": 1941,
+  "draws": [
+   1936
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [
+   {
+    "order": 1942,
+    "chunkIndex": 1941,
+    "kind": "CopyResource",
+    "state": {
+     "rtv": [],
+     "dsv": 0,
+     "viewport": null,
+     "shaders": {
+      "vs": 7214,
+      "hs": 0,
+      "ds": 0,
+      "gs": 7215,
+      "ps": 0,
+      "cs": 0
+     },
+     "srv": {
+      "vs": {
+       "0": 7212
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {},
+      "cs": {}
+     },
+     "cb": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {},
+      "cs": {}
+     },
+     "samplers": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {},
+      "cs": {}
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 7216,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_POINTLIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 5408,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 5409,
+       "stride": 8,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 5410,
+       "stride": 32,
+       "offset": 0
+      }
+     ],
+     "ib": 0,
+     "blend": 0,
+     "depthstencil": 636,
+     "rasterizer": 0
+    },
+    "args": {
+     "src": 15336,
+     "dst": 20462
+    }
+   }
+  ],
+  "programs": [
+   {
+    "vs": 7214,
+    "ps": 0,
+    "gs": 7215,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7216,
+    "blend": 0,
+    "depthstencil": 5922,
+    "rasterizer": 0,
+    "draws": [
+     1936
+    ],
+    "indices": 461
+   }
+  ],
+  "totalIndices": 461
+ },
+ {
+  "index": 1,
+  "sig": [
+   "compute"
+  ],
+  "rtvViews": [],
+  "dsvView": 0,
+  "viewport": null,
+  "startEvent": 1953,
+  "endEvent": 1995,
+  "draws": [],
+  "dispatches": [
+   1953,
+   1967,
+   1981,
+   1995
+  ],
+  "clears": [],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 2,
+  "sig": [
+   [],
+   0,
+   null
+  ],
+  "rtvViews": [],
+  "dsvView": 0,
+  "viewport": null,
+  "startEvent": 1998,
+  "endEvent": 2564,
+  "draws": [
+   2006,
+   2018,
+   2030,
+   2042,
+   2054,
+   2066,
+   2075,
+   2087,
+   2099,
+   2111,
+   2123,
+   2135,
+   2147,
+   2159,
+   2171,
+   2183,
+   2195,
+   2207,
+   2219,
+   2231,
+   2243,
+   2255,
+   2267,
+   2279,
+   2291,
+   2303,
+   2312,
+   2324,
+   2336,
+   2345,
+   2357,
+   2369,
+   2381,
+   2393,
+   2405,
+   2417,
+   2429,
+   2438,
+   2447,
+   2459,
+   2468,
+   2480,
+   2492,
+   2504,
+   2516,
+   2528,
+   2540,
+   2552,
+   2564
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [
+   {
+    "order": 1999,
+    "chunkIndex": 1998,
+    "kind": "CopyResource",
+    "state": {
+     "rtv": [],
+     "dsv": 0,
+     "viewport": null,
+     "shaders": {
+      "vs": 7214,
+      "hs": 0,
+      "ds": 0,
+      "gs": 7215,
+      "ps": 0,
+      "cs": 8432
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {},
+      "cs": {}
+     },
+     "cb": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {},
+      "cs": {
+       "0": 8433
+      }
+     },
+     "samplers": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {},
+      "cs": {}
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 7216,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_POINTLIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 5408,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 5409,
+       "stride": 8,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 5410,
+       "stride": 32,
+       "offset": 0
+      }
+     ],
+     "ib": 0,
+     "blend": 0,
+     "depthstencil": 636,
+     "rasterizer": 0
+    },
+    "args": {
+     "src": 20462,
+     "dst": 20465
+    }
+   }
+  ],
+  "programs": [
+   {
+    "vs": 8467,
+    "ps": 0,
+    "gs": 8468,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8469,
+    "blend": 0,
+    "depthstencil": 5922,
+    "rasterizer": 0,
+    "draws": [
+     2006
+    ],
+    "indices": 20804
+   },
+   {
+    "vs": 7941,
+    "ps": 0,
+    "gs": 7942,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7943,
+    "blend": 0,
+    "depthstencil": 5922,
+    "rasterizer": 0,
+    "draws": [
+     2018,
+     2066,
+     2075,
+     2099,
+     2135,
+     2159,
+     2207,
+     2243,
+     2267,
+     2417,
+     2480,
+     2552
+    ],
+    "indices": 5647
+   },
+   {
+    "vs": 8747,
+    "ps": 0,
+    "gs": 8748,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8749,
+    "blend": 0,
+    "depthstencil": 5922,
+    "rasterizer": 0,
+    "draws": [
+     2030,
+     2054,
+     2123,
+     2195,
+     2324,
+     2369,
+     2393,
+     2459,
+     2468,
+     2492,
+     2564
+    ],
+    "indices": 10157
+   },
+   {
+    "vs": 7214,
+    "ps": 0,
+    "gs": 7215,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7216,
+    "blend": 0,
+    "depthstencil": 5922,
+    "rasterizer": 0,
+    "draws": [
+     2042,
+     2087,
+     2147,
+     2171,
+     2231,
+     2279,
+     2336,
+     2345,
+     2405,
+     2429,
+     2438,
+     2447,
+     2540
+    ],
+    "indices": 21643
+   },
+   {
+    "vs": 10986,
+    "ps": 0,
+    "gs": 10987,
+    "hs": 0,
+    "ds": 0,
+    "layout": 10988,
+    "blend": 0,
+    "depthstencil": 5922,
+    "rasterizer": 0,
+    "draws": [
+     2111,
+     2255,
+     2528
+    ],
+    "indices": 1769
+   },
+   {
+    "vs": 10995,
+    "ps": 0,
+    "gs": 10996,
+    "hs": 0,
+    "ds": 0,
+    "layout": 10997,
+    "blend": 0,
+    "depthstencil": 5922,
+    "rasterizer": 0,
+    "draws": [
+     2183,
+     2504
+    ],
+    "indices": 1018
+   },
+   {
+    "vs": 11207,
+    "ps": 0,
+    "gs": 11208,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11209,
+    "blend": 0,
+    "depthstencil": 5922,
+    "rasterizer": 0,
+    "draws": [
+     2219,
+     2291,
+     2381
+    ],
+    "indices": 618
+   },
+   {
+    "vs": 11089,
+    "ps": 0,
+    "gs": 11090,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11091,
+    "blend": 0,
+    "depthstencil": 5922,
+    "rasterizer": 0,
+    "draws": [
+     2303,
+     2312
+    ],
+    "indices": 2574
+   },
+   {
+    "vs": 9171,
+    "ps": 0,
+    "gs": 9172,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9173,
+    "blend": 0,
+    "depthstencil": 5922,
+    "rasterizer": 0,
+    "draws": [
+     2357,
+     2516
+    ],
+    "indices": 501
+   }
+  ],
+  "totalIndices": 64731
+ },
+ {
+  "index": 3,
+  "sig": [
+   [
+    683
+   ],
+   687,
+   [
+    0,
+    0,
+    2560,
+    1600
+   ]
+  ],
+  "rtvViews": [
+   684
+  ],
+  "dsvView": 688,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 2560.0,
+   "h": 1600.0
+  },
+  "startEvent": 2581,
+  "endEvent": 2583,
+  "draws": [],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 4,
+  "sig": [
+   "compute"
+  ],
+  "rtvViews": [
+   684
+  ],
+  "dsvView": 688,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 2560.0,
+   "h": 1600.0
+  },
+  "startEvent": 2593,
+  "endEvent": 2613,
+  "draws": [],
+  "dispatches": [
+   2593,
+   2613
+  ],
+  "clears": [],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 5,
+  "sig": [
+   [
+    0
+   ],
+   14816,
+   [
+    0,
+    0,
+    3072,
+    3072
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 14817,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 3072.0,
+   "h": 3072.0
+  },
+  "startEvent": 2618,
+  "endEvent": 2618,
+  "draws": [],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 2619,
+    "chunkIndex": 2618,
+    "kind": "ClearDepthStencilView",
+    "state": {
+     "rtv": [
+      0
+     ],
+     "dsv": 14817,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 3072.0,
+      "h": 3072.0
+     },
+     "shaders": {
+      "vs": 8747,
+      "hs": 0,
+      "ds": 0,
+      "gs": 8748,
+      "ps": 0,
+      "cs": 347
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {},
+      "cs": {}
+     },
+     "cb": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {},
+      "cs": {
+       "0": 360
+      }
+     },
+     "samplers": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {},
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 8749,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_POINTLIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 5424,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 5425,
+       "stride": 8,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 5426,
+       "stride": 4,
+       "offset": 0
+      }
+     ],
+     "ib": 0,
+     "blend": 0,
+     "depthstencil": 636,
+     "rasterizer": 0
+    },
+    "args": {
+     "view": 14817,
+     "depth": "0",
+     "stencil": "0",
+     "flags": "D3D11_CLEAR_DEPTH"
+    }
+   }
+  ],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 6,
+  "sig": [
+   [
+    0
+   ],
+   14816,
+   [
+    0,
+    0,
+    1536,
+    1536
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 14817,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 1536.0,
+   "h": 1536.0
+  },
+  "startEvent": 2639,
+  "endEvent": 2689,
+  "draws": [
+   2639,
+   2643,
+   2664,
+   2673,
+   2679,
+   2689
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 9493,
+    "ps": 9494,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8634,
+    "blend": 44,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     2639
+    ],
+    "indices": 67665
+   },
+   {
+    "vs": 9493,
+    "ps": 9494,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8634,
+    "blend": 44,
+    "depthstencil": 705,
+    "rasterizer": 8524,
+    "draws": [
+     2643
+    ],
+    "indices": 11970
+   },
+   {
+    "vs": 15500,
+    "ps": 15501,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 12777,
+    "blend": 44,
+    "depthstencil": 705,
+    "rasterizer": 8524,
+    "draws": [
+     2664
+    ],
+    "indices": 480
+   },
+   {
+    "vs": 9495,
+    "ps": 9496,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7349,
+    "blend": 44,
+    "depthstencil": 705,
+    "rasterizer": 8524,
+    "draws": [
+     2673
+    ],
+    "indices": 12552
+   },
+   {
+    "vs": 9497,
+    "ps": 9498,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7349,
+    "blend": 44,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     2679
+    ],
+    "indices": 10527
+   },
+   {
+    "vs": 9493,
+    "ps": 9494,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7349,
+    "blend": 44,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     2689
+    ],
+    "indices": 6600
+   }
+  ],
+  "totalIndices": 109794
+ },
+ {
+  "index": 7,
+  "sig": [
+   [
+    0
+   ],
+   9499,
+   [
+    0,
+    0,
+    1536,
+    960
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 9500,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 1536.0,
+   "h": 960.0
+  },
+  "startEvent": 2692,
+  "endEvent": 2703,
+  "draws": [
+   2703
+  ],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 2693,
+    "chunkIndex": 2692,
+    "kind": "ClearDepthStencilView",
+    "state": {
+     "rtv": [
+      0
+     ],
+     "dsv": 9500,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 1536.0,
+      "h": 960.0
+     },
+     "shaders": {
+      "vs": 9493,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 9494,
+      "cs": 347
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 15289,
+       "1": 48,
+       "2": 48
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 692,
+       "1": 181,
+       "2": 182,
+       "3": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 692,
+       "1": 184
+      },
+      "cs": {
+       "0": 360
+      }
+     },
+     "samplers": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 643,
+       "1": 643,
+       "2": 643
+      },
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 7349,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 20485,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 15325,
+       "stride": 8,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 15326,
+       "stride": 4,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 20456,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 15327,
+     "blend": 44,
+     "depthstencil": 705,
+     "rasterizer": 6055
+    },
+    "args": {
+     "view": 9500,
+     "depth": "0",
+     "stencil": "0",
+     "flags": "D3D11_CLEAR_DEPTH"
+    }
+   }
+  ],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 9497,
+    "ps": 9498,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7349,
+    "blend": 44,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     2703
+    ],
+    "indices": 10527
+   }
+  ],
+  "totalIndices": 10527
+ },
+ {
+  "index": 8,
+  "sig": [
+   [
+    9503,
+    9507,
+    9511
+   ],
+   9515,
+   [
+    0,
+    0,
+    3072,
+    1920
+   ]
+  ],
+  "rtvViews": [
+   9504,
+   9508,
+   9512
+  ],
+  "dsvView": 9516,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 3072.0,
+   "h": 1920.0
+  },
+  "startEvent": 2706,
+  "endEvent": 5460,
+  "draws": [
+   2725,
+   2737,
+   2750,
+   2753,
+   2766,
+   2769,
+   2782,
+   2795,
+   2797,
+   2802,
+   2804,
+   2853,
+   2874,
+   2890,
+   2923,
+   2936,
+   2947,
+   2958,
+   2969,
+   2992,
+   3006,
+   3031,
+   3038,
+   3045,
+   3060,
+   3066,
+   3073,
+   3087,
+   3101,
+   3116,
+   3123,
+   3130,
+   3145,
+   3152,
+   3158,
+   3165,
+   3180,
+   3186,
+   3192,
+   3198,
+   3204,
+   3210,
+   3224,
+   3230,
+   3237,
+   3251,
+   3257,
+   3271,
+   3278,
+   3292,
+   3298,
+   3304,
+   3310,
+   3316,
+   3322,
+   3328,
+   3334,
+   3341,
+   3348,
+   3354,
+   3367,
+   3373,
+   3379,
+   3385,
+   3391,
+   3404,
+   3418,
+   3424,
+   3431,
+   3438,
+   3445,
+   3452,
+   3465,
+   3479,
+   3493,
+   3499,
+   3535,
+   3556,
+   3574,
+   3593,
+   3612,
+   3630,
+   3650,
+   3667,
+   3682,
+   3700,
+   3718,
+   3736,
+   3755,
+   3774,
+   3800,
+   3816,
+   3832,
+   3849,
+   3865,
+   3882,
+   3902,
+   3919,
+   3935,
+   3955,
+   3975,
+   3991,
+   4008,
+   4024,
+   4043,
+   4048,
+   4063,
+   4068,
+   4073,
+   4079,
+   4085,
+   4093,
+   4098,
+   4121,
+   4137,
+   4157,
+   4164,
+   4166,
+   4191,
+   4211,
+   4216,
+   4218,
+   4223,
+   4225,
+   4233,
+   4238,
+   4246,
+   4248,
+   4250,
+   4258,
+   4266,
+   4274,
+   4282,
+   4284,
+   4292,
+   4301,
+   4322,
+   4324,
+   4340,
+   4356,
+   4373,
+   4382,
+   4388,
+   4409,
+   4415,
+   4433,
+   4439,
+   4447,
+   4449,
+   4456,
+   4477,
+   4494,
+   4501,
+   4508,
+   4516,
+   4520,
+   4522,
+   4542,
+   4544,
+   4551,
+   4558,
+   4560,
+   4562,
+   4564,
+   4571,
+   4573,
+   4581,
+   4589,
+   4597,
+   4613,
+   4617,
+   4619,
+   4621,
+   4628,
+   4636,
+   4644,
+   4648,
+   4655,
+   4662,
+   4666,
+   4688,
+   4707,
+   4729,
+   4750,
+   4770,
+   4790,
+   4792,
+   4794,
+   4816,
+   4837,
+   4839,
+   4841,
+   4845,
+   4853,
+   4857,
+   4875,
+   4883,
+   4890,
+   4909,
+   4931,
+   4935,
+   4937,
+   4939,
+   4958,
+   4960,
+   4962,
+   4980,
+   4982,
+   4984,
+   5005,
+   5024,
+   5026,
+   5058,
+   5093,
+   5107,
+   5115,
+   5133,
+   5145,
+   5157,
+   5168,
+   5177,
+   5187,
+   5196,
+   5205,
+   5214,
+   5224,
+   5234,
+   5243,
+   5253,
+   5263,
+   5279,
+   5296,
+   5305,
+   5314,
+   5325,
+   5334,
+   5344,
+   5363,
+   5381,
+   5393,
+   5404,
+   5415,
+   5427,
+   5436,
+   5448,
+   5459
+  ],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 2707,
+    "chunkIndex": 2706,
+    "kind": "ClearRenderTargetView",
+    "state": {
+     "rtv": [
+      9504,
+      9508,
+      9512
+     ],
+     "dsv": 9516,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 3072.0,
+      "h": 1920.0
+     },
+     "shaders": {
+      "vs": 9497,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 9498,
+      "cs": 347
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 15289,
+       "1": 48,
+       "2": 48
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 696,
+       "1": 181,
+       "2": 182,
+       "3": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 692,
+       "1": 184
+      },
+      "cs": {
+       "0": 360
+      }
+     },
+     "samplers": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 643,
+       "1": 643,
+       "2": 643
+      },
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 7349,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 20486,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 15345,
+       "stride": 8,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 15346,
+       "stride": 32,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 20472,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 15347,
+     "blend": 44,
+     "depthstencil": 705,
+     "rasterizer": 6055
+    },
+    "args": {
+     "view": 9504,
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   },
+   {
+    "order": 2708,
+    "chunkIndex": 2707,
+    "kind": "ClearRenderTargetView",
+    "state": {
+     "rtv": [
+      9504,
+      9508,
+      9512
+     ],
+     "dsv": 9516,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 3072.0,
+      "h": 1920.0
+     },
+     "shaders": {
+      "vs": 9497,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 9498,
+      "cs": 347
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 15289,
+       "1": 48,
+       "2": 48
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 696,
+       "1": 181,
+       "2": 182,
+       "3": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 692,
+       "1": 184
+      },
+      "cs": {
+       "0": 360
+      }
+     },
+     "samplers": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 643,
+       "1": 643,
+       "2": 643
+      },
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 7349,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 20486,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 15345,
+       "stride": 8,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 15346,
+       "stride": 32,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 20472,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 15347,
+     "blend": 44,
+     "depthstencil": 705,
+     "rasterizer": 6055
+    },
+    "args": {
+     "view": 9508,
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   },
+   {
+    "order": 2709,
+    "chunkIndex": 2708,
+    "kind": "ClearRenderTargetView",
+    "state": {
+     "rtv": [
+      9504,
+      9508,
+      9512
+     ],
+     "dsv": 9516,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 3072.0,
+      "h": 1920.0
+     },
+     "shaders": {
+      "vs": 9497,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 9498,
+      "cs": 347
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 15289,
+       "1": 48,
+       "2": 48
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 696,
+       "1": 181,
+       "2": 182,
+       "3": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 692,
+       "1": 184
+      },
+      "cs": {
+       "0": 360
+      }
+     },
+     "samplers": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 643,
+       "1": 643,
+       "2": 643
+      },
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 7349,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 20486,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 15345,
+       "stride": 8,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 15346,
+       "stride": 32,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 20472,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 15347,
+     "blend": 44,
+     "depthstencil": 705,
+     "rasterizer": 6055
+    },
+    "args": {
+     "view": 9512,
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   },
+   {
+    "order": 2710,
+    "chunkIndex": 2709,
+    "kind": "ClearDepthStencilView",
+    "state": {
+     "rtv": [
+      9504,
+      9508,
+      9512
+     ],
+     "dsv": 9516,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 3072.0,
+      "h": 1920.0
+     },
+     "shaders": {
+      "vs": 9497,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 9498,
+      "cs": 347
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 15289,
+       "1": 48,
+       "2": 48
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 696,
+       "1": 181,
+       "2": 182,
+       "3": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 692,
+       "1": 184
+      },
+      "cs": {
+       "0": 360
+      }
+     },
+     "samplers": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 643,
+       "1": 643,
+       "2": 643
+      },
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 7349,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 20486,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 15345,
+       "stride": 8,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 15346,
+       "stride": 32,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 20472,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 15347,
+     "blend": 44,
+     "depthstencil": 705,
+     "rasterizer": 6055
+    },
+    "args": {
+     "view": 9516,
+     "depth": "0",
+     "stencil": "0",
+     "flags": "D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL"
+    }
+   }
+  ],
+  "copies": [
+   {
+    "order": 5461,
+    "chunkIndex": 5460,
+    "kind": "CopyResource",
+    "state": {
+     "rtv": [
+      9504,
+      9508,
+      9512
+     ],
+     "dsv": 9516,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 3072.0,
+      "h": 1920.0
+     },
+     "shaders": {
+      "vs": 8515,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 8517,
+      "cs": 347
+     },
+     "srv": {
+      "vs": {
+       "0": 1453
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 1453,
+       "1": 16827,
+       "2": 1453,
+       "3": 16827,
+       "4": 15316,
+       "5": 1453,
+       "6": 16827
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 7046,
+       "1": 184,
+       "2": 181,
+       "3": 182,
+       "4": 191,
+       "5": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 7046,
+       "1": 184,
+       "2": 220,
+       "3": 193,
+       "4": 191
+      },
+      "cs": {
+       "0": 360
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 456
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 456,
+       "1": 456,
+       "2": 456,
+       "4": 643,
+       "5": 456,
+       "6": 456,
+       "7": 456,
+       "8": 635,
+       "3": 643
+      },
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 12836,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 43598,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 8910,
+       "stride": 12,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 8911,
+       "stride": 32,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 43618,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 8912,
+     "blend": 44,
+     "depthstencil": 1935,
+     "rasterizer": 8543
+    },
+    "args": {
+     "src": 9515,
+     "dst": 514
+    }
+   }
+  ],
+  "programs": [
+   {
+    "vs": 5534,
+    "ps": 5535,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1297,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     2725,
+     2737,
+     2766,
+     2769,
+     2795,
+     2797,
+     2802,
+     2804
+    ],
+    "indices": 28494
+   },
+   {
+    "vs": 5534,
+    "ps": 5535,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5979,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     2750,
+     2753,
+     2782
+    ],
+    "indices": 18084
+   },
+   {
+    "vs": 15510,
+    "ps": 20074,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 12777,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     2853
+    ],
+    "indices": 480
+   },
+   {
+    "vs": 8531,
+    "ps": 8534,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8634,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     2874
+    ],
+    "indices": 67665
+   },
+   {
+    "vs": 8531,
+    "ps": 8537,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8634,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     2890
+    ],
+    "indices": 11970
+   },
+   {
+    "vs": 8476,
+    "ps": 8484,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8526,
+    "blend": 44,
+    "depthstencil": 8527,
+    "rasterizer": 1289,
+    "draws": [
+     2923
+    ],
+    "indices": 12552
+   },
+   {
+    "vs": 8492,
+    "ps": 8499,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8526,
+    "blend": 140,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     2936
+    ],
+    "indices": 12552
+   },
+   {
+    "vs": 8506,
+    "ps": 8510,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 14994,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     2947
+    ],
+    "indices": 126
+   },
+   {
+    "vs": 8514,
+    "ps": 8516,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7349,
+    "blend": 7306,
+    "depthstencil": 1342,
+    "rasterizer": 1289,
+    "draws": [
+     2958
+    ],
+    "indices": 180
+   },
+   {
+    "vs": 8519,
+    "ps": 8521,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8632,
+    "blend": 7306,
+    "depthstencil": 8533,
+    "rasterizer": 1289,
+    "draws": [
+     2969
+    ],
+    "indices": 180
+   },
+   {
+    "vs": 8523,
+    "ps": 8525,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8633,
+    "blend": 44,
+    "depthstencil": 8536,
+    "rasterizer": 1289,
+    "draws": [
+     2992
+    ],
+    "indices": 10527
+   },
+   {
+    "vs": 8528,
+    "ps": 8529,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8633,
+    "blend": 695,
+    "depthstencil": 8538,
+    "rasterizer": 1289,
+    "draws": [
+     3006
+    ],
+    "indices": 10527
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7099,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 7100,
+    "draws": [
+     3031,
+     3045
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7103,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 7100,
+    "draws": [
+     3038
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7103,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3060,
+     3066,
+     3087,
+     3180,
+     3186,
+     3192,
+     3198,
+     3204,
+     3210,
+     3292,
+     3298,
+     3304,
+     3310,
+     3316,
+     3322,
+     3328,
+     3334,
+     3348,
+     3354,
+     3367,
+     3373,
+     3379,
+     3385,
+     3391,
+     3404
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7099,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3073,
+     3237,
+     3278,
+     3341,
+     3452,
+     3465,
+     3493,
+     3499
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7105,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3101,
+     3251,
+     3257
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7103,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 7107,
+    "draws": [
+     3116,
+     3130
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7108,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 7107,
+    "draws": [
+     3123
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7099,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 7109,
+    "draws": [
+     3145,
+     3165
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7103,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 7109,
+    "draws": [
+     3152,
+     3158
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7111,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3224,
+     3230
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7108,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3271
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7114,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3418,
+     3424,
+     3438
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7113,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3431,
+     3445
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7082,
+    "ps": 7097,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8706,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3479
+    ],
+    "indices": 0
+   },
+   {
+    "vs": 7226,
+    "ps": 8750,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7349,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     3535,
+     3736
+    ],
+    "indices": 11532
+   },
+   {
+    "vs": 7226,
+    "ps": 7229,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11070,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3556
+    ],
+    "indices": 7269
+   },
+   {
+    "vs": 7226,
+    "ps": 7229,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7349,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3574,
+     3612,
+     3774
+    ],
+    "indices": 15996
+   },
+   {
+    "vs": 7226,
+    "ps": 7229,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7349,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     3593,
+     3650,
+     3667,
+     3682,
+     3718
+    ],
+    "indices": 29268
+   },
+   {
+    "vs": 7226,
+    "ps": 8750,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7349,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3630
+    ],
+    "indices": 5580
+   },
+   {
+    "vs": 7226,
+    "ps": 7229,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11070,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     3700,
+     3755
+    ],
+    "indices": 3168
+   },
+   {
+    "vs": 8477,
+    "ps": 8485,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8540,
+    "blend": 44,
+    "depthstencil": 8527,
+    "rasterizer": 1289,
+    "draws": [
+     3800,
+     3816,
+     3832,
+     3882
+    ],
+    "indices": 10884
+   },
+   {
+    "vs": 8477,
+    "ps": 8485,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8526,
+    "blend": 44,
+    "depthstencil": 8527,
+    "rasterizer": 1289,
+    "draws": [
+     3849,
+     3865
+    ],
+    "indices": 3804
+   },
+   {
+    "vs": 8493,
+    "ps": 8500,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 7349,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3902
+    ],
+    "indices": 3081
+   },
+   {
+    "vs": 8493,
+    "ps": 8500,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11212,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3919,
+     3935
+    ],
+    "indices": 5436
+   },
+   {
+    "vs": 8493,
+    "ps": 12402,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9689,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     3955
+    ],
+    "indices": 1395
+   },
+   {
+    "vs": 8493,
+    "ps": 8500,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11275,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     3975,
+     3991
+    ],
+    "indices": 1338
+   },
+   {
+    "vs": 8493,
+    "ps": 8500,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9689,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     4008,
+     4024
+    ],
+    "indices": 798
+   },
+   {
+    "vs": 5971,
+    "ps": 5972,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1290,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     4043,
+     4048,
+     4063,
+     4068,
+     4073,
+     4079,
+     4085,
+     4157,
+     4164,
+     4166,
+     4216,
+     4218,
+     4223,
+     4225,
+     4246,
+     4248,
+     4250,
+     4282,
+     4284,
+     4292,
+     4433,
+     4439,
+     4447,
+     4449,
+     4456,
+     4542,
+     4544,
+     4551,
+     4558,
+     4560,
+     4562,
+     4564,
+     4571,
+     4573,
+     4589,
+     4644,
+     4648,
+     4655,
+     4662,
+     4666
+    ],
+    "indices": 129591
+   },
+   {
+    "vs": 5971,
+    "ps": 5972,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 6059,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     4093,
+     4098,
+     4211,
+     4266,
+     4409,
+     4415
+    ],
+    "indices": 12867
+   },
+   {
+    "vs": 5967,
+    "ps": 5969,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1297,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     4121,
+     4137,
+     4322,
+     4324,
+     4340,
+     4356,
+     4373,
+     4494,
+     4501,
+     4508
+    ],
+    "indices": 32652
+   },
+   {
+    "vs": 5975,
+    "ps": 5976,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5979,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     4191
+    ],
+    "indices": 15000
+   },
+   {
+    "vs": 5971,
+    "ps": 5972,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5974,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     4233,
+     4238,
+     4258,
+     4274,
+     4301,
+     4581,
+     4613,
+     4617,
+     4619,
+     4621,
+     4628
+    ],
+    "indices": 39822
+   },
+   {
+    "vs": 5967,
+    "ps": 5969,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5979,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     4382,
+     4388,
+     4477,
+     4707
+    ],
+    "indices": 34662
+   },
+   {
+    "vs": 5967,
+    "ps": 5969,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8675,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     4516,
+     4520,
+     4522
+    ],
+    "indices": 17508
+   },
+   {
+    "vs": 5971,
+    "ps": 5972,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1299,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     4597,
+     4636
+    ],
+    "indices": 204
+   },
+   {
+    "vs": 6713,
+    "ps": 6715,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1290,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     4688
+    ],
+    "indices": 22764
+   },
+   {
+    "vs": 5971,
+    "ps": 5972,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1290,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     4729,
+     4790,
+     4792,
+     4794
+    ],
+    "indices": 36072
+   },
+   {
+    "vs": 5967,
+    "ps": 5969,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1297,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     4750,
+     4909,
+     5024,
+     5026
+    ],
+    "indices": 20820
+   },
+   {
+    "vs": 5975,
+    "ps": 5976,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1297,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     4770,
+     4853,
+     4857,
+     4875
+    ],
+    "indices": 28071
+   },
+   {
+    "vs": 6713,
+    "ps": 6715,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1290,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     4816,
+     5005
+    ],
+    "indices": 5892
+   },
+   {
+    "vs": 5975,
+    "ps": 5976,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5979,
+    "blend": 44,
+    "depthstencil": 5978,
+    "rasterizer": 531,
+    "draws": [
+     4837,
+     4839,
+     4841,
+     4845,
+     4883,
+     4890,
+     4931,
+     4935,
+     4937,
+     4939,
+     4958,
+     4960,
+     4962,
+     4980,
+     4982,
+     4984
+    ],
+    "indices": 87867
+   },
+   {
+    "vs": 1745,
+    "ps": 1747,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1749,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1750,
+    "draws": [
+     5058
+    ],
+    "indices": 15360
+   },
+   {
+    "vs": 15506,
+    "ps": 15509,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 12769,
+    "blend": 44,
+    "depthstencil": 1935,
+    "rasterizer": 1335,
+    "draws": [
+     5093
+    ],
+    "indices": 480
+   },
+   {
+    "vs": 8520,
+    "ps": 8522,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8547,
+    "blend": 44,
+    "depthstencil": 1935,
+    "rasterizer": 1335,
+    "draws": [
+     5107,
+     5115
+    ],
+    "indices": 79635
+   },
+   {
+    "vs": 8478,
+    "ps": 8487,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8542,
+    "blend": 44,
+    "depthstencil": 1935,
+    "rasterizer": 1335,
+    "draws": [
+     5133,
+     5157,
+     5168,
+     5177
+    ],
+    "indices": 34872
+   },
+   {
+    "vs": 8478,
+    "ps": 8487,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11063,
+    "blend": 44,
+    "depthstencil": 1935,
+    "rasterizer": 1335,
+    "draws": [
+     5145
+    ],
+    "indices": 7269
+   },
+   {
+    "vs": 8478,
+    "ps": 8487,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8542,
+    "blend": 44,
+    "depthstencil": 1935,
+    "rasterizer": 8543,
+    "draws": [
+     5187,
+     5196,
+     5205,
+     5214,
+     5234,
+     5243,
+     5263
+    ],
+    "indices": 27504
+   },
+   {
+    "vs": 8478,
+    "ps": 8487,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11063,
+    "blend": 44,
+    "depthstencil": 1935,
+    "rasterizer": 8543,
+    "draws": [
+     5224,
+     5253
+    ],
+    "indices": 3168
+   },
+   {
+    "vs": 8496,
+    "ps": 8503,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8544,
+    "blend": 44,
+    "depthstencil": 8545,
+    "rasterizer": 1335,
+    "draws": [
+     5279
+    ],
+    "indices": 12552
+   },
+   {
+    "vs": 11210,
+    "ps": 11211,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11214,
+    "blend": 44,
+    "depthstencil": 8545,
+    "rasterizer": 1335,
+    "draws": [
+     5296,
+     5305,
+     5314
+    ],
+    "indices": 10374
+   },
+   {
+    "vs": 11210,
+    "ps": 11211,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8544,
+    "blend": 44,
+    "depthstencil": 8545,
+    "rasterizer": 8543,
+    "draws": [
+     5325,
+     5334
+    ],
+    "indices": 3804
+   },
+   {
+    "vs": 11210,
+    "ps": 11211,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11214,
+    "blend": 44,
+    "depthstencil": 8545,
+    "rasterizer": 8543,
+    "draws": [
+     5344
+    ],
+    "indices": 510
+   },
+   {
+    "vs": 8509,
+    "ps": 8513,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8542,
+    "blend": 44,
+    "depthstencil": 8545,
+    "rasterizer": 1335,
+    "draws": [
+     5363
+    ],
+    "indices": 10527
+   },
+   {
+    "vs": 8515,
+    "ps": 8517,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8542,
+    "blend": 44,
+    "depthstencil": 1935,
+    "rasterizer": 1335,
+    "draws": [
+     5381
+    ],
+    "indices": 3081
+   },
+   {
+    "vs": 8515,
+    "ps": 8517,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11215,
+    "blend": 44,
+    "depthstencil": 1935,
+    "rasterizer": 1335,
+    "draws": [
+     5393,
+     5404
+    ],
+    "indices": 5436
+   },
+   {
+    "vs": 8515,
+    "ps": 8517,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 12836,
+    "blend": 44,
+    "depthstencil": 1935,
+    "rasterizer": 8543,
+    "draws": [
+     5415,
+     5448,
+     5459
+    ],
+    "indices": 2193
+   },
+   {
+    "vs": 8515,
+    "ps": 8517,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11216,
+    "blend": 44,
+    "depthstencil": 1935,
+    "rasterizer": 8543,
+    "draws": [
+     5427,
+     5436
+    ],
+    "indices": 1338
+   }
+  ],
+  "totalIndices": 974781
+ },
+ {
+  "index": 9,
+  "sig": [
+   [
+    9529
+   ],
+   9525,
+   [
+    0,
+    0,
+    1536,
+    960
+   ]
+  ],
+  "rtvViews": [
+   9530
+  ],
+  "dsvView": 9526,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 1536.0,
+   "h": 960.0
+  },
+  "startEvent": 5463,
+  "endEvent": 5486,
+  "draws": [
+   5477,
+   5486
+  ],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 5464,
+    "chunkIndex": 5463,
+    "kind": "ClearRenderTargetView",
+    "state": {
+     "rtv": [
+      9530
+     ],
+     "dsv": 9526,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 1536.0,
+      "h": 960.0
+     },
+     "shaders": {
+      "vs": 8515,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 8517,
+      "cs": 347
+     },
+     "srv": {
+      "vs": {
+       "0": 1453
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 1453,
+       "1": 16827,
+       "2": 1453,
+       "3": 16827,
+       "4": 15316,
+       "5": 1453,
+       "6": 16827
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 7046,
+       "1": 184,
+       "2": 181,
+       "3": 182,
+       "4": 191,
+       "5": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 7046,
+       "1": 184,
+       "2": 220,
+       "3": 193,
+       "4": 191
+      },
+      "cs": {
+       "0": 360
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 456
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 456,
+       "1": 456,
+       "2": 456,
+       "4": 643,
+       "5": 456,
+       "6": 456,
+       "7": 456,
+       "8": 635,
+       "3": 643
+      },
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 12836,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 43598,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 8910,
+       "stride": 12,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 8911,
+       "stride": 32,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 43618,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 8912,
+     "blend": 44,
+     "depthstencil": 1935,
+     "rasterizer": 8543
+    },
+    "args": {
+     "view": 9530,
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   },
+   {
+    "order": 5465,
+    "chunkIndex": 5464,
+    "kind": "ClearDepthStencilView",
+    "state": {
+     "rtv": [
+      9530
+     ],
+     "dsv": 9526,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 1536.0,
+      "h": 960.0
+     },
+     "shaders": {
+      "vs": 8515,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 8517,
+      "cs": 347
+     },
+     "srv": {
+      "vs": {
+       "0": 1453
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 1453,
+       "1": 16827,
+       "2": 1453,
+       "3": 16827,
+       "4": 15316,
+       "5": 1453,
+       "6": 16827
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 7046,
+       "1": 184,
+       "2": 181,
+       "3": 182,
+       "4": 191,
+       "5": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 7046,
+       "1": 184,
+       "2": 220,
+       "3": 193,
+       "4": 191
+      },
+      "cs": {
+       "0": 360
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 456
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 456,
+       "1": 456,
+       "2": 456,
+       "4": 643,
+       "5": 456,
+       "6": 456,
+       "7": 456,
+       "8": 635,
+       "3": 643
+      },
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 12836,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 43598,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 8910,
+       "stride": 12,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 8911,
+       "stride": 32,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 43618,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 8912,
+     "blend": 44,
+     "depthstencil": 1935,
+     "rasterizer": 8543
+    },
+    "args": {
+     "view": 9526,
+     "depth": "0",
+     "stencil": "0",
+     "flags": "D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL"
+    }
+   }
+  ],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 526,
+    "ps": 527,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 206,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     5477
+    ],
+    "indices": 3
+   },
+   {
+    "vs": 532,
+    "ps": 533,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 140,
+    "depthstencil": 534,
+    "rasterizer": 531,
+    "draws": [
+     5486
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 6
+ },
+ {
+  "index": 10,
+  "sig": [
+   "compute"
+  ],
+  "rtvViews": [
+   9530
+  ],
+  "dsvView": 9526,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 1536.0,
+   "h": 960.0
+  },
+  "startEvent": 5506,
+  "endEvent": 5575,
+  "draws": [],
+  "dispatches": [
+   5506,
+   5520,
+   5533,
+   5547,
+   5560,
+   5575
+  ],
+  "clears": [],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 11,
+  "sig": [
+   [
+    9529
+   ],
+   9525,
+   [
+    0,
+    0,
+    1536,
+    960
+   ]
+  ],
+  "rtvViews": [
+   9530
+  ],
+  "dsvView": 9526,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 1536.0,
+   "h": 960.0
+  },
+  "startEvent": 5578,
+  "endEvent": 5579,
+  "draws": [],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 12,
+  "sig": [
+   [
+    17656
+   ],
+   0,
+   [
+    0,
+    0,
+    128,
+    128
+   ]
+  ],
+  "rtvViews": [
+   17657
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 128.0,
+   "h": 128.0
+  },
+  "startEvent": 5596,
+  "endEvent": 5597,
+  "draws": [
+   5596
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [
+   {
+    "order": 5598,
+    "chunkIndex": 5597,
+    "kind": "CopySubresourceRegion",
+    "state": {
+     "rtv": [
+      17657
+     ],
+     "dsv": 0,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 128.0,
+      "h": 128.0
+     },
+     "shaders": {
+      "vs": 2034,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 2035,
+      "cs": 385
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 558,
+       "1": 15755,
+       "2": 15759
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 184,
+       "1": 184,
+       "2": 181,
+       "3": 182,
+       "4": 191,
+       "5": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 221,
+       "1": 181,
+       "2": 220,
+       "3": 193,
+       "4": 191
+      },
+      "cs": {
+       "0": 386
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 456
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 528,
+       "1": 528,
+       "2": 528,
+       "4": 643,
+       "5": 456,
+       "6": 456,
+       "7": 456,
+       "8": 635,
+       "3": 643
+      },
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 529,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 96,
+       "stride": 12,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 97,
+     "blend": 44,
+     "depthstencil": 636,
+     "rasterizer": 531
+    },
+    "args": {
+     "src": 17656,
+     "dst": 43946,
+     "dstSub": 0
+    }
+   }
+  ],
+  "programs": [
+   {
+    "vs": 2034,
+    "ps": 2035,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     5596
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 13,
+  "sig": [
+   "compute"
+  ],
+  "rtvViews": [
+   17657
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 128.0,
+   "h": 128.0
+  },
+  "startEvent": 5614,
+  "endEvent": 5614,
+  "draws": [],
+  "dispatches": [
+   5614
+  ],
+  "clears": [],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 14,
+  "sig": [
+   [
+    17656
+   ],
+   0,
+   [
+    0,
+    0,
+    128,
+    128
+   ]
+  ],
+  "rtvViews": [
+   17657
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 128.0,
+   "h": 128.0
+  },
+  "startEvent": 5617,
+  "endEvent": 5620,
+  "draws": [],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 15,
+  "sig": [
+   "compute"
+  ],
+  "rtvViews": [
+   17657
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 128.0,
+   "h": 128.0
+  },
+  "startEvent": 5634,
+  "endEvent": 5634,
+  "draws": [],
+  "dispatches": [
+   5634
+  ],
+  "clears": [],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 16,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    0,
+    0,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 5657,
+  "endEvent": 5776,
+  "draws": [
+   5657,
+   5675,
+   5679,
+   5693,
+   5709,
+   5721,
+   5734,
+   5749,
+   5761,
+   5776
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     5657
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7227,
+    "ps": 7230,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9692,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5675
+    ],
+    "indices": 67665
+   },
+   {
+    "vs": 7227,
+    "ps": 7230,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9692,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 8524,
+    "draws": [
+     5679
+    ],
+    "indices": 11970
+   },
+   {
+    "vs": 15313,
+    "ps": 15317,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 15566,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 8524,
+    "draws": [
+     5693
+    ],
+    "indices": 480
+   },
+   {
+    "vs": 7232,
+    "ps": 7236,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8632,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5709
+    ],
+    "indices": 12552
+   },
+   {
+    "vs": 8506,
+    "ps": 8510,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 14994,
+    "blend": 44,
+    "depthstencil": 1288,
+    "rasterizer": 1289,
+    "draws": [
+     5721
+    ],
+    "indices": 126
+   },
+   {
+    "vs": 697,
+    "ps": 698,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9693,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5734
+    ],
+    "indices": 10527
+   },
+   {
+    "vs": 15502,
+    "ps": 15503,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 15567,
+    "blend": 213,
+    "depthstencil": 15533,
+    "rasterizer": 1289,
+    "draws": [
+     5749
+    ],
+    "indices": 1056
+   },
+   {
+    "vs": 15505,
+    "ps": 15507,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 15568,
+    "blend": 213,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     5761
+    ],
+    "indices": 1056
+   },
+   {
+    "vs": 7227,
+    "ps": 7230,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9693,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5776
+    ],
+    "indices": 6600
+   }
+  ],
+  "totalIndices": 112038
+ },
+ {
+  "index": 17,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    512,
+    0,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 512.0,
+   "y": 0.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 5791,
+  "endEvent": 5828,
+  "draws": [
+   5791,
+   5803,
+   5813,
+   5819,
+   5828
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     5791
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7052,
+    "ps": 7053,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5803,
+     5828
+    ],
+    "indices": 14484
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5813
+    ],
+    "indices": 3510
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11219,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5819
+    ],
+    "indices": 2946
+   }
+  ],
+  "totalIndices": 20946
+ },
+ {
+  "index": 18,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    1024,
+    0,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 1024.0,
+   "y": 0.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 5843,
+  "endEvent": 5869,
+  "draws": [
+   5843,
+   5857,
+   5865,
+   5869
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     5843
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7052,
+    "ps": 7053,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5857
+    ],
+    "indices": 9948
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5865
+    ],
+    "indices": 3432
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11219,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5869
+    ],
+    "indices": 2490
+   }
+  ],
+  "totalIndices": 15876
+ },
+ {
+  "index": 19,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    0,
+    512,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 0.0,
+   "y": 512.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 5884,
+  "endEvent": 5921,
+  "draws": [
+   5884,
+   5896,
+   5906,
+   5912,
+   5921
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     5884
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7052,
+    "ps": 7053,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5896,
+     5921
+    ],
+    "indices": 13698
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5906
+    ],
+    "indices": 5178
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11219,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5912
+    ],
+    "indices": 1917
+   }
+  ],
+  "totalIndices": 20799
+ },
+ {
+  "index": 20,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    512,
+    512,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 512.0,
+   "y": 512.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 5936,
+  "endEvent": 5969,
+  "draws": [
+   5936,
+   5950,
+   5958,
+   5961,
+   5969
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     5936
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7052,
+    "ps": 7053,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5950,
+     5969
+    ],
+    "indices": 17709
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5958,
+     5961
+    ],
+    "indices": 6513
+   }
+  ],
+  "totalIndices": 24228
+ },
+ {
+  "index": 21,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    1024,
+    512,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 1024.0,
+   "y": 512.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 5984,
+  "endEvent": 6021,
+  "draws": [
+   5984,
+   5998,
+   6008,
+   6013,
+   6021
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     5984
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7052,
+    "ps": 7053,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     5998,
+     6021
+    ],
+    "indices": 7962
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6008,
+     6013
+    ],
+    "indices": 5466
+   }
+  ],
+  "totalIndices": 13434
+ },
+ {
+  "index": 22,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    0,
+    1024,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 0.0,
+   "y": 1024.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 6036,
+  "endEvent": 6075,
+  "draws": [
+   6036,
+   6050,
+   6060,
+   6066,
+   6075
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     6036
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7052,
+    "ps": 7053,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6050,
+     6075
+    ],
+    "indices": 7554
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6060
+    ],
+    "indices": 2811
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11281,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6066
+    ],
+    "indices": 1119
+   }
+  ],
+  "totalIndices": 11490
+ },
+ {
+  "index": 23,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    512,
+    1024,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 512.0,
+   "y": 1024.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 6090,
+  "endEvent": 6120,
+  "draws": [
+   6090,
+   6104,
+   6114,
+   6120
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     6090
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7052,
+    "ps": 7053,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6104
+    ],
+    "indices": 5694
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6114
+    ],
+    "indices": 1932
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11281,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6120
+    ],
+    "indices": 1044
+   }
+  ],
+  "totalIndices": 8676
+ },
+ {
+  "index": 24,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    512,
+    1536,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 512.0,
+   "y": 1536.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 6135,
+  "endEvent": 6163,
+  "draws": [
+   6135,
+   6147,
+   6157,
+   6163
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     6135
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7052,
+    "ps": 7053,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6147
+    ],
+    "indices": 1656
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6157
+    ],
+    "indices": 510
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11281,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6163
+    ],
+    "indices": 294
+   }
+  ],
+  "totalIndices": 2466
+ },
+ {
+  "index": 25,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    1024,
+    1536,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 1024.0,
+   "y": 1536.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 6178,
+  "endEvent": 6209,
+  "draws": [
+   6178,
+   6190,
+   6198,
+   6201,
+   6209
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     6178
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7052,
+    "ps": 7053,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6190,
+     6209
+    ],
+    "indices": 2736
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6198,
+     6201
+    ],
+    "indices": 1014
+   }
+  ],
+  "totalIndices": 3756
+ },
+ {
+  "index": 26,
+  "sig": [
+   [
+    0
+   ],
+   18188,
+   [
+    0,
+    2048,
+    512,
+    512
+   ]
+  ],
+  "rtvViews": [
+   0
+  ],
+  "dsvView": 18189,
+  "viewport": {
+   "x": 0.0,
+   "y": 2048.0,
+   "w": 512.0,
+   "h": 512.0
+  },
+  "startEvent": 6224,
+  "endEvent": 6249,
+  "draws": [
+   6224,
+   6238,
+   6246,
+   6249
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 11591,
+    "ps": 11592,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11593,
+    "blend": 140,
+    "depthstencil": 530,
+    "rasterizer": 531,
+    "draws": [
+     6224
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 7052,
+    "ps": 7053,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6238
+    ],
+    "indices": 1584
+   },
+   {
+    "vs": 7054,
+    "ps": 7055,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11048,
+    "blend": 140,
+    "depthstencil": 705,
+    "rasterizer": 6055,
+    "draws": [
+     6246,
+     6249
+    ],
+    "indices": 744
+   }
+  ],
+  "totalIndices": 2334
+ },
+ {
+  "index": 27,
+  "sig": [
+   [
+    9580
+   ],
+   9515,
+   [
+    0,
+    0,
+    3072,
+    1920
+   ]
+  ],
+  "rtvViews": [
+   9581
+  ],
+  "dsvView": 9516,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 3072.0,
+   "h": 1920.0
+  },
+  "startEvent": 6252,
+  "endEvent": 6535,
+  "draws": [
+   6270,
+   6284,
+   6295,
+   6305,
+   6315,
+   6325,
+   6335,
+   6345,
+   6355,
+   6365,
+   6375,
+   6385,
+   6395,
+   6405,
+   6415,
+   6425,
+   6435,
+   6445,
+   6455,
+   6465,
+   6475,
+   6485,
+   6495,
+   6505,
+   6515,
+   6525,
+   6535
+  ],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 6253,
+    "chunkIndex": 6252,
+    "kind": "ClearRenderTargetView",
+    "state": {
+     "rtv": [
+      9581
+     ],
+     "dsv": 9516,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 3072.0,
+      "h": 1920.0
+     },
+     "shaders": {
+      "vs": 7054,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 7055,
+      "cs": 392
+     },
+     "srv": {
+      "vs": {
+       "0": 15309
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 48,
+       "1": 48
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 693,
+       "1": 182,
+       "2": 182,
+       "3": 220,
+       "4": 220,
+       "5": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 1104,
+       "1": 191,
+       "2": 220,
+       "3": 193,
+       "4": 191
+      },
+      "cs": {
+       "0": 394,
+       "1": 395
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 643
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 643,
+       "1": 643,
+       "2": 528,
+       "4": 643,
+       "5": 456,
+       "6": 456,
+       "7": 456,
+       "8": 635,
+       "3": 643
+      },
+      "cs": {
+       "0": 528
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 11048,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 43598,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 8910,
+       "stride": 12,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 8911,
+       "stride": 32,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 43618,
+       "stride": 40,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 8912,
+     "blend": 140,
+     "depthstencil": 705,
+     "rasterizer": 6055
+    },
+    "args": {
+     "view": 9581,
+     "color": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    }
+   }
+  ],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 9522,
+    "ps": 9523,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 197,
+    "depthstencil": 636,
+    "rasterizer": 1335,
+    "draws": [
+     6270
+    ],
+    "indices": 3
+   },
+   {
+    "vs": 9524,
+    "ps": 9533,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9585,
+    "blend": 140,
+    "depthstencil": 8555,
+    "rasterizer": 1289,
+    "draws": [
+     6284,
+     6305,
+     6325,
+     6345,
+     6365,
+     6385,
+     6405,
+     6425,
+     6445,
+     6465,
+     6485,
+     6505,
+     6525
+    ],
+    "indices": 468
+   },
+   {
+    "vs": 9565,
+    "ps": 9570,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9585,
+    "blend": 196,
+    "depthstencil": 9586,
+    "rasterizer": 1335,
+    "draws": [
+     6295,
+     6315,
+     6335,
+     6355,
+     6375,
+     6395,
+     6415,
+     6435,
+     6455,
+     6475,
+     6495,
+     6515,
+     6535
+    ],
+    "indices": 468
+   }
+  ],
+  "totalIndices": 939
+ },
+ {
+  "index": 28,
+  "sig": [
+   "compute"
+  ],
+  "rtvViews": [
+   684
+  ],
+  "dsvView": 688,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 1536.0,
+   "h": 960.0
+  },
+  "startEvent": 6563,
+  "endEvent": 6613,
+  "draws": [],
+  "dispatches": [
+   6563,
+   6583,
+   6598,
+   6613
+  ],
+  "clears": [],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 29,
+  "sig": [
+   [
+    15780
+   ],
+   9515,
+   [
+    0,
+    0,
+    3072,
+    1920
+   ]
+  ],
+  "rtvViews": [
+   15781
+  ],
+  "dsvView": 9516,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 3072.0,
+   "h": 1920.0
+  },
+  "startEvent": 6620,
+  "endEvent": 6648,
+  "draws": [
+   6631,
+   6648
+  ],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 6621,
+    "chunkIndex": 6620,
+    "kind": "ClearRenderTargetView",
+    "state": {
+     "rtv": [
+      15781
+     ],
+     "dsv": 9516,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 3072.0,
+      "h": 1920.0
+     },
+     "shaders": {
+      "vs": 9565,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 9570,
+      "cs": 259
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {},
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 181,
+       "1": 182,
+       "2": 182,
+       "3": 220,
+       "4": 220,
+       "5": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 194,
+       "1": 184,
+       "2": 193,
+       "3": 193,
+       "4": 191
+      },
+      "cs": {
+       "0": 262,
+       "1": 263,
+       "2": 264,
+       "3": 265
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 643
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 528,
+       "1": 635,
+       "2": 528,
+       "4": 643,
+       "5": 456,
+       "6": 456,
+       "7": 456,
+       "8": 635,
+       "3": 643
+      },
+      "cs": {
+       "0": 528,
+       "1": 528,
+       "2": 456
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 9585,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 100,
+       "stride": 24,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 101,
+     "blend": 196,
+     "depthstencil": 9586,
+     "rasterizer": 1335
+    },
+    "args": {
+     "view": 15781,
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   }
+  ],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 3387,
+    "ps": 3417,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1302,
+    "blend": 234,
+    "depthstencil": 1303,
+    "rasterizer": 1289,
+    "draws": [
+     6631
+    ],
+    "indices": 36
+   },
+   {
+    "vs": 3418,
+    "ps": 3419,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1302,
+    "blend": 235,
+    "depthstencil": 3420,
+    "rasterizer": 1335,
+    "draws": [
+     6648
+    ],
+    "indices": 36
+   }
+  ],
+  "totalIndices": 72
+ },
+ {
+  "index": 30,
+  "sig": [
+   [
+    9596
+   ],
+   514,
+   [
+    0,
+    0,
+    3072,
+    1920
+   ]
+  ],
+  "rtvViews": [
+   9597
+  ],
+  "dsvView": 515,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 3072.0,
+   "h": 1920.0
+  },
+  "startEvent": 6652,
+  "endEvent": 6675,
+  "draws": [
+   6675
+  ],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 6653,
+    "chunkIndex": 6652,
+    "kind": "ClearRenderTargetView",
+    "state": {
+     "rtv": [
+      9597
+     ],
+     "dsv": 515,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 3072.0,
+      "h": 1920.0
+     },
+     "shaders": {
+      "vs": 3418,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 3419,
+      "cs": 259
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 9510,
+       "2": 2208,
+       "3": 50
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 181,
+       "1": 182,
+       "2": 182,
+       "3": 220,
+       "4": 220,
+       "5": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 228,
+       "1": 184,
+       "2": 193,
+       "3": 193,
+       "4": 191
+      },
+      "cs": {
+       "0": 262,
+       "1": 263,
+       "2": 264,
+       "3": 265
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 643
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 528,
+       "1": 528,
+       "2": 1301,
+       "4": 643,
+       "5": 456,
+       "6": 456,
+       "7": 456,
+       "8": 635,
+       "3": 1301
+      },
+      "cs": {
+       "0": 528,
+       "1": 528,
+       "2": 456
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 1302,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 100,
+       "stride": 24,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 101,
+     "blend": 235,
+     "depthstencil": 3420,
+     "rasterizer": 1335
+    },
+    "args": {
+     "view": 9597,
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   }
+  ],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 702,
+    "ps": 704,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 208,
+    "depthstencil": 644,
+    "rasterizer": 531,
+    "draws": [
+     6675
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 31,
+  "sig": [
+   "compute"
+  ],
+  "rtvViews": [
+   9597
+  ],
+  "dsvView": 515,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 3072.0,
+   "h": 1920.0
+  },
+  "startEvent": 6696,
+  "endEvent": 6740,
+  "draws": [],
+  "dispatches": [
+   6696,
+   6726,
+   6740
+  ],
+  "clears": [],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 32,
+  "sig": [
+   [
+    17616,
+    17620
+   ],
+   0,
+   [
+    0,
+    0,
+    864,
+    540
+   ]
+  ],
+  "rtvViews": [
+   17617,
+   17621
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 864.0,
+   "h": 540.0
+  },
+  "startEvent": 6761,
+  "endEvent": 6761,
+  "draws": [
+   6761
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 5264,
+    "ps": 5265,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5266,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     6761
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 33,
+  "sig": [
+   [
+    5271
+   ],
+   0,
+   [
+    0,
+    0,
+    1728,
+    1080
+   ]
+  ],
+  "rtvViews": [
+   5272
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 1728.0,
+   "h": 1080.0
+  },
+  "startEvent": 6773,
+  "endEvent": 6773,
+  "draws": [
+   6773
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 5275,
+    "ps": 5276,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5266,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     6773
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 34,
+  "sig": [
+   [
+    5267
+   ],
+   0,
+   [
+    0,
+    0,
+    1728,
+    1080
+   ]
+  ],
+  "rtvViews": [
+   5268
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 1728.0,
+   "h": 1080.0
+  },
+  "startEvent": 6785,
+  "endEvent": 6785,
+  "draws": [
+   6785
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 5277,
+    "ps": 5278,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5266,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     6785
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 35,
+  "sig": [
+   [
+    5279
+   ],
+   9515,
+   [
+    0,
+    0,
+    3072,
+    1920
+   ]
+  ],
+  "rtvViews": [
+   5280
+  ],
+  "dsvView": 9516,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 3072.0,
+   "h": 1920.0
+  },
+  "startEvent": 6788,
+  "endEvent": 7508,
+  "draws": [
+   6819,
+   6837,
+   6861,
+   6869,
+   6881,
+   6902,
+   6912,
+   6928,
+   6974,
+   6996,
+   7009,
+   7033,
+   7056,
+   7062,
+   7079,
+   7103,
+   7111,
+   7113,
+   7115,
+   7119,
+   7127,
+   7131,
+   7149,
+   7157,
+   7164,
+   7184,
+   7188,
+   7190,
+   7192,
+   7212,
+   7214,
+   7216,
+   7234,
+   7236,
+   7238,
+   7262,
+   7274,
+   7295,
+   7304,
+   7317,
+   7339,
+   7347,
+   7357,
+   7363,
+   7374,
+   7380,
+   7390,
+   7398,
+   7423,
+   7440,
+   7455,
+   7476,
+   7482,
+   7498,
+   7508
+  ],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 6789,
+    "chunkIndex": 6788,
+    "kind": "ClearRenderTargetView",
+    "state": {
+     "rtv": [
+      5280
+     ],
+     "dsv": 9516,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 3072.0,
+      "h": 1920.0
+     },
+     "shaders": {
+      "vs": 5277,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 5278,
+      "cs": 275
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 9510,
+       "1": 5274,
+       "3": 5299
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 181,
+       "1": 182,
+       "2": 182,
+       "3": 220,
+       "4": 220,
+       "5": 191
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 250,
+       "1": 184,
+       "2": 181,
+       "3": 191,
+       "4": 191
+      },
+      "cs": {
+       "0": 281,
+       "1": 282,
+       "2": 283,
+       "3": 283,
+       "4": 284
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 643
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 528,
+       "1": 456,
+       "2": 528,
+       "4": 643,
+       "5": 456,
+       "6": 456,
+       "7": 456,
+       "8": 635,
+       "3": 456
+      },
+      "cs": {
+       "0": 456,
+       "1": 528,
+       "2": 456
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 5266,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 96,
+       "stride": 12,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 97,
+     "blend": 44,
+     "depthstencil": 636,
+     "rasterizer": 531
+    },
+    "args": {
+     "view": 5280,
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   }
+  ],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 653,
+    "ps": 9571,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 210,
+    "depthstencil": 655,
+    "rasterizer": 531,
+    "draws": [
+     6819
+    ],
+    "indices": 3
+   },
+   {
+    "vs": 656,
+    "ps": 657,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 210,
+    "depthstencil": 655,
+    "rasterizer": 531,
+    "draws": [
+     6837
+    ],
+    "indices": 3
+   },
+   {
+    "vs": 658,
+    "ps": 9572,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 210,
+    "depthstencil": 655,
+    "rasterizer": 531,
+    "draws": [
+     6861
+    ],
+    "indices": 3
+   },
+   {
+    "vs": 660,
+    "ps": 661,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 210,
+    "depthstencil": 662,
+    "rasterizer": 531,
+    "draws": [
+     6869
+    ],
+    "indices": 3
+   },
+   {
+    "vs": 1293,
+    "ps": 1295,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1302,
+    "blend": 207,
+    "depthstencil": 1303,
+    "rasterizer": 1289,
+    "draws": [
+     6881,
+     6912
+    ],
+    "indices": 480
+   },
+   {
+    "vs": 9573,
+    "ps": 9584,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1302,
+    "blend": 204,
+    "depthstencil": 1305,
+    "rasterizer": 1306,
+    "draws": [
+     6902,
+     6928
+    ],
+    "indices": 480
+   },
+   {
+    "vs": 15521,
+    "ps": 15523,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 12777,
+    "blend": 208,
+    "depthstencil": 817,
+    "rasterizer": 531,
+    "draws": [
+     6974
+    ],
+    "indices": 480
+   },
+   {
+    "vs": 8507,
+    "ps": 8511,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8634,
+    "blend": 208,
+    "depthstencil": 817,
+    "rasterizer": 1289,
+    "draws": [
+     6996
+    ],
+    "indices": 67665
+   },
+   {
+    "vs": 8507,
+    "ps": 8518,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8634,
+    "blend": 208,
+    "depthstencil": 817,
+    "rasterizer": 531,
+    "draws": [
+     7009
+    ],
+    "indices": 11970
+   },
+   {
+    "vs": 8494,
+    "ps": 8501,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8633,
+    "blend": 208,
+    "depthstencil": 817,
+    "rasterizer": 1289,
+    "draws": [
+     7033
+    ],
+    "indices": 10527
+   },
+   {
+    "vs": 6054,
+    "ps": 6056,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5979,
+    "blend": 235,
+    "depthstencil": 705,
+    "rasterizer": 5983,
+    "draws": [
+     7056,
+     7062,
+     7079
+    ],
+    "indices": 18084
+   },
+   {
+    "vs": 5968,
+    "ps": 5970,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1297,
+    "blend": 235,
+    "depthstencil": 705,
+    "rasterizer": 5984,
+    "draws": [
+     7103,
+     7127,
+     7131,
+     7149
+    ],
+    "indices": 28071
+   },
+   {
+    "vs": 5968,
+    "ps": 5970,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5979,
+    "blend": 235,
+    "depthstencil": 705,
+    "rasterizer": 5984,
+    "draws": [
+     7111,
+     7113,
+     7115,
+     7119,
+     7157,
+     7164,
+     7212,
+     7214,
+     7216,
+     7234,
+     7236,
+     7238
+    ],
+    "indices": 50154
+   },
+   {
+    "vs": 5968,
+    "ps": 5970,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5979,
+    "blend": 235,
+    "depthstencil": 705,
+    "rasterizer": 5985,
+    "draws": [
+     7184,
+     7188,
+     7190,
+     7192
+    ],
+    "indices": 37713
+   },
+   {
+    "vs": 15505,
+    "ps": 15507,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 15568,
+    "blend": 213,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     7262
+    ],
+    "indices": 1056
+   },
+   {
+    "vs": 15526,
+    "ps": 15531,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 15568,
+    "blend": 213,
+    "depthstencil": 8553,
+    "rasterizer": 1289,
+    "draws": [
+     7274
+    ],
+    "indices": 1056
+   },
+   {
+    "vs": 6812,
+    "ps": 6815,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 6817,
+    "blend": 235,
+    "depthstencil": 1342,
+    "rasterizer": 6818,
+    "draws": [
+     7295,
+     7304
+    ],
+    "indices": 2304
+   },
+   {
+    "vs": 15518,
+    "ps": 15520,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 15567,
+    "blend": 213,
+    "depthstencil": 1935,
+    "rasterizer": 1335,
+    "draws": [
+     7317
+    ],
+    "indices": 1056
+   },
+   {
+    "vs": 9608,
+    "ps": 9609,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9612,
+    "blend": 9176,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     7339,
+     7357
+    ],
+    "indices": 1872
+   },
+   {
+    "vs": 9610,
+    "ps": 9611,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9612,
+    "blend": 9176,
+    "depthstencil": 1342,
+    "rasterizer": 1289,
+    "draws": [
+     7347,
+     7363
+    ],
+    "indices": 1872
+   },
+   {
+    "vs": 9608,
+    "ps": 9609,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9612,
+    "blend": 208,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     7374,
+     7390
+    ],
+    "indices": 1872
+   },
+   {
+    "vs": 9610,
+    "ps": 9611,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 9612,
+    "blend": 208,
+    "depthstencil": 1342,
+    "rasterizer": 1289,
+    "draws": [
+     7380,
+     7398
+    ],
+    "indices": 1872
+   },
+   {
+    "vs": 1324,
+    "ps": 1325,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 6819,
+    "blend": 1115,
+    "depthstencil": 817,
+    "rasterizer": 531,
+    "draws": [
+     7423
+    ],
+    "indices": 36
+   },
+   {
+    "vs": 6820,
+    "ps": 6821,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1318,
+    "blend": 1115,
+    "depthstencil": 817,
+    "rasterizer": 531,
+    "draws": [
+     7440
+    ],
+    "indices": 690
+   },
+   {
+    "vs": 6820,
+    "ps": 6822,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1322,
+    "blend": 1115,
+    "depthstencil": 817,
+    "rasterizer": 531,
+    "draws": [
+     7455
+    ],
+    "indices": 126
+   },
+   {
+    "vs": 1324,
+    "ps": 1325,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 5986,
+    "blend": 1124,
+    "depthstencil": 817,
+    "rasterizer": 1289,
+    "draws": [
+     7476,
+     7482
+    ],
+    "indices": 64812
+   },
+   {
+    "vs": 15502,
+    "ps": 15503,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 15567,
+    "blend": 213,
+    "depthstencil": 15533,
+    "rasterizer": 1289,
+    "draws": [
+     7498
+    ],
+    "indices": 1056
+   },
+   {
+    "vs": 15522,
+    "ps": 15524,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 15567,
+    "blend": 213,
+    "depthstencil": 15538,
+    "rasterizer": 1335,
+    "draws": [
+     7508
+    ],
+    "indices": 1056
+   }
+  ],
+  "totalIndices": 306372
+ },
+ {
+  "index": 36,
+  "sig": [
+   [
+    9621,
+    5288
+   ],
+   9515,
+   [
+    0,
+    0,
+    3072,
+    1920
+   ]
+  ],
+  "rtvViews": [
+   9622,
+   5289
+  ],
+  "dsvView": 9516,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 3072.0,
+   "h": 1920.0
+  },
+  "startEvent": 7524,
+  "endEvent": 7981,
+  "draws": [
+   7524,
+   7540,
+   7549,
+   7552,
+   7559,
+   7564,
+   7569,
+   7574,
+   7579,
+   7584,
+   7589,
+   7594,
+   7599,
+   7604,
+   7609,
+   7614,
+   7619,
+   7624,
+   7631,
+   7636,
+   7641,
+   7646,
+   7651,
+   7656,
+   7661,
+   7666,
+   7671,
+   7676,
+   7681,
+   7686,
+   7691,
+   7696,
+   7701,
+   7706,
+   7716,
+   7718,
+   7729,
+   7751,
+   7756,
+   7759,
+   7768,
+   7776,
+   7784,
+   7791,
+   7796,
+   7802,
+   7807,
+   7812,
+   7817,
+   7823,
+   7829,
+   7834,
+   7840,
+   7846,
+   7857,
+   7863,
+   7870,
+   7877,
+   7886,
+   7893,
+   7901,
+   7910,
+   7917,
+   7925,
+   7932,
+   7939,
+   7947,
+   7952,
+   7958,
+   7965,
+   7981
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 724,
+    "ps": 737,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 738,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     7524
+    ],
+    "indices": 3
+   },
+   {
+    "vs": 11036,
+    "ps": 11038,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8562,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 531,
+    "draws": [
+     7540
+    ],
+    "indices": 480
+   },
+   {
+    "vs": 8497,
+    "ps": 8504,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8562,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 531,
+    "draws": [
+     7549,
+     7552,
+     7631,
+     7636,
+     7641,
+     7646,
+     7651,
+     7656,
+     7661,
+     7666,
+     7671,
+     7676,
+     7681,
+     7686,
+     7691,
+     7696,
+     7701,
+     7706
+    ],
+    "indices": 129450
+   },
+   {
+    "vs": 8482,
+    "ps": 8490,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8562,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 531,
+    "draws": [
+     7559,
+     7564,
+     7569,
+     7574,
+     7579,
+     7584,
+     7589,
+     7594,
+     7599,
+     7604,
+     7609,
+     7614,
+     7619,
+     7624
+    ],
+    "indices": 72813
+   },
+   {
+    "vs": 1362,
+    "ps": 1363,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 12157,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 1364,
+    "draws": [
+     7716,
+     7718,
+     7729
+    ],
+    "indices": 18084
+   },
+   {
+    "vs": 11037,
+    "ps": 11039,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8641,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     7751
+    ],
+    "indices": 480
+   },
+   {
+    "vs": 8498,
+    "ps": 8505,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8641,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     7756,
+     7759
+    ],
+    "indices": 79635
+   },
+   {
+    "vs": 8483,
+    "ps": 8491,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8565,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     7768,
+     7784,
+     7791,
+     7796
+    ],
+    "indices": 34872
+   },
+   {
+    "vs": 8483,
+    "ps": 8491,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11073,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     7776
+    ],
+    "indices": 7269
+   },
+   {
+    "vs": 8483,
+    "ps": 8491,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8565,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 8543,
+    "draws": [
+     7802,
+     7807,
+     7812,
+     7817,
+     7829,
+     7834,
+     7846
+    ],
+    "indices": 27504
+   },
+   {
+    "vs": 8483,
+    "ps": 8491,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11073,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 8543,
+    "draws": [
+     7823,
+     7840
+    ],
+    "indices": 3168
+   },
+   {
+    "vs": 8498,
+    "ps": 8505,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8565,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     7857,
+     7910,
+     7917
+    ],
+    "indices": 26160
+   },
+   {
+    "vs": 8498,
+    "ps": 8505,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8639,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     7863,
+     7870,
+     7877
+    ],
+    "indices": 10374
+   },
+   {
+    "vs": 8498,
+    "ps": 8505,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8565,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 8543,
+    "draws": [
+     7886,
+     7893
+    ],
+    "indices": 3804
+   },
+   {
+    "vs": 8498,
+    "ps": 8505,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8639,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 8543,
+    "draws": [
+     7901,
+     7939,
+     7958,
+     7965
+    ],
+    "indices": 2703
+   },
+   {
+    "vs": 8498,
+    "ps": 8505,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11049,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 1335,
+    "draws": [
+     7925,
+     7932
+    ],
+    "indices": 5436
+   },
+   {
+    "vs": 8498,
+    "ps": 8505,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 11282,
+    "blend": 44,
+    "depthstencil": 1342,
+    "rasterizer": 8543,
+    "draws": [
+     7947,
+     7952
+    ],
+    "indices": 1338
+   },
+   {
+    "vs": 2039,
+    "ps": 2040,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 2041,
+    "blend": 208,
+    "depthstencil": 1342,
+    "rasterizer": 1289,
+    "draws": [
+     7981
+    ],
+    "indices": 15360
+   }
+  ],
+  "totalIndices": 438933
+ },
+ {
+  "index": 37,
+  "sig": [
+   [
+    5300
+   ],
+   0,
+   [
+    0,
+    0,
+    3072,
+    1920
+   ]
+  ],
+  "rtvViews": [
+   5301
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 3072.0,
+   "h": 1920.0
+  },
+  "startEvent": 8003,
+  "endEvent": 8003,
+  "draws": [
+   8003
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 823,
+    "ps": 824,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8003
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 38,
+  "sig": [
+   [
+    9665
+   ],
+   0,
+   [
+    0,
+    0,
+    1536,
+    960
+   ]
+  ],
+  "rtvViews": [
+   9666
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 1536.0,
+   "h": 960.0
+  },
+  "startEvent": 8017,
+  "endEvent": 8017,
+  "draws": [
+   8017
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 795,
+    "ps": 796,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8017
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 39,
+  "sig": [
+   [
+    9669
+   ],
+   0,
+   [
+    0,
+    0,
+    768,
+    480
+   ]
+  ],
+  "rtvViews": [
+   9670
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 768.0,
+   "h": 480.0
+  },
+  "startEvent": 8029,
+  "endEvent": 8029,
+  "draws": [
+   8029
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 801,
+    "ps": 802,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8029
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 40,
+  "sig": [
+   [
+    9633
+   ],
+   0,
+   [
+    0,
+    0,
+    320,
+    200
+   ]
+  ],
+  "rtvViews": [
+   9634
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 320.0,
+   "h": 200.0
+  },
+  "startEvent": 8039,
+  "endEvent": 8039,
+  "draws": [
+   8039
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 801,
+    "ps": 802,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8039
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 41,
+  "sig": [
+   [
+    9641
+   ],
+   0,
+   [
+    0,
+    0,
+    144,
+    90
+   ]
+  ],
+  "rtvViews": [
+   9642
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 144.0,
+   "h": 90.0
+  },
+  "startEvent": 8049,
+  "endEvent": 8049,
+  "draws": [
+   8049
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 801,
+    "ps": 802,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8049
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 42,
+  "sig": [
+   [
+    9649
+   ],
+   0,
+   [
+    0,
+    0,
+    64,
+    40
+   ]
+  ],
+  "rtvViews": [
+   9650
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 64.0,
+   "h": 40.0
+  },
+  "startEvent": 8059,
+  "endEvent": 8059,
+  "draws": [
+   8059
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 801,
+    "ps": 802,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8059
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 43,
+  "sig": [
+   [
+    9657
+   ],
+   0,
+   [
+    0,
+    0,
+    32,
+    20
+   ]
+  ],
+  "rtvViews": [
+   9658
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 32.0,
+   "h": 20.0
+  },
+  "startEvent": 8069,
+  "endEvent": 8069,
+  "draws": [
+   8069
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 801,
+    "ps": 802,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8069
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 44,
+  "sig": [
+   [
+    9629
+   ],
+   0,
+   [
+    0,
+    0,
+    465,
+    200
+   ]
+  ],
+  "rtvViews": [
+   9630
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 465.0,
+   "h": 200.0
+  },
+  "startEvent": 8072,
+  "endEvent": 8072,
+  "draws": [],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 8073,
+    "chunkIndex": 8072,
+    "kind": "ClearRenderTargetView",
+    "state": {
+     "rtv": [
+      9630
+     ],
+     "dsv": 0,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 465.0,
+      "h": 200.0
+     },
+     "shaders": {
+      "vs": 801,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 802,
+      "cs": 275
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 9652,
+       "1": 5282,
+       "2": 5299,
+       "3": 9624,
+       "4": 5291,
+       "5": 5295
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 212,
+       "1": 184,
+       "2": 182,
+       "3": 191,
+       "4": 191,
+       "5": 1106
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 212,
+       "1": 184,
+       "2": 191,
+       "3": 1106,
+       "4": 1092
+      },
+      "cs": {
+       "0": 281,
+       "1": 282,
+       "2": 283,
+       "3": 283,
+       "4": 284
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 643
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 456,
+       "1": 528,
+       "2": 456,
+       "4": 643,
+       "5": 528,
+       "6": 528,
+       "7": 456,
+       "8": 528,
+       "3": 456
+      },
+      "cs": {
+       "0": 456,
+       "1": 528,
+       "2": 456
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 529,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 699,
+       "stride": 12,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 700,
+     "blend": 44,
+     "depthstencil": 636,
+     "rasterizer": 531
+    },
+    "args": {
+     "view": 9630,
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  ],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 45,
+  "sig": [
+   [
+    9629
+   ],
+   0,
+   [
+    0,
+    0,
+    320,
+    200
+   ]
+  ],
+  "rtvViews": [
+   9630
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 320.0,
+   "h": 200.0
+  },
+  "startEvent": 8084,
+  "endEvent": 8084,
+  "draws": [
+   8084
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 803,
+    "ps": 804,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8084
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 46,
+  "sig": [
+   [
+    9629
+   ],
+   0,
+   [
+    321,
+    0,
+    144,
+    90
+   ]
+  ],
+  "rtvViews": [
+   9630
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 321.0,
+   "y": 0.0,
+   "w": 144.0,
+   "h": 90.0
+  },
+  "startEvent": 8093,
+  "endEvent": 8093,
+  "draws": [
+   8093
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 803,
+    "ps": 804,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8093
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 47,
+  "sig": [
+   [
+    9629
+   ],
+   0,
+   [
+    321,
+    91,
+    64,
+    40
+   ]
+  ],
+  "rtvViews": [
+   9630
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 321.0,
+   "y": 91.0,
+   "w": 64.0,
+   "h": 40.0
+  },
+  "startEvent": 8102,
+  "endEvent": 8102,
+  "draws": [
+   8102
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 803,
+    "ps": 804,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8102
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 48,
+  "sig": [
+   [
+    9629
+   ],
+   0,
+   [
+    386,
+    91,
+    32,
+    20
+   ]
+  ],
+  "rtvViews": [
+   9630
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 386.0,
+   "y": 91.0,
+   "w": 32.0,
+   "h": 20.0
+  },
+  "startEvent": 8111,
+  "endEvent": 8111,
+  "draws": [
+   8111
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 803,
+    "ps": 804,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8111
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 49,
+  "sig": [
+   [
+    9625
+   ],
+   0,
+   [
+    0,
+    0,
+    465,
+    200
+   ]
+  ],
+  "rtvViews": [
+   9626
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 465.0,
+   "h": 200.0
+  },
+  "startEvent": 8114,
+  "endEvent": 8114,
+  "draws": [],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 8115,
+    "chunkIndex": 8114,
+    "kind": "ClearRenderTargetView",
+    "state": {
+     "rtv": [
+      9626
+     ],
+     "dsv": 0,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 465.0,
+      "h": 200.0
+     },
+     "shaders": {
+      "vs": 803,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 804,
+      "cs": 275
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 9660,
+       "1": 5282,
+       "2": 5299,
+       "3": 9624,
+       "4": 5291,
+       "5": 5295
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 212,
+       "1": 184,
+       "2": 182,
+       "3": 191,
+       "4": 191,
+       "5": 1106
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 212,
+       "1": 184,
+       "2": 191,
+       "3": 1106,
+       "4": 1092
+      },
+      "cs": {
+       "0": 281,
+       "1": 282,
+       "2": 283,
+       "3": 283,
+       "4": 284
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 643
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 456,
+       "1": 528,
+       "2": 456,
+       "4": 643,
+       "5": 528,
+       "6": 528,
+       "7": 456,
+       "8": 528,
+       "3": 456
+      },
+      "cs": {
+       "0": 456,
+       "1": 528,
+       "2": 456
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 529,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 699,
+       "stride": 12,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 700,
+     "blend": 44,
+     "depthstencil": 636,
+     "rasterizer": 531
+    },
+    "args": {
+     "view": 9626,
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  ],
+  "copies": [],
+  "programs": [],
+  "totalIndices": 0
+ },
+ {
+  "index": 50,
+  "sig": [
+   [
+    9625
+   ],
+   0,
+   [
+    0,
+    0,
+    320,
+    200
+   ]
+  ],
+  "rtvViews": [
+   9626
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 320.0,
+   "h": 200.0
+  },
+  "startEvent": 8125,
+  "endEvent": 8125,
+  "draws": [
+   8125
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 805,
+    "ps": 806,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8125
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 51,
+  "sig": [
+   [
+    9625
+   ],
+   0,
+   [
+    321,
+    0,
+    144,
+    90
+   ]
+  ],
+  "rtvViews": [
+   9626
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 321.0,
+   "y": 0.0,
+   "w": 144.0,
+   "h": 90.0
+  },
+  "startEvent": 8133,
+  "endEvent": 8133,
+  "draws": [
+   8133
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 805,
+    "ps": 806,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8133
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 52,
+  "sig": [
+   [
+    9625
+   ],
+   0,
+   [
+    321,
+    91,
+    64,
+    40
+   ]
+  ],
+  "rtvViews": [
+   9626
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 321.0,
+   "y": 91.0,
+   "w": 64.0,
+   "h": 40.0
+  },
+  "startEvent": 8141,
+  "endEvent": 8141,
+  "draws": [
+   8141
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 805,
+    "ps": 806,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8141
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 53,
+  "sig": [
+   [
+    9625
+   ],
+   0,
+   [
+    386,
+    91,
+    32,
+    20
+   ]
+  ],
+  "rtvViews": [
+   9626
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 386.0,
+   "y": 91.0,
+   "w": 32.0,
+   "h": 20.0
+  },
+  "startEvent": 8149,
+  "endEvent": 8149,
+  "draws": [
+   8149
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 805,
+    "ps": 806,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8149
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 54,
+  "sig": [
+   [
+    9633
+   ],
+   0,
+   [
+    0,
+    0,
+    320,
+    200
+   ]
+  ],
+  "rtvViews": [
+   9634
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 320.0,
+   "h": 200.0
+  },
+  "startEvent": 8162,
+  "endEvent": 8162,
+  "draws": [
+   8162
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 807,
+    "ps": 808,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 531,
+    "draws": [
+     8162
+    ],
+    "indices": 3
+   }
+  ],
+  "totalIndices": 3
+ },
+ {
+  "index": 55,
+  "sig": [
+   [
+    683
+   ],
+   687,
+   [
+    0,
+    0,
+    2560,
+    1600
+   ]
+  ],
+  "rtvViews": [
+   684
+  ],
+  "dsvView": 688,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 2560.0,
+   "h": 1600.0
+  },
+  "startEvent": 8181,
+  "endEvent": 8768,
+  "draws": [
+   8181,
+   8218,
+   8242,
+   8254,
+   8262,
+   8266,
+   8274,
+   8281,
+   8285,
+   8312,
+   8329,
+   8332,
+   8335,
+   8338,
+   8362,
+   8379,
+   8388,
+   8401,
+   8405,
+   8420,
+   8423,
+   8437,
+   8446,
+   8460,
+   8472,
+   8475,
+   8489,
+   8508,
+   8527,
+   8547,
+   8567,
+   8573,
+   8581,
+   8601,
+   8621,
+   8640,
+   8668,
+   8686,
+   8704,
+   8722,
+   8731,
+   8750,
+   8768
+  ],
+  "dispatches": [],
+  "clears": [
+   {
+    "order": 8191,
+    "chunkIndex": 8190,
+    "kind": "ClearDepthStencilView",
+    "state": {
+     "rtv": [
+      684
+     ],
+     "dsv": 688,
+     "viewport": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 2560.0,
+      "h": 1600.0
+     },
+     "shaders": {
+      "vs": 815,
+      "hs": 0,
+      "ds": 0,
+      "gs": 0,
+      "ps": 816,
+      "cs": 275
+     },
+     "srv": {
+      "vs": {},
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 5303,
+       "1": 9636,
+       "2": 50,
+       "3": 812,
+       "4": 50,
+       "5": 5295
+      },
+      "cs": {}
+     },
+     "cb": {
+      "vs": {
+       "0": 182,
+       "1": 184,
+       "2": 182,
+       "3": 191,
+       "4": 191,
+       "5": 1106
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 212,
+       "1": 184,
+       "2": 191,
+       "3": 1106,
+       "4": 1092
+      },
+      "cs": {
+       "0": 281,
+       "1": 282,
+       "2": 283,
+       "3": 283,
+       "4": 284
+      }
+     },
+     "samplers": {
+      "vs": {
+       "0": 643
+      },
+      "hs": {},
+      "ds": {},
+      "gs": {},
+      "ps": {
+       "0": 456,
+       "1": 643,
+       "2": 456,
+       "4": 643,
+       "5": 528,
+       "6": 528,
+       "7": 456,
+       "8": 528,
+       "3": 456
+      },
+      "cs": {
+       "0": 456,
+       "1": 528,
+       "2": 456
+      }
+     },
+     "uav": {},
+     "so": [
+      0
+     ],
+     "layout": 529,
+     "topology": "D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST",
+     "vb": [
+      {
+       "slot": 0,
+       "buf": 699,
+       "stride": 12,
+       "offset": 0
+      },
+      {
+       "slot": 1,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 2,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 3,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 4,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 5,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 6,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      },
+      {
+       "slot": 7,
+       "buf": 0,
+       "stride": 0,
+       "offset": 0
+      }
+     ],
+     "ib": 700,
+     "blend": 44,
+     "depthstencil": 636,
+     "rasterizer": 665
+    },
+    "args": {
+     "view": 688,
+     "depth": "0",
+     "stencil": "0",
+     "flags": "D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL"
+    }
+   }
+  ],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 815,
+    "ps": 816,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 529,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 665,
+    "draws": [
+     8181
+    ],
+    "indices": 3
+   },
+   {
+    "vs": 666,
+    "ps": 1801,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 669,
+    "blend": 213,
+    "depthstencil": 817,
+    "rasterizer": 665,
+    "draws": [
+     8218,
+     8312,
+     8362,
+     8508,
+     8527,
+     8547,
+     8567,
+     8573,
+     8581,
+     8601,
+     8621,
+     8668,
+     8686,
+     8704,
+     8722,
+     8750
+    ],
+    "indices": 4704
+   },
+   {
+    "vs": 8753,
+    "ps": 8755,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1804,
+    "blend": 213,
+    "depthstencil": 2045,
+    "rasterizer": 665,
+    "draws": [
+     8242
+    ],
+    "indices": 54
+   },
+   {
+    "vs": 1802,
+    "ps": 8921,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1804,
+    "blend": 213,
+    "depthstencil": 2046,
+    "rasterizer": 665,
+    "draws": [
+     8254
+    ],
+    "indices": 6
+   },
+   {
+    "vs": 1802,
+    "ps": 1803,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1804,
+    "blend": 213,
+    "depthstencil": 2046,
+    "rasterizer": 665,
+    "draws": [
+     8262,
+     8266
+    ],
+    "indices": 12
+   },
+   {
+    "vs": 1802,
+    "ps": 1803,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 1804,
+    "blend": 213,
+    "depthstencil": 817,
+    "rasterizer": 665,
+    "draws": [
+     8274,
+     8281,
+     8285,
+     8379,
+     8388,
+     8437,
+     8446,
+     8768
+    ],
+    "indices": 210
+   },
+   {
+    "vs": 8760,
+    "ps": 8762,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8792,
+    "blend": 213,
+    "depthstencil": 817,
+    "rasterizer": 665,
+    "draws": [
+     8329,
+     8332,
+     8335,
+     8338
+    ],
+    "indices": 24
+   },
+   {
+    "vs": 666,
+    "ps": 667,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 669,
+    "blend": 213,
+    "depthstencil": 817,
+    "rasterizer": 665,
+    "draws": [
+     8401,
+     8405,
+     8460,
+     8489,
+     8731
+    ],
+    "indices": 1722
+   },
+   {
+    "vs": 8768,
+    "ps": 8769,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8793,
+    "blend": 213,
+    "depthstencil": 1342,
+    "rasterizer": 9673,
+    "draws": [
+     8420,
+     8423,
+     8472,
+     8475
+    ],
+    "indices": 24
+   },
+   {
+    "vs": 8764,
+    "ps": 8765,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 8794,
+    "blend": 235,
+    "depthstencil": 817,
+    "rasterizer": 9673,
+    "draws": [
+     8640
+    ],
+    "indices": 18
+   }
+  ],
+  "totalIndices": 6777
+ },
+ {
+  "index": 56,
+  "sig": [
+   [
+    678
+   ],
+   0,
+   [
+    0,
+    0,
+    2560,
+    1600
+   ]
+  ],
+  "rtvViews": [
+   680
+  ],
+  "dsvView": 0,
+  "viewport": {
+   "x": 0.0,
+   "y": 0.0,
+   "w": 2560.0,
+   "h": 1600.0
+  },
+  "startEvent": 8795,
+  "endEvent": 8795,
+  "draws": [
+   8795
+  ],
+  "dispatches": [],
+  "clears": [],
+  "copies": [],
+  "programs": [
+   {
+    "vs": 672,
+    "ps": 673,
+    "gs": 0,
+    "hs": 0,
+    "ds": 0,
+    "layout": 676,
+    "blend": 44,
+    "depthstencil": 636,
+    "rasterizer": 665,
+    "draws": [
+     8795
+    ],
+    "indices": 6
+   }
+  ],
+  "totalIndices": 6
+ }
+]

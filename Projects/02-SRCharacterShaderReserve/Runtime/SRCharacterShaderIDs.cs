@@ -23,6 +23,13 @@ namespace SRCharacter
         public static readonly int ShadowAttenuationStrength = Shader.PropertyToID("_SRShadowAttenuationStrength");
         public static readonly int IndirectIntensity = Shader.PropertyToID("_SRIndirectIntensity");
 
+        // Front hair shadow (hair depth prepass + fullscreen sampling).
+        public static readonly int HairDepth = Shader.PropertyToID("_SRHairDepthTexture");
+        public static readonly int HairShadowDistance = Shader.PropertyToID("_SRHairShadowDistance");
+        public static readonly int HairShadowStrength = Shader.PropertyToID("_SRHairShadowStrength");
+        public static readonly int HairShadowDepthBias = Shader.PropertyToID("_SRHairShadowDepthBias");
+        public static readonly int ModelScale = Shader.PropertyToID("_SRModelScale");
+
         // Character material.
         public static readonly int StencilRef = Shader.PropertyToID("_SRStencilRef");
         public static readonly int Area = Shader.PropertyToID("_SRArea");

@@ -171,6 +171,69 @@ Shader "SRCharacter/Transparent"
         }
 
         // ------------------------------------------------------------------
+        // Front hair shadow input (reference-based, not in the capture):
+        // the bangs never enter the G-buffer, so they are rasterized here into
+        // the hair depth target (linear01 eye depth, MIN blend) for the
+        // fullscreen face shading. Alpha is clipped so soft strand tips fade out.
+        // ------------------------------------------------------------------
+        Pass
+        {
+            Name "SRCharacterHairDepth"
+            Tags { "LightMode" = "SRCharacterHairDepth" }
+
+            Cull [_Cull]
+            ZWrite Off
+            ZTest Always
+            ColorMask R
+            Blend One One
+            BlendOp Min
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex HairDepthVertex
+            #pragma fragment HairDepthFragment
+            #pragma multi_compile_instancing
+            #pragma shader_feature_local_fragment _ _NORMALMAP
+            #pragma shader_feature_local_fragment _ _ALPHATEST_ON
+
+            #include "SRCharacterCommon.hlsl"
+
+            struct HairDepthVaryings
+            {
+                float4 positionCS : SV_POSITION;
+                float3 positionWS : TEXCOORD0;
+                float2 uv         : TEXCOORD1;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            HairDepthVaryings HairDepthVertex(SRCharacterAttributes input)
+            {
+                HairDepthVaryings output = (HairDepthVaryings)0;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+
+                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                output.positionWS = positionWS;
+                output.positionCS = TransformWorldToHClip(positionWS);
+                output.uv = SRTransformBaseMapUV(input.uv);
+                return output;
+            }
+
+            half4 HairDepthFragment(HairDepthVaryings input) : SV_Target
+            {
+                clip(_SRArea - 2.5);
+
+                half4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
+                half alpha = baseMap.a * _BaseColor.a * _SRAlpha;
+                clip(alpha - max(_AlphaClip, 0.01));
+
+                float linear01 = saturate(-TransformWorldToView(input.positionWS).z / max(_ProjectionParams.z, 0.001));
+                return half4(linear01, 0.0, 0.0, 1.0);
+            }
+            ENDHLSL
+        }
+
+        // ------------------------------------------------------------------
         // Back-face outline of the transparent piece (capture eids 5404/5595, DSS 1935/15538).
         // Cull Front leaves only back faces, so a single stencil state reproduces the
         // captured back-face pass: Replace the material ref and write depth.

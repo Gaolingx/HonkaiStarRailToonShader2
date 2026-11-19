@@ -5,16 +5,16 @@
 
 ## 0. 一句话结论
 
-HSR 的角色不是"一个前向 pass 画完"：**几何在 P08 写入 GBuffer（albedo / normal / R8 mask + 深度模板），模板缓冲写入材质/描边 ID；P35 用全屏 stencil-masked pass 按材质类别（皮肤、面部、头发…）做 toon 着色，再叠加角色几何的前向高光/描边层；P27/P36 生成屏幕空间阴影与角色遮罩供后续使用，P37–P54 的 bloom 也读取角色遮罩，P55 tonemap+UI。**
+HSR 的角色不是"一个前向 pass 画完"：**几何在 P08 写入 GBuffer（albedo / normal / R8 mask + 深度模板），模板缓冲写入材质/描边 ID；P35 用全屏 stencil-masked pass 按材质类别（皮肤、面部、头发…）做 toon 着色，再叠加角色几何的前向高光/描边层；P27 生成屏幕空间阴影（世界软影 + 每物体投影，后者只写头发组）供 P35 的头发/组 2 材质使用，P36 生成角色遮罩供 bloom 使用，P55 tonemap+UI。**
 
 ## 1. 帧级链路
 
 | 阶段 | pass | 事件(eid) | 证据 |
 |---|---|---|---|
 | GPU 蒙皮/顶点流 | P00–P02 | 23–651 | VS+GS+StreamOut，骨骼 SRV = buffer 7211（`R32G32B32A32_FLOAT`），输出 VB/StreamOut 缓冲 20481/20484/20486…；49 个蒙皮 draw 对应 49 份输出缓冲 |
-| 阴影 | P05–P07, P16–P26 | 726–4336 | 3072x3072 R16 深度图（tex14816）、1536x960（tex9499）、1536x2560 图集 12×512x512（tex18188），均只绑 DSV |
+| 阴影 | P05–P07, P16–P26 | 726–4336 | 3072x3072 R16 深度图（tex14816）、1536x960（tex9499）、1536x2560 **per-object 阴影图集**（tex18188，11 个 512×512 tile，导出可见每格一个角色剪影），均只绑 DSV |
 | GBuffer + 角色 | **P08** | 812–3546 | 3072x1920 MRT：tex9503 RGBA8 / tex9507 RGBA16F / tex9511 R8，DSV tex9515(D32S8)；角色相关调用集中在 940–1093（GBuffer）与 3180–3546（描边/附加层） |
-| 屏幕空间阴影 | P27 | 4357–4622 | R8 tex9580，采样主深度 tex514 + 阴影图集 tex18188/tex17638；输出为角色/物体柔和阴影轮廓（`img/tex9580_screenspace_shadowmask.png`） |
+| 屏幕空间阴影 | P27 | 4357–4622 | R8 tex9580：全屏世界/级联软影（tex17638，本帧无写入者=预烘焙）+ 每物体投影（tex18188 的 tile）。**每物体投影只写 stencil 组 3（头发 0xE0）**；脸部组 0 不采样 tex9580（`img/tex9580_screenspace_shadowmask.png` 已按最终状态重导） |
 | 光照/材质着色 | **P35** | 4906–5595 | HDR R11G11B10 tex5279；前 6 个 3-index 全屏 pass 用深度模板状态 655/662（stencil EQUAL，掩码 0xC0/0x84/0x81）按材质类别着色；后续角色几何做前向叠加 |
 | 角色遮罩 | P36 | 5611–6068 | MRT tex9621(R16G16) + tex5288(R8)，5288 输出角色剪影（`img/tex5288_character_maskR8.png`） |
 | Bloom | P37–P54 | 6090–6249 | 逐级 downsample/upsample，ps3/ps4 读取 P36 的 9621/5288 |
@@ -79,7 +79,7 @@ HSR 的角色不是"一个前向 pass 画完"：**几何在 P08 写入 GBuffer�
 | 4989 | 9573/9584 | DSS 1305 | 通过但写 0（不改变颜色） |
 
 这些 draw 都是 3-index 全屏三角形（VB buf96、IB buf97），SRV 同时读取：
-`tex9580`(SS 阴影)、`tex9503/9507`(GBuffer)、`tex514`(深度)、`tex3403`(SSAO)、`tex9596`、`tex15780`(雾)、`tex5267`(反射/降噪) 等；CB 为 `buf211(1040B)` + `buf184/buf193(576B)` + `buf191(1872B)`。
+`tex9580`(SS 阴影，只有 Ref 192/128 的 ps 9571/9572 读取)、`tex9503/9507`(GBuffer)、`tex514`(深度)、`tex3403`(SSAO)、`tex9596`、`tex15780`(雾)、`tex5267`(反射/降噪) 等；CB 为 `buf211(1040B)` + `buf184/buf193(576B)` + `buf191(1872B)`。
 即：**deferred/toon 光照按模板材质 ID 分派，全屏求值而非逐几何求值**。
 
 ### 4.2 角色几何前向叠加
@@ -133,7 +133,12 @@ blend 213 = `SRC_ALPHA / INV_SRC_ALPHA`；PS 15531 输出 alpha = 软边系数 �
 
 ## 5. 角色相关后处理
 
-- **P27 屏幕空间阴影**（tex9580 R8，`img/tex9580_screenspace_shadowmask.png`）：27 draws，其中 3-index/36-index 全屏+小几何；采样主深度与阴影图集 18188/17638，输出柔和阴影轮廓，P35 的 ps0 使用。
+- **P27 屏幕空间阴影**（tex9580 R8，`img/tex9580_screenspace_shadowmask.png`，已按最终状态重导）：27 draws，分三段——
+  ① 全屏（eid 4357，PS 9523）按 `cb2[0].w` 个矩阵条目选择盒体（半宽 0.5）并 16-tap PCF 采样 tex17638（世界/级联软影）；
+  ② 13 个 36-index 盒体（eid 4371–4492，PS 9533 空、ColorMask 0）用 `ZFail=Replace / Ref 1 / W1` 标记 stencil bit0（盒体被遮挡）；
+  ③ 13 个盒体（eid 4502–4622，PS 9570）按每物体光空间矩阵 + tile UV 采样 tex18188，`MIN` 混合，DSS 9586 = `Ref 192 / ReadMask 0xC1 / backface EQUAL`，**只落在模板组 3（头发，P08 hair ref=0xE0）且 bit0=0 的像素**。
+  消费端：P35 ps 9571（Ref 192）与 ps 9572（Ref 128）在 s0 绑定 tex9580；脸部/皮肤是组 0（eid 4956，PS 661 只采样 s0=tex9503 albedo），**不读取 tex9580**。
+  本帧 tex9580 的 18,268 个皮肤像素全部为 255；P27 的角色投影在脸上要么输出 1，要么 depth/stencil 拒绝。因此 P27 不承载“刘海在脸上投影”。
 - **P36 后光照遮罩**：tex5288(R8) 输出角色剪影（`img/tex5288_character_maskR8.png`），tex9621(R16G16) 导出为纯黑（可能仅在其它通道/G 通道有值）。二者被 P37–P54 的 bloom 读取（ps3/ps4），说明**角色遮罩参与 bloom 强度控制**。
 - P55 的 tonemap draw(eid 6268) 把 tex5279(HDR) 写入最终 RT 683；此前 bloom 结果 tex5300/9633 也在 P55 被读取。
 

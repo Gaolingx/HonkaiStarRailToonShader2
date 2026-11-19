@@ -191,7 +191,8 @@ namespace SRCharacter
                 material.SetFloat(SRCharacterShaderIDs.ShadingGroup, 0);
                 material.SetFloat(SRCharacterShaderIDs.MaterialID, 16);
                 capsule.GetComponent<Renderer>().sharedMaterial = material;
-                capsule.AddComponent<SRCharacterRenderer>().Apply();
+                SRCharacterRenderer capsuleSettings = capsule.AddComponent<SRCharacterRenderer>();
+                capsuleSettings.Apply();
 
                 // A stock URP lit cube proves the pipeline itself draws.
                 baselineMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit"));
@@ -270,6 +271,86 @@ namespace SRCharacter
 
                 Object.DestroyImmediate(bangs);
                 Object.DestroyImmediate(transparentMaterial);
+
+                // --- Front hair shadow (reference-based, not in capture frame 13063): a small
+                // bangs quad is rasterized into the hair depth prepass; the face shading samples
+                // it with an offset along the light direction. With a +X key light the shadow must
+                // appear to the right of the caster, and a larger _SRHairShadowDistance must push
+                // the darkened region further right.
+                Quaternion previousLightRotation = light.transform.rotation;
+                light.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+
+                // The face SDF is lit on the capsule, so the toon term only shows a difference
+                // when the ramp is not white. A uniform dark ramp makes `lit` visible.
+                Texture2D testRamp = new Texture2D(256, 16, TextureFormat.RGBA32, false, true)
+                {
+                    name = "SRCharacterVerifyRamp"
+                };
+                Color[] rampPixels = new Color[256 * 16];
+                for (int i = 0; i < rampPixels.Length; i++)
+                    rampPixels[i] = new Color(0.2f, 0.2f, 0.22f, 1f);
+                testRamp.SetPixels(rampPixels);
+                testRamp.Apply();
+                feature.settings.rampCool = testRamp;
+                feature.settings.rampWarm = testRamp;
+                feature.settings.hairRampCool = testRamp;
+                feature.settings.hairRampWarm = testRamp;
+
+                capsuleSettings.area = SRCharacterRenderer.Area.Face;
+                capsuleSettings.Apply();
+
+                Material hairCasterMaterial = new Material(Shader.Find(SRCharacterShaderIDs.TransparentShaderName));
+                hairCasterMaterial.SetColor("_BaseColor", new Color(1f, 0.1f, 0.1f, 1f));
+                hairCasterMaterial.SetFloat(SRCharacterShaderIDs.Alpha, 0.5f);
+                hairCasterMaterial.SetFloat(SRCharacterShaderIDs.StencilRef, SRCharacterStencil.MakeRef(0, 24));
+                hairCasterMaterial.SetFloat(SRCharacterShaderIDs.Area, 3);
+                hairCasterMaterial.SetFloat(SRCharacterShaderIDs.ShadingGroup, 0);
+                hairCasterMaterial.SetFloat(SRCharacterShaderIDs.MaterialID, 24);
+
+                GameObject hairCaster = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                hairCaster.name = "SRCharacterVerifyHairCaster";
+                hairCaster.transform.position = new Vector3(-0.3f, 0.3f, -1.2f);
+                hairCaster.transform.localScale = new Vector3(0.36f, 0.5f, 1f);
+                hairCaster.GetComponent<Renderer>().sharedMaterial = hairCasterMaterial;
+
+                Vector3 casterScreen = camera.WorldToScreenPoint(hairCaster.transform.position);
+
+                feature.settings.enableFrontHairShadow = false;
+                Color32[] hairShadowOff = RenderAndGetPixels(camera, rt);
+
+                feature.settings.enableFrontHairShadow = true;
+                feature.settings.hairShadowDistance = 3f;
+                Color32[] hairShadowNear = RenderAndGetPixels(camera, rt);
+
+                feature.settings.hairShadowDistance = 6f;
+                Color32[] hairShadowFar = RenderAndGetPixels(camera, rt);
+
+                MeasureDarkening(hairShadowOff, hairShadowNear, rt.width, 5,
+                    out int nearCount, out float nearCentroidX, out float nearMaxX);
+                MeasureDarkening(hairShadowOff, hairShadowFar, rt.width, 5,
+                    out int farCount, out float farCentroidX, out float farMaxX);
+                Debug.Log($"[SRCharacterVerify] front hair shadow: caster.x={casterScreen.x:F1}, " +
+                          $"near(d=3) count={nearCount} centroidX={nearCentroidX:F1} maxX={nearMaxX:F0}, " +
+                          $"far(d=6) count={farCount} centroidX={farCentroidX:F1} maxX={farMaxX:F0}");
+                Check(nearCount > 20, "front hair shadow darkens face pixels");
+                Check(nearCentroidX > casterScreen.x + 1.5f && nearMaxX > casterScreen.x + 2f,
+                    "front hair shadow lands on the side opposite the light");
+                Check(farCount > 20 && farCentroidX > nearCentroidX + 1f && farMaxX > nearMaxX + 1f,
+                    "a larger hair shadow distance pushes the shadow further from the caster");
+
+                SaveRenderTexture(rt, "smoke_hairshadow.png");
+
+                feature.settings.hairShadowDistance = 0.2f;
+                feature.settings.rampCool = null;
+                feature.settings.rampWarm = null;
+                feature.settings.hairRampCool = null;
+                feature.settings.hairRampWarm = null;
+                capsuleSettings.area = SRCharacterRenderer.Area.Body;
+                capsuleSettings.Apply();
+                light.transform.rotation = previousLightRotation;
+                Object.DestroyImmediate(hairCaster);
+                Object.DestroyImmediate(hairCasterMaterial);
+                Object.DestroyImmediate(testRamp);
 
                 // --- Eye overlay (capture eids 4968/4989): the proxy is redrawn against the G-buffer
                 // depth; where it is covered (the green bangs bar) the ZFail marks stencil bit 0 and
@@ -477,6 +558,29 @@ namespace SRCharacter
         private static int Brightness(Color32 pixel)
         {
             return pixel.r + pixel.g + pixel.b;
+        }
+
+        // Pixel array comes from GetPixels32 (row 0 = bottom); centroid X shares that space
+        // with Camera.WorldToScreenPoint, so the comparison is direct.
+        private static void MeasureDarkening(Color32[] reference, Color32[] shaded, int width, int threshold,
+            out int count, out float centroidX, out float maxX)
+        {
+            count = 0;
+            maxX = 0f;
+            double sumX = 0;
+            for (int i = 0; i < reference.Length; i++)
+            {
+                if (Brightness(reference[i]) - Brightness(shaded[i]) <= threshold)
+                    continue;
+
+                float x = i % width;
+                count++;
+                sumX += x;
+                if (x > maxX)
+                    maxX = x;
+            }
+
+            centroidX = count > 0 ? (float)(sumX / count) : 0f;
         }
     }
 }

@@ -16,12 +16,14 @@
 | 深度遮挡（相机与角色之间放不透明物体） | 通过：屏幕中心被遮挡物占据，角色像素 5608 → 24 |
 | 半透明刘海（50% alpha quad） | 通过：中心像素 `(230,178,178)` → `(243,132,132)`，红升绿降 |
 | 眼睛遮挡 bit0（proxy + 前方刘海条） | 通过：可见侧亮度 90 → 173；被挡侧保持 `(50,153,50)` 不变 |
-| 总体结论 | **PARTIAL**：角色核心 pass 链、眼睛 bit0 与半透明刘海已重建并验证；GPU 蒙皮、P27 屏幕空间阴影、P36 遮罩 + bloom 未移植 |
+| 前发阴影（HairDepth prepass + 脸部采样，参考实现） | 通过：刘海 quad 的阴影落在主光反侧；距离 3→6 时质心 X 110.7→112.8、最右像素 121→125 |
+| 总体结论 | **PARTIAL**：角色核心 pass 链、眼睛 bit0、半透明刘海、前发阴影已重建并验证；P27（只作用于头发组）、P36 遮罩 + bloom、GPU 蒙皮未移植 |
 
 完整证据：[02-SRCharacterShaderReserve/validation/verify.log](Projects/02-SRCharacterShaderReserve/validation/verify.log)、
 [smoke_render.png](Projects/02-SRCharacterShaderReserve/validation/smoke_render.png)、
 [smoke_transparent.png](Projects/02-SRCharacterShaderReserve/validation/smoke_transparent.png)、
-[smoke_eye.png](Projects/02-SRCharacterShaderReserve/validation/smoke_eye.png)。
+[smoke_eye.png](Projects/02-SRCharacterShaderReserve/validation/smoke_eye.png)、
+[smoke_hairshadow.png](Projects/02-SRCharacterShaderReserve/validation/smoke_hairshadow.png)。
 
 ## 仓库结构
 
@@ -38,11 +40,11 @@ Projects/
     *.py                          XML/状态解析与文档生成脚本
   02-SRCharacterShaderReserve/    URP 重建模块（第二轮）
     README.md                     模块设计、证据映射、使用步骤、验证结果
-    Runtime/                      RendererFeature + 7 个 Pass + 模板编码 + 材质设置组件
+    Runtime/                      RendererFeature + 8 个 Pass + 模板编码 + 材质设置组件
     Shaders/                      GBuffer/描边/眼睛/加法叠加/半透明刘海 + 全屏分组着色 + 公共 HLSL
     Editor/                       材质 Inspector + 批处理验证入口
     analysis/extract_stencil_refs.py
-    validation/                   verify.log + smoke_render / smoke_transparent / smoke_eye.png
+    validation/                   verify.log + smoke_render / smoke_transparent / smoke_eye / smoke_hairshadow.png
 ```
 
 ## 1. 抓帧证据摘要
@@ -80,17 +82,18 @@ P35 的全屏 pass 深度比较为 `ALWAYS` 且不写深度；前向叠加为 `G
 ## 2. 重建管线
 
 模块入口：[SRCharacterFeature.cs](Projects/02-SRCharacterShaderReserve/Runtime/SRCharacterFeature.cs)。
-7 个 pass 统一在 `AfterRenderingOpaques` 按 enqueue 顺序执行：
+8 个 pass 统一在 `AfterRenderingOpaques` 按 enqueue 顺序执行：
 
 | 顺序 | Pass | 目标 | 关键状态 | 对应抓帧 |
 |---|---|---|---|---|
 | 1 | `SRCharacterGBuffer` | `_SRCharacterAlbedo` RGBA8 + `_SRCharacterNormal` RGBA16F + `_SRCharacterMask` RGBA8 + 相机 depth | `Stencil Replace`，`ZWrite On / ZTest LEqual` | P08 |
 | 2 | `SRCharacterOutline` | 同上（不清除） | `Cull Front`，背面 REPLACE，VS 法线外扩 | P08 eid 3194/3366 |
-| 3 | `SRCharacterShading` ×4 | 相机 color + depth | `Ref=g<<6, ReadMask 192, Equal`，组 1..3 清 bit0 | P35 eid 4906/4924/4948/4956 |
-| 4 | `SRCharacterEyeMark` | 相机 color（ColorMask 0）+ depth | `Ref 1 / WriteMask 1 / ZFail Replace` | P35 eid 4968/4999 |
-| 5 | `SRCharacterEyeShade` | 相机 color + depth | `Ref=0x80, ReadMask 0x81, Equal, ops Zero`，`Blend One One`，`Cull Front` | P35 eid 4989/5015 |
-| 6 | `SRCharacterOverlay` | 相机 color + depth | `Blend One One / ZWrite Off / ZTest LEqual` | P35 eid 5083/5096 |
-| 7 | `SRCharacterTransparent` | 相机 color + depth | `Blend SrcAlpha OneMinusSrcAlpha`，`Comp NotEqual / Pass Replace`，背面描边 ZWrite | P35 eid 5349/5361/5404/5585/5595 |
+| 3 | `SRCharacterHairDepth` | `_SRHairDepthTexture` R32F（半分辨率） | 线性深度 + **MIN** 混合，只画 hair/bangs | 参考实现（抓帧无此 pass） |
+| 4 | `SRCharacterShading` ×4 | 相机 color + depth | `Ref=g<<6, ReadMask 192, Equal`，组 1..3 清 bit0；FACE 采样前发深度 | P35 eid 4906/4924/4948/4956 |
+| 5 | `SRCharacterEyeMark` | 相机 color（ColorMask 0）+ depth | `Ref 1 / WriteMask 1 / ZFail Replace` | P35 eid 4968/4999 |
+| 6 | `SRCharacterEyeShade` | 相机 color + depth | `Ref=0x80, ReadMask 0x81, Equal, ops Zero`，`Blend One One`，`Cull Front` | P35 eid 4989/5015 |
+| 7 | `SRCharacterOverlay` | 相机 color + depth | `Blend One One / ZWrite Off / ZTest LEqual` | P35 eid 5083/5096 |
+| 8 | `SRCharacterTransparent` | 相机 color + depth | `Blend SrcAlpha OneMinusSrcAlpha`，`Comp NotEqual / Pass Replace`，背面描边 ZWrite | P35 eid 5349/5361/5404/5585/5595 |
 
 G-Buffer 载荷：
 
@@ -118,7 +121,8 @@ G-Buffer 载荷：
 | P35 眼睛 proxy | 240 idx 几何 → 相机 HDR + depth | `SRCharacterEyeMark/EyeShade` 重画同一网格 | PASS（proxy 网格由用户指定） |
 | P35 透明刘海 | 1056 idx 几何 → 相机 HDR + depth | `SRCharacterTransparent` fill/outline | PASS |
 | P36 tex9621/tex5288 | 后光照 mask/effect | 未重建；仅导出 `_SRCharacterMask` | NOT PORTED |
-| P27 tex9580 | 屏幕空间阴影 | 全屏 pass 未采样 | NOT PORTED |
+| P27 tex9580 | 世界软影 + 每物体投影（后者只写头发组 0xC0） | 未移植；脸部组 0 不采样 tex9580（抓帧 18,268 个皮肤像素全 255） | NOT PORTED（不影响刘海阴影） |
+| 前发阴影 `_SRHairDepthTexture` | 抓帧无此机制 | 半分辨率 R32F 线性深度（MIN）+ FACE 偏移采样 | REFERENCE-BASED（参考 StarRailNPRShader） |
 | P00–P02 SO 缓冲 | GPU 蒙皮顶点流 | Unity `SkinnedMeshRenderer` | NOT PORTED |
 
 ### 3.2 CB 绑定
@@ -148,7 +152,8 @@ G-Buffer 载荷：
 | 环境光 | PARTIAL | `SampleSH` 近似；抓帧的 GI/雾（P29）未解码 |
 | 法线贴图 | PASS\* | `SRGetNormalWS`（[Common:87](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterCommon.hlsl#L87)） |
 | GPU 蒙皮 / Stream-Out / indirect | NOT PORTED | P00–P02 |
-| 屏幕空间阴影（P27） | NOT PORTED | 抓帧 P35 ps0 的 tex9580 |
+| 屏幕空间阴影（P27） | NOT PORTED | 抓帧 ps 9571(Ref 192) / ps 9572(Ref 128) 采样 tex9580；每物体投影只写头发组（0xE0），脸部 ps 661(Ref 0) 只采样 albedo |
+| 前发阴影（刘海投脸） | PASS\*（参考实现） | [SRCharacterHairDepthPass.cs](Projects/02-SRCharacterShaderReserve/Runtime/Passes/SRCharacterHairDepthPass.cs) + [SRCharacterShading.shader](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterShading.shader)（`SRFrontHairShadow`，抓帧无对应） |
 | 眼睛遮挡 bit0 + 眼睛高光 | PASS\* | 标记 pass（[SRCharacter.shader:SRCharacterEyeMark](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacter.shader)）+ 加法高光 pass（`SRCharacterEyeShade`）；公式为可配置的屏幕空间高光，非抓帧虹膜折射 |
 | 半透明刘海 / stencil bit0 机制 | PASS\* | [SRCharacterTransparent.shader](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterTransparent.shader)（alpha 混合 + `NOT_EQUAL` 第一层去重 + 背面描边）+ [SRCharacterTransparentPass.cs](Projects/02-SRCharacterShaderReserve/Runtime/Passes/SRCharacterTransparentPass.cs) |
 | 全屏 pass 消费 bit0 | PASS | 组 1..3 `WriteMask 1 / Pass=Zero`（DSS 655），组 0 不写（DSS 662） |
@@ -182,7 +187,7 @@ G-Buffer 载荷：
 | bit0 眼睛高光 | DSS 1305 `ReadMask 0x81 / W1 / ops Zero` | 相同（`SRCharacterEyeShade`） | PASS |
 | 透明刘海去重 | `NOT_EQUAL → Replace`（blend 213） | 相同 | PASS |
 | 顺序 | P08（GBuffer→描边）→ P35（全屏→眼睛→前向叠加→透明刘海） | GBuffer→Outline→Shading×4→EyeMark→EyeShade→Overlay→Transparent | PASS |
-| P27 位于 P08 与 P35 之间 | 有 | 无 | GAP |
+| P27 位于 P08 与 P35 之间 | 有 | 无（P27 只服务头发组；脸部刘海阴影改用 HairDepth prepass） | GAP（脸部需求已用参考实现替代） |
 
 ### 3.6 深度信息
 
@@ -233,7 +238,7 @@ rm -rf E:/GitHub/Glx.CustomURP/URPSample01/Assets/_SRCharacterVerify*
 
 | 优先级 | 项 | 影响 |
 |---|---|---|
-| 1 | P27 屏幕空间阴影（tex9580） | 角色的接触阴影/柔和投影缺失，全屏 diffuse 只乘主光 shadow |
+| 1 | P27 屏幕空间阴影（tex9580，世界软影 + 头发组自阴影） | 头发/环境缺少该软影；脸部不受影响（抓帧脸部为 albedo 直出，刘海阴影已由 HairDepth prepass 提供） |
 | 2 | P36 角色遮罩 + bloom/tonemap（P37–P55） | 角色不会参与 bloom 强度控制，最终观感差异大 |
 | 3 | GPU 蒙皮 / Stream-Out（P00–P02） | 大场景 CPU 开销与逐帧顶点流构建方式不同 |
 | 4 | CB / shader 解码（`GetCBufferVariableContents`、`debug_pixel`） | 才能把 ramp/SDF/LUT 公式从“推断”提升为“证实” |

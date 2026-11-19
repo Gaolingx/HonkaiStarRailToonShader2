@@ -252,7 +252,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 - dispatch chunkIndex: [5634]
 
 
-## P16 - CSM shadow atlas tile 0 (512x512) depth-only
+## P16 - Per-object shadow atlas tile 0 (512x512) depth-only
 
 - draw eids: 3744-3863; draws=10, dispatches=0, indices=112038
 - viewport: x=0 y=0 w=512 h=512
@@ -273,7 +273,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 1 | 1056 | 15505 | 15507 | - | 213 | 1342 | 1335 | 15568 | 41839 | 15331 | s0:47 s1:47 | cb0=4816 cb1=576 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 1 | 6600 | 7227 | 7230 | - | 140 | 705 | 6055 | 9693 | 20485 | 15327 | s0:47 s1:47 | cb0=4544 cb1=656 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P17 - CSM shadow atlas tile 1
+## P17 - Per-object shadow atlas tile 1
 
 - draw eids: 3878-3915; draws=5, dispatches=0, indices=20946
 - viewport: x=512 y=0 w=512 h=512
@@ -288,7 +288,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 1 | 3510 | 7054 | 7055 | - | 140 | 705 | 6055 | 11048 | 11029 | 5365 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 1 | 2946 | 7054 | 7055 | - | 140 | 705 | 6055 | 11219 | 11030 | 10924 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P18 - CSM shadow atlas tile 2
+## P18 - Per-object shadow atlas tile 2
 
 - draw eids: 3930-3956; draws=4, dispatches=0, indices=15876
 - viewport: x=1024 y=0 w=512 h=512
@@ -303,7 +303,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 1 | 3432 | 7054 | 7055 | - | 140 | 705 | 6055 | 11048 | 11300 | 10952 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 1 | 2490 | 7054 | 7055 | - | 140 | 705 | 6055 | 11219 | 11303 | 11252 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P19 - CSM shadow atlas tile 3
+## P19 - Per-object shadow atlas tile 3
 
 - draw eids: 3971-4008; draws=5, dispatches=0, indices=20799
 - viewport: x=0 y=512 w=512 h=512
@@ -318,7 +318,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 1 | 5178 | 7054 | 7055 | - | 140 | 705 | 6055 | 11048 | 43604 | 42359 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 1 | 1917 | 7054 | 7055 | - | 140 | 705 | 6055 | 11219 | 43607 | 42355 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P20 - CSM shadow atlas tile 4
+## P20 - Per-object shadow atlas tile 4
 
 - draw eids: 4023-4056; draws=5, dispatches=0, indices=24228
 - viewport: x=512 y=512 w=512 h=512
@@ -332,7 +332,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 2 | 17709 | 7052 | 7053 | - | 140 | 705 | 6055 | 11048 | 43769 | 10948 | s0:47 s1:47 | cb0=5216 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 2 | 6513 | 7054 | 7055 | - | 140 | 705 | 6055 | 11048 | 43770 | 10952 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P21 - CSM shadow atlas tile 5
+## P21 - Per-object shadow atlas tile 5
 
 - draw eids: 4071-4108; draws=5, dispatches=0, indices=13434
 - viewport: x=1024 y=512 w=512 h=512
@@ -346,7 +346,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 2 | 7962 | 7052 | 7053 | - | 140 | 705 | 6055 | 11048 | 43744 | 11183 | s0:47 s1:47 | cb0=5216 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 2 | 5466 | 7054 | 7055 | - | 140 | 705 | 6055 | 11048 | 43747 | 11187 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P22 - CSM shadow atlas tile 6
+## P22 - Per-object shadow atlas tile 6
 
 - draw eids: 4123-4162; draws=5, dispatches=0, indices=11490
 - viewport: x=0 y=1024 w=512 h=512
@@ -361,7 +361,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 1 | 2811 | 7054 | 7055 | - | 140 | 705 | 6055 | 11048 | 43682 | 11231 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 1 | 1119 | 7054 | 7055 | - | 140 | 705 | 6055 | 11281 | 43688 | 11247 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P23 - CSM shadow atlas tile 7
+## P23 - Per-object shadow atlas tile 7
 
 - draw eids: 4177-4207; draws=4, dispatches=0, indices=8676
 - viewport: x=512 y=1024 w=512 h=512
@@ -376,7 +376,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 1 | 1932 | 7054 | 7055 | - | 140 | 705 | 6055 | 11048 | 43718 | 11187 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 1 | 1044 | 7054 | 7055 | - | 140 | 705 | 6055 | 11281 | 43719 | 11353 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P24 - CSM shadow atlas tile 8
+## P24 - Per-object shadow atlas tile 8
 
 - draw eids: 4222-4250; draws=4, dispatches=0, indices=2466
 - viewport: x=512 y=1536 w=512 h=512
@@ -391,7 +391,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 1 | 510 | 7054 | 7055 | - | 140 | 705 | 6055 | 11048 | 43829 | 10908 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 1 | 294 | 7054 | 7055 | - | 140 | 705 | 6055 | 11281 | 43832 | 14225 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P25 - CSM shadow atlas tile 9
+## P25 - Per-object shadow atlas tile 9
 
 - draw eids: 4265-4296; draws=5, dispatches=0, indices=3756
 - viewport: x=1024 y=1536 w=512 h=512
@@ -405,7 +405,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 2 | 2736 | 7052 | 7053 | - | 140 | 705 | 6055 | 11048 | 43849 | 5411 | s0:47 s1:47 | cb0=5216 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 2 | 1014 | 7054 | 7055 | - | 140 | 705 | 6055 | 11048 | 43852 | 5423 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P26 - CSM shadow atlas tile 10
+## P26 - Per-object shadow atlas tile 10
 
 - draw eids: 4311-4336; draws=4, dispatches=0, indices=2334
 - viewport: x=0 y=2048 w=512 h=512
@@ -419,7 +419,7 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 1 | 1584 | 7052 | 7053 | - | 140 | 705 | 6055 | 11048 | 43592 | 5415 | s0:47 s1:47 | cb0=5216 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 | 2 | 744 | 7054 | 7055 | - | 140 | 705 | 6055 | 11048 | 43595 | 5423 | s0:47 s1:47 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=4816 cb1=1872 cb2=320 cb3=576 cb4=1872 |
 
-## P27 - Screen-space shadow/occlusion mask (R8) for characters/objects
+## P27 - Screen-space shadow mask (R8): world soft shadow + per-object projection (hair only)
 
 - draw eids: 4357-4622; draws=27, dispatches=0, indices=939
 - viewport: x=0 y=0 w=3072 h=1920
@@ -434,6 +434,14 @@ Note: for compute passes (P04/P28/P31) the listed RTV/DSV is residual Output-Mer
 | 1 | 3 | 9522 | 9523 | - | 197 | 636 | 1335 | 529 | 96 | 97 | s0:514 s1:17638 | cb0=4304 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=1744 cb1=576 cb2=576 cb3=576 cb4=1872 |
 | 13 | 468 | 9524 | 9533 | - | 140 | 8555 | 1289 | 9585 | 100 | 101 | s0:514 s1:17638 | cb0=656 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=1744 cb1=576 cb2=576 cb3=576 cb4=1872 |
 | 13 | 468 | 9565 | 9570 | - | 196 | 9586 | 1335 | 9585 | 100 | 101 | s0:514 s1:18188 | cb0=656 cb1=352 cb2=352 cb3=320 cb4=320 cb5=1872 | cb0=1744 cb1=576 cb2=576 cb3=576 cb4=1872 |
+
+状态实测（`state_objects.json` + `draw_dss_ref.json`）：
+
+- draw 4357：blend 197（只写 R，无混合），DSS 636（depth ALWAYS / 不写，stencil 关）。PS 9523 逐条目选择世界阴影矩阵（`cb2[0].w` 个，半宽 0.5、半径<5），16-tap PCF 采样 **tex17638**（12288×4096，本帧无写入者 → 预烘焙世界/级联图）。
+- draw 4371–4492：blend 140（**ColorMask 0**），DSS 8555 = `Ref 1 / W1 / ZFail=Replace`，CULL_BACK → 盒体近面被场景深度挡住时置 stencil **bit0=1**（与眼睛遮挡同一 bit0）。
+- draw 4502–4622：blend 196 = **MIN**，DSS 9586 = `Ref 192 / ReadMask 0xC1 / backface EQUAL`，CULL_FRONT。PS 9570 用每物体矩阵 `cb0[101..104]`、tile UV `cb0[99]`、纹素步长 `cb0[100].xy` 采样 **tex18188** 的该物体 tile，16-tap PCF，输出 `lerp(1, pcf, cb2[6].x)`。Ref 192 对应 P08 头发 `0xE0`：**该投影只写头发像素**。
+- 消费端：P35 ps 9571（Ref 192）与 ps 9572（Ref 128）在 s0 采样 tex9580；脸部/皮肤是 Ref 0 组（eid 4956，PS 661 只采样 s0=tex9503 albedo），不读取 tex9580。
+- 本帧 tex9580 的皮肤像素（18,268 px）全部为 255，P27 的角色投影在脸上要么输出 1.0，要么 depth/stencil 拒绝。
 
 ## P28 - Compute dispatch batch (main view)
 

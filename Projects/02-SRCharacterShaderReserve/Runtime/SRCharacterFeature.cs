@@ -7,6 +7,7 @@ namespace SRCharacter
     /// Rebuilds the HSR character chain from capture frame 13063 with explicit pass order:
     ///   1. G-buffer (3 MRT + camera depth/stencil, stencil = material ref)
     ///   2. Outline (front-face cull, back-face stencil replace, same MRT)
+    ///   2b. Hair depth prepass (reference-based front hair shadow input)
     ///   3. Fullscreen toon shading (one draw per stencil group, stencil Equal + ReadMask 0xC0)
     ///   4. Eye overlay (stencil bit 0 marks eye pixels covered by bangs, then gates a highlight)
     ///   5. Additive forward overlay (specular / rim / emission)
@@ -20,6 +21,7 @@ namespace SRCharacter
 
         private SRCharacterGBufferPass m_GBufferPass;
         private SRCharacterOutlinePass m_OutlinePass;
+        private SRCharacterHairDepthPass m_HairDepthPass;
         private SRCharacterShadingPass m_ShadingPass;
         private SRCharacterEyeMarkPass m_EyeMarkPass;
         private SRCharacterEyeShadePass m_EyeShadePass;
@@ -36,6 +38,10 @@ namespace SRCharacter
                 renderPassEvent = settings.passEvent
             };
             m_OutlinePass = new SRCharacterOutlinePass(settings.characterLayers, m_GBufferPass)
+            {
+                renderPassEvent = settings.passEvent
+            };
+            m_HairDepthPass = new SRCharacterHairDepthPass(settings.characterLayers, settings)
             {
                 renderPassEvent = settings.passEvent
             };
@@ -84,6 +90,7 @@ namespace SRCharacter
 
             m_GBufferPass.renderPassEvent = settings.passEvent;
             m_OutlinePass.renderPassEvent = settings.passEvent;
+            m_HairDepthPass.renderPassEvent = settings.passEvent;
             m_ShadingPass.renderPassEvent = settings.passEvent;
             m_EyeMarkPass.renderPassEvent = settings.passEvent;
             m_EyeShadePass.renderPassEvent = settings.passEvent;
@@ -94,6 +101,9 @@ namespace SRCharacter
 
             if (settings.enableOutline)
                 renderer.EnqueuePass(m_OutlinePass);
+
+            if (settings.enableFrontHairShadow)
+                renderer.EnqueuePass(m_HairDepthPass);
 
             renderer.EnqueuePass(m_ShadingPass);
 
@@ -113,10 +123,12 @@ namespace SRCharacter
         protected override void Dispose(bool disposing)
         {
             m_GBufferPass?.Dispose();
+            m_HairDepthPass?.Dispose();
             m_ShadingPass?.Dispose();
 
             m_GBufferPass = null;
             m_OutlinePass = null;
+            m_HairDepthPass = null;
             m_ShadingPass = null;
             m_EyeMarkPass = null;
             m_EyeShadePass = null;

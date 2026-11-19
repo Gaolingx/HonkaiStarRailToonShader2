@@ -35,7 +35,7 @@ API：D3D11 / NVIDIA RTX 3050 Laptop / 622 actions / 581 draws / 无 debug marke
 - GBuffer 阶段用 **stencil REPLACE 写材质/描边 ID**；**P35** 用 6 个全屏三角形 + `StencilFunc=EQUAL` 的材质掩码 pass 分材质着色到 HDR tex5279（皮肤像素由 eid 4956 写入得到证实），随后角色几何做前向叠加（eid 5083/5096）。
 - **描边**是独立 draw：`CULL_FRONT` + backface stencil REPLACE（eid 3194/3366），与 GBuffer 共用 GPU 蒙皮输出缓冲。
 - **GPU 蒙皮**：P00–P02 用 VS+GS+StreamOut 把蒙皮结果写入 `VERTEX_BUFFER|STREAM_OUTPUT` 缓冲（如 buf20481），骨骼矩阵来自 SRV buffer 7211（float4 数组）。
-- 屏幕空间阴影（P27，tex9580）与角色剪影（P36，tex5288）作为后续着色/bloom 的输入。
+- 屏幕空间阴影（P27，tex9580：世界软影 + 每物体投影，后者只写头发组）与角色剪影（P36，tex5288）作为后续着色/bloom 的输入。
 - P35 用 **stencil bit0** 传递“眼睛是否被挡住”（eid 4968/4989/4999/5015）；半透明刘海不进 GBuffer，
   以 alpha 混合 + `NOT_EQUAL` 第一层去重绘制（eid 5349/5361/5404/5585/5595，见 04 §4.4）。
 

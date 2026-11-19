@@ -14,6 +14,12 @@ Shader "SRCharacter/Shading"
         _SRToonShadowSoftness ("Shadow Softness", Range(0.001, 0.5)) = 0.1
         _SRShadowAttenuationStrength ("Main Light Shadow Strength", Range(0, 1)) = 1
         _SRIndirectIntensity ("Indirect Intensity", Range(0, 4)) = 1
+
+        [Header(Front Hair Shadow)]
+        _SRHairShadowDistance ("Front Hair Shadow Distance", Range(0, 8)) = 0.2
+        _SRHairShadowStrength ("Front Hair Shadow Strength", Range(0, 1)) = 1
+        _SRHairShadowDepthBias ("Front Hair Shadow Depth Bias", Range(-0.05, 0.05)) = 0
+        _SRModelScale ("Model Scale", Float) = 1
     }
 
     SubShader
@@ -61,6 +67,8 @@ Shader "SRCharacter/Shading"
             TEXTURE2D(_SRCharacterNormal);
             TEXTURE2D(_SRCharacterMask);
 
+            TEXTURE2D(_SRHairDepthTexture);     SAMPLER(sampler_SRHairDepthTexture);
+
             TEXTURE2D(_SRRampCool);         SAMPLER(sampler_SRRampCool);
             TEXTURE2D(_SRRampWarm);         SAMPLER(sampler_SRRampWarm);
             TEXTURE2D(_SRHairRampCool);     SAMPLER(sampler_SRHairRampCool);
@@ -73,6 +81,10 @@ Shader "SRCharacter/Shading"
                 float _SRToonShadowSoftness;
                 float _SRShadowAttenuationStrength;
                 float _SRIndirectIntensity;
+                float _SRHairShadowDistance;
+                float _SRHairShadowStrength;
+                float _SRHairShadowDepthBias;
+                float _SRModelScale;
             CBUFFER_END
 
             #define SR_RAMP_ROWS 16.0
@@ -105,6 +117,32 @@ Shader "SRCharacter/Shading"
                 #endif
                 // Cool/warm split keeps the shadow tint from turning flat gray.
                 return lerp(cool, warm, saturate(1.0 - rampU));
+            }
+
+            // Reference-based front hair shadow (StarRailNPRShader's GetHairShadow):
+            // march the screen UV toward the light by a distance that compensates for
+            // FOV, model scale and perspective, then compare hair depth with the face depth.
+            float SRFrontHairShadow(float2 screenPosPx, float3 positionWS, float3 lightDirWS)
+            {
+                float2 width = _SRHairShadowDistance * 0.04;
+
+                if (IsPerspectiveProjection())
+                    width *= unity_CameraProjection._m11 / 2.414;
+                else
+                    width *= unity_CameraProjection._m11 / 1.5996;
+
+                float eyeDepth = -TransformWorldToView(positionWS).z;
+                width *= rcp(max(eyeDepth / max(_SRModelScale, 0.001), 0.001));
+
+                // Taller targets give the character more horizontal UV, so widen X only.
+                width.x *= log10(_ScaledScreenParams.y) / 3.33;
+
+                float3 lightDirVS = TransformWorldToViewDir(lightDirWS, true);
+                float2 hairUV = screenPosPx / _ScaledScreenParams.xy + lightDirVS.xy * width;
+                float hairDepth01 = SAMPLE_TEXTURE2D(_SRHairDepthTexture, sampler_SRHairDepthTexture, hairUV).r;
+                float faceDepth01 = saturate(eyeDepth / max(_ProjectionParams.z, 0.001));
+
+                return step(faceDepth01 + _SRHairShadowDepthBias, hairDepth01);
             }
 
             half4 ShadingFragment(Varyings input) : SV_Target
@@ -142,6 +180,14 @@ Shader "SRCharacter/Shading"
                     lit = charMask.a;
 
                 lit *= lerp(1.0, mainLight.shadowAttenuation, _SRShadowAttenuationStrength);
+
+                // Front hair shadow: reference-based addition (the capture face pass is flat
+                // albedo and never samples tex9580, so this has no captured counterpart).
+                if (area == (uint)SR_AREA_FACE && _SRHairShadowStrength > 0.0)
+                {
+                    float hairShadow = SRFrontHairShadow(input.positionCS.xy, positionWS, mainLight.direction);
+                    lit *= lerp(1.0, hairShadow, _SRHairShadowStrength);
+                }
 
                 half3 rampTint = SampleRamp(materialId, remappedNoL);
                 half3 albedoLinear = albedo.rgb;

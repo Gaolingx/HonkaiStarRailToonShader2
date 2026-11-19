@@ -21,18 +21,18 @@ Event ids below are RenderDoc event ids; `chunkIndex` is the index in the XML ch
 | P13 | 3701-3701 | 0 | 1 | 0 | 128x128@0,0 | tex17656 | - | 128x128 compute |
 | P14 | chunk 5617-5620 | 0 | 0 | 0 | 128x128@0,0 | tex17656 | - | 128x128 state |
 | P15 | 3721-3721 | 0 | 1 | 0 | 128x128@0,0 | tex17656 | - | 128x128 compute |
-| P16 | 3744-3863 | 10 | 0 | 112038 | 512x512@0,0 | - | tex18188 | CSM shadow atlas tile 0 (512x512) depth-only |
-| P17 | 3878-3915 | 5 | 0 | 20946 | 512x512@512,0 | - | tex18188 | CSM shadow atlas tile 1 |
-| P18 | 3930-3956 | 4 | 0 | 15876 | 512x512@1024,0 | - | tex18188 | CSM shadow atlas tile 2 |
-| P19 | 3971-4008 | 5 | 0 | 20799 | 512x512@0,512 | - | tex18188 | CSM shadow atlas tile 3 |
-| P20 | 4023-4056 | 5 | 0 | 24228 | 512x512@512,512 | - | tex18188 | CSM shadow atlas tile 4 |
-| P21 | 4071-4108 | 5 | 0 | 13434 | 512x512@1024,512 | - | tex18188 | CSM shadow atlas tile 5 |
-| P22 | 4123-4162 | 5 | 0 | 11490 | 512x512@0,1024 | - | tex18188 | CSM shadow atlas tile 6 |
-| P23 | 4177-4207 | 4 | 0 | 8676 | 512x512@512,1024 | - | tex18188 | CSM shadow atlas tile 7 |
-| P24 | 4222-4250 | 4 | 0 | 2466 | 512x512@512,1536 | - | tex18188 | CSM shadow atlas tile 8 |
-| P25 | 4265-4296 | 5 | 0 | 3756 | 512x512@1024,1536 | - | tex18188 | CSM shadow atlas tile 9 |
-| P26 | 4311-4336 | 4 | 0 | 2334 | 512x512@0,2048 | - | tex18188 | CSM shadow atlas tile 10 |
-| P27 | 4357-4622 | 27 | 0 | 939 | 3072x1920@0,0 | tex9580 | tex9515 | Screen-space shadow/occlusion mask (R8) for characters/objects |
+| P16 | 3744-3863 | 10 | 0 | 112038 | 512x512@0,0 | - | tex18188 | Per-object shadow atlas tile 0 (512x512) depth-only |
+| P17 | 3878-3915 | 5 | 0 | 20946 | 512x512@512,0 | - | tex18188 | Per-object shadow atlas tile 1 |
+| P18 | 3930-3956 | 4 | 0 | 15876 | 512x512@1024,0 | - | tex18188 | Per-object shadow atlas tile 2 |
+| P19 | 3971-4008 | 5 | 0 | 20799 | 512x512@0,512 | - | tex18188 | Per-object shadow atlas tile 3 |
+| P20 | 4023-4056 | 5 | 0 | 24228 | 512x512@512,512 | - | tex18188 | Per-object shadow atlas tile 4 |
+| P21 | 4071-4108 | 5 | 0 | 13434 | 512x512@1024,512 | - | tex18188 | Per-object shadow atlas tile 5 |
+| P22 | 4123-4162 | 5 | 0 | 11490 | 512x512@0,1024 | - | tex18188 | Per-object shadow atlas tile 6 |
+| P23 | 4177-4207 | 4 | 0 | 8676 | 512x512@512,1024 | - | tex18188 | Per-object shadow atlas tile 7 |
+| P24 | 4222-4250 | 4 | 0 | 2466 | 512x512@512,1536 | - | tex18188 | Per-object shadow atlas tile 8 |
+| P25 | 4265-4296 | 5 | 0 | 3756 | 512x512@1024,1536 | - | tex18188 | Per-object shadow atlas tile 9 |
+| P26 | 4311-4336 | 4 | 0 | 2334 | 512x512@0,2048 | - | tex18188 | Per-object shadow atlas tile 10 |
+| P27 | 4357-4622 | 27 | 0 | 939 | 3072x1920@0,0 | tex9580 | tex9515 | Screen-space shadow mask (R8): fullscreen world soft shadow (tex17638) + per-object projection (tex18188, hair group only) |
 | P28 | 4650-4700 | 0 | 4 | 0 | 1536x960@0,0 | tex683 | tex687 | Compute dispatch batch (main view) |
 | P29 | 4718-4735 | 2 | 0 | 72 | 3072x1920@0,0 | tex15780 | tex9515 | Fog / atmosphere pass into R11G11B10 |
 | P30 | 4762-4762 | 1 | 0 | 3 | 3072x1920@0,0 | tex9596 | tex514 | Fullscreen composite into RGBA8 (samples depth, GBuffer, masks) |

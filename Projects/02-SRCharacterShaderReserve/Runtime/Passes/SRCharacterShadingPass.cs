@@ -72,6 +72,12 @@ namespace SRCharacter
                     material.SetFloat(SRCharacterShaderIDs.ShadowAttenuationStrength, m_Settings.shadowAttenuationStrength);
                     material.SetFloat(SRCharacterShaderIDs.IndirectIntensity, m_Settings.indirectIntensity);
 
+                    bool hairShadow = m_Settings.enableFrontHairShadow && m_Settings.hairShadowStrength > 0f;
+                    material.SetFloat(SRCharacterShaderIDs.HairShadowDistance, hairShadow ? m_Settings.hairShadowDistance : 0f);
+                    material.SetFloat(SRCharacterShaderIDs.HairShadowStrength, hairShadow ? m_Settings.hairShadowStrength : 0f);
+                    material.SetFloat(SRCharacterShaderIDs.HairShadowDepthBias, m_Settings.hairShadowDepthBias);
+                    material.SetFloat(SRCharacterShaderIDs.ModelScale, Mathf.Max(m_Settings.modelScale, 0.01f));
+
                     cmd.DrawProcedural(Matrix4x4.identity, material, 0, MeshTopology.Triangles, 3);
                 }
             }

@@ -276,6 +276,70 @@ Shader "SRCharacter/Character"
         }
 
         // ------------------------------------------------------------------
+        // Front hair shadow input (reference-based, not in the capture):
+        // hair writes linear01 eye depth into a half-res R32F target with MIN
+        // blending, so the nearest strand per pixel survives. The fullscreen
+        // face shading samples it with a light-direction screen-space offset.
+        // Non-hair materials run the vertex stage but are clipped in the fragment.
+        // ------------------------------------------------------------------
+        Pass
+        {
+            Name "SRCharacterHairDepth"
+            Tags { "LightMode" = "SRCharacterHairDepth" }
+
+            Cull [_Cull]
+            ZWrite Off
+            ZTest Always
+            ColorMask R
+            Blend One One
+            BlendOp Min
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex HairDepthVertex
+            #pragma fragment HairDepthFragment
+            #pragma multi_compile_instancing
+            #pragma shader_feature_local_fragment _ _ALPHATEST_ON
+
+            #include "SRCharacterCommon.hlsl"
+
+            struct HairDepthVaryings
+            {
+                float4 positionCS : SV_POSITION;
+                float3 positionWS : TEXCOORD0;
+                float2 uv         : TEXCOORD1;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            HairDepthVaryings HairDepthVertex(SRCharacterAttributes input)
+            {
+                HairDepthVaryings output = (HairDepthVaryings)0;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+
+                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                output.positionWS = positionWS;
+                output.positionCS = TransformWorldToHClip(positionWS);
+                output.uv = SRTransformBaseMapUV(input.uv);
+                return output;
+            }
+
+            half4 HairDepthFragment(HairDepthVaryings input) : SV_Target
+            {
+                // Body (1) and face (2) must not occlude hair in this prepass.
+                clip(_SRArea - 2.5);
+
+                #if defined(_ALPHATEST_ON)
+                    clip(SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a * _BaseColor.a - _AlphaClip);
+                #endif
+
+                float linear01 = saturate(-TransformWorldToView(input.positionWS).z / max(_ProjectionParams.z, 0.001));
+                return half4(linear01, 0.0, 0.0, 1.0);
+            }
+            ENDHLSL
+        }
+
+        // ------------------------------------------------------------------
         // Additive forward layer drawn after the fullscreen shading pass:
         // specular + rim + emission (HSR eids 5083/5096, additive blend 208).
         // ------------------------------------------------------------------

@@ -196,18 +196,44 @@ validation/
   `_SREyeFadeDistance 5`、`_SREyeSpecIntensity 1`、`_SREyeLightIntensity 1`
   （抓帧 cb3[9].rgb ≈ (2.0, 1.505, 1.008)，可通过该参数放大）。
 
-### 2.6 半透明刘海
+### 2.6 半透明刘海（实为发饰玻璃球外壳）
 
 抓帧中 VB 41839（219 顶点 / 352 三角形）只在 P16 阴影和 P35 出现，**从不进入 GBuffer**：
 
+- 更正：这块网格在画面里是发饰上的玻璃球外壳（screen x≈1776..1927、y≈-43..108，五个 draw 用同一份
+  mesh），不是发片；“半透明刘海”只是沿用的分组名。旧版把它按 toon ramp 着色，与抓帧不符。
 - 填色：`Blend SrcAlpha OneMinusSrcAlpha`、`ZTest LEqual`、`ZWrite Off`，
-  `Stencil { Ref [_SRStencilRef], Comp NotEqual, Pass Replace }`——同一像素只有第一层发片通过，
+  `Stencil { Ref [_SRStencilRef], Comp NotEqual, Pass Replace }`——同一像素只有第一层通过，
   复现抓帧 5585/5595 的 `NOT_EQUAL → REPLACE` 去重（5361 是同一机制的 `Always → Replace` 变体）。
 - 描边：`Cull Front` + `ZWrite On` + 背面模板 Replace（抓帧 5404/5595）。
-- 着色：toon ramp + ILM 阴影形状 + 边缘光；alpha = `_BaseMap.a * _BaseColor.a * _SRAlpha * vertexColor.a`
-  （抓帧 PS 15531 输出 alpha = 软边 × 顶点 alpha，即发梢淡出）。
 - 由 `SRCharacterTransparentPass` 在 `AfterRenderingOpaques` 末尾用 `RenderQueueRange.transparent`
   绘制（两个 ShaderTagId 分别对应 fill / outline）；URP 的透明队列不会重复绘制它。
+
+#### PS 15531 着色载荷（eid 5361 已解码）
+
+复刻脚本 [analysis/ps15531_transparent_model.py](analysis/ps15531_transparent_model.py)，
+用 `debug_pixel --trace` 取了 4 个像素（覆盖 flag2 的两支与 alpha=0 的退化情况），误差 < 1e-6。
+
+- 输入：`v3` = 法线空间的视线方向，`v4` = 法线，`v6.y` = 世界 Y，`v2.x` = 顶点 alpha，
+  `v5.w` = 顶点阶段算出的高度阈值（本帧 `cb0[293].x + cb0[293].w = -15.063829`）。
+- **没有主光、没有 toon ramp**。颜色 = 世界高度三段渐变色板 × 着色项：
+  - 色板（`p = 2 * sat(...)`）：`s1 = smoothstep(sat((Y - cb0[87].y)/cb2[37].w))`（rampw 0.5、
+    base -15.925059），`s2 = smoothstep(sat(2(Y - cb0[87].y - cb2[37].z)))`（偏移 0.65）；
+    `s2` 取 `cb2[38]=(0.9333,0.8863,0.8627)`、`sat(s1-s2)` 取 `cb2[39]=(0.8667,0.7961,0.7765)`、
+    `(1-s1)` 取 `cb2[40]`，权重均为 0.5。
+  - 底色 `= lerp(白, cb0[285]=(0,0.1655,0.5), t0.x)`；越过阈值线（flag1）时换成 `cb0[288]=(1,1,1)`。
+  - 边缘光：`rim = (1-N·V)^4`、`fres = (1-N·V)^1.37`（`cb0[300]=(4,1.37)`），
+    混合是**二次方**：`g = (1-rim)·g + rim²·cb0[131]`（`cb0[131]=2.244329` 灰）。
+  - 高光：`H = normalize(L + V)`，`L = normalize(cb1[4]+cb1[5]+cb1[6])`（本帧 `cb0[292]=(1,1,1)`，
+    只能观测到 `L≈(-0.0150,0.9970,0.0756)`，即法线空间 +Y）；`pow(N·H, 21.8)`、
+    `smoothstep(sat((pow - 0.502)·10))·cb0[96].w(2.17)`，且只在 flag2 时生效。
+  - 吸收色 `tint = (A·lerp(cb0[289],cb0[290],spec) - 0.1)·(spec+fres) + 0.1`，
+    `A = lerp(1, cb2[33].rgb=(1,0.9121,0.8679), 0.5)`。
+- **alpha 由高度线和菲涅尔共同决定**（不是贴图软边）：
+  `alpha = sat(max(fres - (1-cb0[298].z=0.065), 0) + spec + (flag2 ? 0 : cb0[299].z=0.686)) · v2.x`。
+  `flag2 = (-15.063829 < Y)`：过线后底色项 0.686 消失，只剩菲涅尔（远端趋 0，正视时约 0.0658）。
+- 未解码/未移植：`t0` 贴图身份（4 个像素采样都是 1）、`cb2[40]`（本帧 `1-s1=0` 不可观测，
+  脚本里用 `cb2[39]` 占位）、`cb1[4..6]` 的分量（只可观测归一化和）。
 
 ### 2.7 前发阴影（HairDepth prepass，参考实现）
 
@@ -376,5 +402,5 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 3. 把全局 ramp 扩成 per-character LUT（8×N 浮点纹理 + material id 索引），对齐抓帧的 8×8 RGBA16F 小图。
 4. 若需要在正式场景使用：恢复 P08 的 GPU 蒙皮预计算（VS+GS Stream-Out 或 Compute），
    避免 SkinnedMeshRenderer 的 CPU 蒙皮开销。
-5. PS 9584 已完成（2.5：常量 + 全反射/折射两条路径）；剩余：给透明刘海补上抓帧的 3 段材质分件
-   （ref 10/11/24），并按同样方法解码 PS 15531 的 CB。
+5. PS 9584（2.5）与 PS 15531（2.6）的常量/公式均已解码；剩余：把 PS 15531 的着色移植进
+   `SRCharacter/Transparent` 的 fill pass（替换当前的 toon ramp 占位），再补抓帧的 3 段材质分件（ref 10/11/24）。

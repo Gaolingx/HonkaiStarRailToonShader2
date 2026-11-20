@@ -61,7 +61,10 @@ Formula (world Y drives everything; L is the normalised cb1[4..6] sum):
 Usage: python ps15531_transparent_model.py
 """
 
+import io
 import math
+import os
+import re
 
 def sat(x):
     return min(max(x, 0.0), 1.0)
@@ -245,6 +248,115 @@ PIXELS = [
 
 FUNCS = {"main": shade, "flat": flat, "rim": rim_layer, "outline": outline_layer}
 
+# --- composite regression (SrcAlpha / OneMinusSrcAlpha over the RT) -----------------
+def blend(src_rgba, dst_rgb):
+    a = src_rgba[3]
+    return tuple(a * s + (1.0 - a) * d for s, d in zip(src_rgba[:3], dst_rgb))
+
+COMPOSITES = [
+    # 5349 over the observed dst: postMod (0.664, 0.742, 1.0), 3-decimal readback.
+    dict(name="flat over dst", fn="flat", args=dict(world_y=-15.086004257202148),
+         dst=(0.695, 0.445, 0.414), expected=(0.664, 0.742, 1.0)),
+    # 5361 over the flat result at (1850,50).
+    dict(name="main over flat", fn="main",
+         args=dict(normal=(-0.40516403317451477, 0.5469121336936951, 0.7020222544670105),
+                   view=(0.14880625903606415, 0.6751595735549927, 0.7224935293197632),
+                   world_y=-15.069393157958984),
+         dst=(0.664, 0.742, 1.0), expected=(0.232, 0.309, 0.492)),
+]
+
+# --- shader parity: the ported material defaults must match the decoded constants ----
+SHADER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "..", "Shaders", "SRCharacterTransparent.shader")
+
+PASS_ORDER = [
+    "SRCharacterTransparentFlat",
+    "SRCharacterTransparentShade",
+    "SRCharacterTransparentDepthShell",
+    "SRCharacterTransparentRim",
+    "SRCharacterTransparentOutline",
+    "SRCharacterHairDepth",
+]
+
+EXPECTED_DEFAULTS = {
+    "_SRHeightLine": CB0[293][0] + CB0[293][3],
+    "_SRHeightFade": CB0[297][3],
+    "_SRPaletteBase": CB0[87][1],
+    "_SRPaletteRange": CB2[37][3],
+    "_SRPaletteOffset": CB2[37][2],
+    "_SRPaletteLow": CB2[38],
+    "_SRPaletteMid": CB2[39],
+    "_SRPaletteHigh": CB2[40],
+    "_SRGradientDark": CB0[285],
+    "_SRAboveLineColor": CB0[288],
+    "_SRFlatTint": CB0_287 + (1.0,),
+    "_SRFlatBrightness": CB0_297_Z,
+    "_SRFlatAlpha": CB0_299_Z,
+    "_SRMainRimColor": CB0[131],
+    "_SRMainRimExponent": CB0[300][0],
+    "_SRMainFresnelExponent": CB0[300][1],
+    "_SRMainAlphaCut": 1.0 - CB0[298][2],
+    "_SRMainSpecExponent": CB0[96][1],
+    "_SRMainSpecCutoff": CB0[97][2],
+    "_SRMainSpecIntensity": CB0[96][3],
+    "_SRMainAbsorbTint": CB2[33],
+    "_SRMainAbsorbLit": CB0[289],
+    "_SRMainAbsorbSpec": CB0[290],
+    "_SRDepthShellExtrude": 0.0,
+    "_SRRimLayerTint": (CB0_291, CB0_291, CB0_291, 1.0),
+    "_SRRimLayerExponent": 4.0,
+    "_SRRimLayerAlpha": CB0[299][1],
+    "_SRLayerOutlineColor": CB0_290_OUTLINE + (1.0,),
+    "_SRLayerOutlineAlpha": 1.0,
+    "_SRStencilRefFlat": 0,
+    "_SRStencilRefMain": 24,
+    "_SRStencilRefDepth": 10,
+    "_SRStencilRefRim": 11,
+    "_SRStencilRefOutline": 11,
+}
+
+PROPERTY_RE = re.compile(
+    r'^\s*(_[A-Za-z0-9_]+)\s*\(\s*"(?:[^"\\]|\\.)*"\s*,\s*'
+    r'(?:Float|Int|Color|Vector|Range\([^)]*\)|2D)\s*\)\s*=\s*(.+?)\s*$',
+    re.MULTILINE)
+
+
+def parse_shader(path):
+    text = io.open(path, encoding="utf-8-sig").read()
+    values = {}
+    for name, raw in PROPERTY_RE.findall(text):
+        raw = raw.strip()
+        if raw.startswith('"'):
+            continue   # texture defaults are not numeric
+        if raw.startswith("("):
+            values[name] = tuple(float(x) for x in raw.strip("()").split(","))
+        else:
+            values[name] = float(raw)
+    order = re.findall(r'"LightMode"\s*=\s*"([^"]+)"', text)
+    return values, order
+
+
+def check_shader(errors, path=SHADER_PATH):
+    values, order = parse_shader(path)
+    if order != PASS_ORDER:
+        errors.append("light-mode order %s != %s" % (order, PASS_ORDER))
+
+    for name, expected in EXPECTED_DEFAULTS.items():
+        if name not in values:
+            errors.append("shader property %s missing" % name)
+            continue
+        got = values[name]
+        got_tuple = got if isinstance(got, tuple) else (got,)
+        exp_tuple = expected if isinstance(expected, tuple) else (expected,)
+        if len(got_tuple) != len(exp_tuple):
+            errors.append("%s: %s != %s" % (name, got_tuple, exp_tuple))
+            continue
+        for g, e in zip(got_tuple, exp_tuple):
+            if abs(g - e) > 1e-5:
+                errors.append("%s: %.7f != %.7f" % (name, g, e))
+                break
+
+
 def main():
     errors = []
     for p in PIXELS:
@@ -259,9 +371,22 @@ def main():
         for g, e in zip(color, p["expected"]):
             if abs(g - e) > 2e-4:
                 errors.append("%s: %.6f != %.6f" % (p["name"], g, e))
+
+    for c in COMPOSITES:
+        got = FUNCS[c["fn"]](**c["args"])
+        color = got["color"] if isinstance(got, dict) else got
+        composited = blend(color, c["dst"])
+        print(c["name"], "postMod=", tuple(round(x, 6) for x in composited))
+        for g, e in zip(composited, c["expected"]):
+            if abs(g - e) > 1e-2:   # capture readback is 3-decimal
+                errors.append("%s: %.6f != %.6f" % (c["name"], g, e))
+
+    check_shader(errors)
+
     if errors:
         raise SystemExit("FAILED: " + "; ".join(errors))
-    print("ok: all %d trace pixels reproduced" % len(PIXELS))
+    print("ok: all %d trace pixels, %d composites and shader defaults reproduced"
+          % (len(PIXELS), len(COMPOSITES)))
 
 if __name__ == "__main__":
     main()

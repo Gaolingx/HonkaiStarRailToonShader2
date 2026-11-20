@@ -246,37 +246,118 @@ namespace SRCharacter
                 Object.DestroyImmediate(occluder);
                 Object.DestroyImmediate(occluderMaterial);
 
-                // --- Semi-transparent bangs (capture P35 eids 5349..5595): the mesh is never in the
-                // G-buffer; it alpha-blends over the already shaded character with a stencil guard.
-                Material transparentMaterial = new Material(Shader.Find(SRCharacterShaderIDs.TransparentShaderName));
-                transparentMaterial.SetColor("_BaseColor", new Color(1f, 0.1f, 0.1f, 1f));
-                transparentMaterial.SetFloat(SRCharacterShaderIDs.Alpha, 0.5f);
-                transparentMaterial.SetFloat(SRCharacterShaderIDs.StencilRef, SRCharacterStencil.MakeRef(0, 24));
-                transparentMaterial.SetFloat(SRCharacterShaderIDs.Area, 1);
-                transparentMaterial.SetFloat(SRCharacterShaderIDs.ShadingGroup, 0);
-                transparentMaterial.SetFloat(SRCharacterShaderIDs.MaterialID, 24);
+                // --- Semi-transparent ornament shell (capture P35 eids 5349/5361/5404/5585/5595).
+                // Five global layers draw the same mesh in capture order. The bubble sits in front of
+                // the capsule: the flat layer's NOT_EQUAL(ref 0) guard needs a nonzero stencil value
+                // behind it, which is exactly how the capture uses it (shell over the character).
+                Material shellMaterial = new Material(Shader.Find(SRCharacterShaderIDs.TransparentShaderName));
+                shellMaterial.SetFloat(SRCharacterShaderIDs.Alpha, 1f);
+                shellMaterial.SetFloat(SRCharacterShaderIDs.TransparentHeightLine, 1000f); // stay below the fade line
+                shellMaterial.SetFloat("_OutlineWidth", 12f);                              // widen the silhouette band
 
-                GameObject bangs = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                bangs.name = "SRCharacterVerifyBangs";
-                bangs.transform.position = new Vector3(0f, 0f, -0.8f);
-                bangs.transform.localScale = new Vector3(1.4f, 2.2f, 1f);
-                bangs.GetComponent<Renderer>().sharedMaterial = transparentMaterial;
+                GameObject shell = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                shell.name = "SRCharacterVerifyShell";
+                shell.transform.position = new Vector3(0f, 0f, -0.9f);
+                shell.transform.localScale = Vector3.one * 0.5f;
+                shell.GetComponent<Renderer>().sharedMaterial = shellMaterial;
 
-                Color32[] transparentPixels = RenderAndGetPixels(camera, rt);
-                Color32 transparentCenter = transparentPixels[(rt.height / 2) * rt.width + rt.width / 2];
-                Debug.Log($"[SRCharacterVerify] transparent bangs center={transparentCenter} (capsule center was {capsuleCenter})");
-                Check(transparentCenter.r > capsuleCenter.r + 12 && transparentCenter.g < capsuleCenter.g - 12,
-                    "semi-transparent bangs alpha-blend over the shaded character");
+                int shellCenter = (rt.height / 2) * rt.width + rt.width / 2;
+                int shellEdge = shellCenter + 17;   // grazing band inside the silhouette
+
+                Color32[] shellAll = RenderAndGetPixels(camera, rt);
                 SaveRenderTexture(rt, "smoke_transparent.png");
+                Color32 shellCenterPixel = shellAll[shellCenter];
+                Debug.Log($"[SRCharacterVerify] transparent shell center={shellCenterPixel} (capsule center was {capsuleCenter})");
+                Check(Distance(shellCenterPixel, capsuleCenter) > 12,
+                    "transparent shell composites over the shaded character");
 
-                Object.DestroyImmediate(bangs);
-                Object.DestroyImmediate(transparentMaterial);
+                // Ablation: each capture layer must leave its own signature.
+                feature.settings.enableTransparentFlat = false;
+                Color32[] shellNoFlat = RenderAndGetPixels(camera, rt);
+                feature.settings.enableTransparentFlat = true;
+                // The flat layer is palette * 1.59 * (0.46, 0.67, 1.0): it shifts the composite
+                // towards blue (its brightness is then consumed by the near-opaque main layer).
+                int flatBlueDelta = shellAll[shellCenter].b - shellNoFlat[shellCenter].b;
+                int flatRedDelta = shellNoFlat[shellCenter].r - shellAll[shellCenter].r;
+                Debug.Log($"[SRCharacterVerify] flat layer ablation: blue delta={flatBlueDelta}, red delta={flatRedDelta} " +
+                          $"(all={shellAll[shellCenter]}, off={shellNoFlat[shellCenter]})");
+                Check(flatBlueDelta > 15, "flat layer (5349) tints the shell centre blue");
+
+                feature.settings.enableTransparentShade = false;
+                Color32[] shellNoShade = RenderAndGetPixels(camera, rt);
+                feature.settings.enableTransparentShade = true;
+                int shadeDelta = Brightness(shellNoShade[shellCenter]) - Brightness(shellAll[shellCenter]);
+                Debug.Log($"[SRCharacterVerify] main layer ablation: center brightness delta={shadeDelta} (off={shellNoShade[shellCenter]})");
+                Check(shadeDelta > 30, "main layer (5361) darkens the shell centre below the fade line");
+
+                feature.settings.enableTransparentRim = false;
+                Color32[] shellNoRim = RenderAndGetPixels(camera, rt);
+                feature.settings.enableTransparentRim = true;
+                int rimEdgeDelta = Brightness(shellAll[shellEdge]) - Brightness(shellNoRim[shellEdge]);
+                int rimCenterDelta = Brightness(shellAll[shellCenter]) - Brightness(shellNoRim[shellCenter]);
+                Debug.Log($"[SRCharacterVerify] fresnel layer ablation: edge delta={rimEdgeDelta}, centre delta={rimCenterDelta} " +
+                          $"(edge={shellAll[shellEdge]}, off={shellNoRim[shellEdge]})");
+                Check(rimEdgeDelta > 8, "fresnel layer (5585) lights the grazing silhouette");
+                Check(rimCenterDelta >= -3 && rimCenterDelta <= 3, "fresnel layer fades out when facing the camera");
+
+                // The depth-only layer must not change a single colour pixel (ColorMask 0).
+                feature.settings.enableTransparentDepthShell = false;
+                Color32[] shellNoDepth = RenderAndGetPixels(camera, rt);
+                feature.settings.enableTransparentDepthShell = true;
+                int depthDelta = Distance(shellAll[shellCenter], shellNoDepth[shellCenter]);
+                Debug.Log($"[SRCharacterVerify] depth shell ablation: max channel delta={depthDelta}");
+                Check(depthDelta <= 2, "depth shell (5404) writes depth only");
+
+                // The outline layer's colour writes are masked in the capture; the band left by the
+                // fresnel layer's stencil ref is what a visible outline would occupy.
+                feature.settings.enableTransparentOutline = false;
+                Color32[] shellNoOutline = RenderAndGetPixels(camera, rt);
+                feature.settings.enableTransparentOutline = true;
+                int outlineDefaultDelta = Distance(shellAll[shellCenter], shellNoOutline[shellCenter]);
+                int outlineBand = shellCenter + 22;
+                int outlineBandDefaultDelta = Distance(shellAll[outlineBand], shellNoOutline[outlineBand]);
+                Debug.Log($"[SRCharacterVerify] outline layer masked: centre delta={outlineDefaultDelta}, band delta={outlineBandDefaultDelta}");
+                Check(outlineDefaultDelta <= 2 && outlineBandDefaultDelta <= 2,
+                    "outline layer (5595) writes no colour by default (capture mask)");
+
+                shellMaterial.SetFloat(SRCharacterShaderIDs.TransparentOutlineVisible, 1f);
+                Color32[] shellOutlineVisible = RenderAndGetPixels(camera, rt);
+                shellMaterial.SetFloat(SRCharacterShaderIDs.TransparentOutlineVisible, 0f);
+                int outlineVisibleDelta = Brightness(shellNoOutline[outlineBand]) - Brightness(shellOutlineVisible[outlineBand]);
+                Debug.Log($"[SRCharacterVerify] outline colour toggle: band brightness drop={outlineVisibleDelta} " +
+                          $"(masked={shellNoOutline[outlineBand]}, visible={shellOutlineVisible[outlineBand]})");
+                Check(outlineVisibleDelta > 30, "outline colour toggle paints the silhouette band");
+
+                // Per-layer stencil dedup: a duplicate overlapping shell must not composite twice.
+                GameObject shellTwin = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                shellTwin.name = "SRCharacterVerifyShellTwin";
+                shellTwin.transform.position = shell.transform.position;
+                shellTwin.transform.localScale = shell.transform.localScale;
+                shellTwin.GetComponent<Renderer>().sharedMaterial = shellMaterial;
+
+                Color32[] shellTwice = RenderAndGetPixels(camera, rt);
+                int dedupCenterDelta = Distance(shellAll[shellCenter], shellTwice[shellCenter]);
+                Debug.Log($"[SRCharacterVerify] duplicate shell: centre delta={dedupCenterDelta} " +
+                          $"(single={shellAll[shellCenter]}, twice={shellTwice[shellCenter]})");
+                Check(dedupCenterDelta <= 2, "per-layer stencil guard dedupes overlapping shells");
+
+                Object.DestroyImmediate(shellTwin);
+                Object.DestroyImmediate(shell);
+                Object.DestroyImmediate(shellMaterial);
 
                 // --- Front hair shadow (reference-based, not in capture frame 13063): a small
                 // bangs quad is rasterized into the hair depth prepass; the face shading samples
                 // it with an offset along the light direction. With a +X key light the shadow must
                 // appear to the right of the caster, and a larger _SRHairShadowDistance must push
                 // the darkened region further right.
+                // The shell colour layers are switched off here: their near-opaque main layer would
+                // sit on top of the shadow region and hide the measured darkening.
+                feature.settings.enableTransparentFlat = false;
+                feature.settings.enableTransparentShade = false;
+                feature.settings.enableTransparentDepthShell = false;
+                feature.settings.enableTransparentRim = false;
+                feature.settings.enableTransparentOutline = false;
+
                 Quaternion previousLightRotation = light.transform.rotation;
                 light.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
 
@@ -300,12 +381,8 @@ namespace SRCharacter
                 capsuleSettings.Apply();
 
                 Material hairCasterMaterial = new Material(Shader.Find(SRCharacterShaderIDs.TransparentShaderName));
-                hairCasterMaterial.SetColor("_BaseColor", new Color(1f, 0.1f, 0.1f, 1f));
                 hairCasterMaterial.SetFloat(SRCharacterShaderIDs.Alpha, 0.5f);
-                hairCasterMaterial.SetFloat(SRCharacterShaderIDs.StencilRef, SRCharacterStencil.MakeRef(0, 24));
                 hairCasterMaterial.SetFloat(SRCharacterShaderIDs.Area, 3);
-                hairCasterMaterial.SetFloat(SRCharacterShaderIDs.ShadingGroup, 0);
-                hairCasterMaterial.SetFloat(SRCharacterShaderIDs.MaterialID, 24);
 
                 GameObject hairCaster = GameObject.CreatePrimitive(PrimitiveType.Quad);
                 hairCaster.name = "SRCharacterVerifyHairCaster";
@@ -345,6 +422,11 @@ namespace SRCharacter
                 feature.settings.rampWarm = null;
                 feature.settings.hairRampCool = null;
                 feature.settings.hairRampWarm = null;
+                feature.settings.enableTransparentFlat = true;
+                feature.settings.enableTransparentShade = true;
+                feature.settings.enableTransparentDepthShell = true;
+                feature.settings.enableTransparentRim = true;
+                feature.settings.enableTransparentOutline = true;
                 capsuleSettings.area = SRCharacterRenderer.Area.Body;
                 capsuleSettings.Apply();
                 light.transform.rotation = previousLightRotation;
@@ -562,6 +644,11 @@ namespace SRCharacter
         private static int Brightness(Color32 pixel)
         {
             return pixel.r + pixel.g + pixel.b;
+        }
+
+        private static int Distance(Color32 a, Color32 b)
+        {
+            return Mathf.Max(Mathf.Abs(a.r - b.r), Mathf.Abs(a.g - b.g), Mathf.Abs(a.b - b.b));
         }
 
         // Pixel array comes from GetPixels32 (row 0 = bottom); centroid X shares that space

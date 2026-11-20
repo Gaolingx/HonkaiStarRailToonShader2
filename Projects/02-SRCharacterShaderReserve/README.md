@@ -70,13 +70,15 @@ Runtime/
     SRCharacterTransparentPass.cs 半透明刘海（alpha 混合 + 第一层去重 + 描边）
 Shaders/
   SRCharacter.shader             几何阶段全部 pass：GBuffer / Outline / EyeMark / EyeShade / Overlay / ShadowCaster / DepthOnly / DepthNormals
-  SRCharacterTransparent.shader  半透明刘海：fill（stencil 去重）+ 背面描边
+  SRCharacterTransparent.shader  半透明壳：平涂 / 主层 / 深度壳 / 菲涅尔 / 描边五个层 pass + HairDepth
+  SRCharacterTransparentCommon.hlsl  五层共用的色板、顶点与挤出壳函数
   SRCharacterShading.shader      全屏 toon 着色（每 group 一个材质实例）
   SRCharacterCommon.hlsl         材质 CBUFFER、法线、面部 SDF
   SRCharacterDefines.hlsl        模板/area/bit0 编码（HLSL 侧）
 Editor/
   SRCharacterShaderGUI.cs        由 group/id 自动计算 `_SRStencilRef`、切换 `_SR_AREA_FACE`
-  SRCharacterVerify.cs           批处理验证入口（编译检查 + 胶囊体冒烟渲染）
+  SRCharacterVerify.cs           批处理验证入口（编译检查 + 胶囊体冒烟渲染 + 五层消融）
+  SRCharacterCaptureBuild.cs     构建 RenderDoc 截帧用的独立 Player（验证用）
 analysis/
   extract_stencil_refs.py        从 RenderDoc XML 提取逐 draw 的 StencilRef
   ps9584_eye_model.py            PS 9584 公式复刻 + 两个抓帧像素的回归（debug_pixel --trace）
@@ -96,7 +98,7 @@ validation/
 | 5 | `SRCharacterEyeMark` | P35 eid 4968/4999 | 相机 color（ColorMask 0）+ depth | `Ref 1, WriteMask 1, Comp Always, ZFail Replace`，`ZTest LEqual`（=抓帧 GREATER_EQUAL） |
 | 6 | `SRCharacterEyeShade` | P35 eid 4989/5015 | 相机 color + depth | `Ref = _SRStencilRef, ReadMask 129, Comp Equal, Pass/Fail/ZFail Zero`，`Blend One One`，`Cull Front` |
 | 7 | `SRCharacterOverlay` | P35 eid 5083/5096 | 相机 color + depth | `Blend One One, ZWrite Off, ZTest LEqual` |
-| 8 | `SRCharacterTransparent` | P35 eid 5349/5361/5404/5585/5595 | 相机 color + depth | `Blend SrcAlpha OneMinusSrcAlpha`，`Comp NotEqual, Pass Replace`，背面描边 `Cull Front, ZWrite On` |
+| 8 | `SRCharacterTransparent` ×5 | P35 eid 5349/5361/5404/5585/5595 | 相机 color + depth | 按捕获顺序逐层 `DrawRenderers`：平涂 → 主层 → 深度壳 → 菲涅尔 → 描边，各自 stencil ref（0/24/10/11/11）`NotEqual→Replace` |
 
 所有 pass 统一 `RenderPassEvent.AfterRenderingOpaques`（同事件按 enqueue 顺序执行），
 保证角色深度测试能用到场景深度、主光阴影已解析。
@@ -202,12 +204,18 @@ validation/
 
 - 更正：这块网格在画面里是发饰上的玻璃球外壳（screen x≈1776..1927、y≈-43..108，五个 draw 用同一份
   mesh），不是发片；“半透明刘海”只是沿用的分组名。旧版把它按 toon ramp 着色，与抓帧不符。
-- 填色：`Blend SrcAlpha OneMinusSrcAlpha`、`ZTest LEqual`、`ZWrite Off`，
-  `Stencil { Ref [_SRStencilRef], Comp NotEqual, Pass Replace }`——同一像素只有第一层通过，
-  复现抓帧 5585/5595 的 `NOT_EQUAL → REPLACE` 去重（5361 是同一机制的 `Always → Replace` 变体）。
-- 描边：`Cull Front` + `ZWrite On` + 背面模板 Replace（抓帧 5404/5595）。
-- 由 `SRCharacterTransparentPass` 在 `AfterRenderingOpaques` 末尾用 `RenderQueueRange.transparent`
-  绘制（两个 ShaderTagId 分别对应 fill / outline）；URP 的透明队列不会重复绘制它。
+- 五个独立 pass（`SRCharacterTransparentFlat/Shade/DepthShell/Rim/Outline`），
+  由 `SRCharacterTransparentPass` 在 `AfterRenderingOpaques` 末尾**按捕获顺序**各发一次
+  `DrawRenderers`（层是全局顺序，不是每个 renderer 内部的 pass 链；多片壳交叠时顺序才正确）。
+- 每层一个 stencil ref（捕获 0 / 24 / 10 / 11 / 11），统一 `Comp NotEqual, Pass Replace`：
+  重叠壳按层去重，而不阻塞层叠。前发阴影 prepass 仍是第六个 pass（`SRCharacterHairDepth`）。
+- 层常量全部是材质属性，默认值 = 解码值；**这些常量是线性值，属性类型用 `Vector` 而非 `Color`**：
+  Unity 在 Linear 色彩空间下会对 `Color` 属性做一次 sRGB→线性解码（截帧比对时实测到了这个偏差，
+  见 2.6.1），`Vector` 原样上传。
+- 5595 的颜色写入在捕获里是关闭的；移植为 `_SROutlineColorVisible`（默认 0，混出 alpha=0 等价于
+  ColorMask 关闭），设为 1 时可见的是一条由 5585 的 stencil ref 让出的轮廓带。
+- 五个层 pass 都有独立的 feature 开关（`enableTransparentFlat/Shade/DepthShell/Rim/Outline`），
+  供消融测试使用。
 
 #### 一条网格、五个 draw（P35 eid 5349 / 5361 / 5404 / 5585 / 5595）
 
@@ -262,7 +270,57 @@ validation/
   `alpha = sat(max(fres - (1-cb0[298].z=0.065), 0) + spec + (flag2 ? 0 : cb0[299].z=0.686)) · v2.x`。
   `flag2 = (-15.063829 < Y)`：过线后底色项 0.686 消失，只剩菲涅尔（远端趋 0，正视时约 0.0658）。
 - 未解码/未移植：`t0` 贴图身份（4 个像素采样都是 1）、`cb2[40]`（本帧 `1-s1=0` 不可观测，
-  脚本里用 `cb2[39]` 占位）、`cb1[4..6]` 的分量（只可观测归一化和）。
+  脚本里用 `cb2[39]` 占位）、`cb1[4..6]` 的分量（只可观测归一化和）；高光方向的引擎等价物是主光方向
+  （捕获用的是三条风格化发丝向量的归一化和）。
+
+#### 2.6.1 验证：回归、消融与截帧比对（2026-11-20）
+
+**1. 数值回归**（`python analysis/ps15531_transparent_model.py`，exit=0）：
+
+```
+ok: all 8 trace pixels, 2 composites and shader defaults reproduced
+```
+
+- 8 个抓帧 trace 像素（4 个 PS 15531 分支像素 + 平涂/菲涅尔/描边层）误差 < 2e-4；
+- 2 个合成校验：`0.686·flat + 0.314·dst` 复现 postMod `(0.664,0.742,1.0)`、主层叠加复现
+  `(0.232,0.309,0.492)`（抓帧 readback 为 3 位小数，容差 1e-2）；
+- shader 一致性：解析 `SRCharacterTransparent.shader` 的 34 个默认值 + 6 个 pass 顺序，与解码常量逐项比对
+  （任何一边漂移都会失败）。
+
+**2. Unity 消融**（`SRCharacterVerify`，玻璃球叠在角色上，逐层关闭）：
+
+| 关闭的层 | 观测 | 断言 |
+|---|---|---|
+| 平涂 5349 | 中心蓝通道 −30 | 平涂层把壳中心推向蓝 |
+| 主层 5361 | 中心亮度 +234 | 主层在线下显著压暗 |
+| 菲涅尔 5585 | 掠射边缘 −66，正对中心 0 | 只在掠射角出现 |
+| 深度壳 5404 | 颜色最大通道差 0 | 只写深度 |
+| 描边色 5595（默认 masked） | 中心/轮廓带 0 | 与捕获一致不写颜色 |
+| 描边色开关 = 1 | 轮廓带亮度 −371 | 模板让出的轮廓带可见 |
+| 复制一份重叠壳 | 中心差 0 | 逐层 stencil 去重生效 |
+
+**3. RenderDoc 截帧比对**（`SRCharacterCaptureBuild.Run` 构建独立 Player，RenderDoc 注入截帧；
+1280×720、D3D11、18 draws；截帧文件 [validation/shell_final_frame984.rdc](validation/shell_final_frame984.rdc)）：
+
+- 目标格式 `R11G11B10_FLOAT` + `D32S8`，与抓帧 RT 5279 / DSV 9515 同构；
+- draw 顺序：hair depth 108 → 全屏着色 139/152/165/178 → 平涂 276 → 主层 297 → 深度壳 317 →
+  菲涅尔 339 → 描边 362（与捕获 5349→5361→5404→5585→5595 一致）；
+- 中心像素 (640,360) 的像素历史：
+
+| 层 | shaderOut | postMod | 结论 |
+|---|---|---|---|
+| 平涂 276 | `(0.6857, 0.9476, 1.3718, a=0.686)` | `(0.711, 0.789, 1.063)` | `= 0.686·src + 0.314·dst` |
+| 主层 297 | `(0.0941, 0.0893, 0.0870, a=0.686)` | `(0.285, 0.309, 0.391)` | 同一混合公式 |
+| 深度壳 317 | `(0,0,0,0)` | 不变 | 深度 `0.08543→0.08929`（捕获 `0.08086→0.09279`） |
+| 菲涅尔 339 | `(1.1757, 1.1164, 1.0868, a=0.001)` | 不变 | 正对镜头不可见；掠射像素 (688,360) alpha=0.315 |
+| 描边 362 | 0 | 不变 | `depthTestFailed`：被深度壳预写剔除（只留轮廓） |
+
+- **截帧发现的偏差（已修复）**：最初 `Color` 属性在 Linear 色彩空间被 Unity 再做一次 sRGB→线性解码，
+  平涂 shaderOut 实测 `(0.2455, 0.4955, 1.138)`；改用 `Vector` 属性后恢复为解码值
+  `(0.6857, 0.9476, 1.3718)`（`= 2·cb2[38]·0.5·1.59·cb0[287]`）。
+- 未比对项：blend/stencil 的 DSS 数值——本环境的 RenderDoc MCP 在 D3D11 下不导出该状态（与上一轮抓帧分析
+  的限制相同），混合语义由像素历史逐位验证；`[0]` 号 ref 的平涂层需要背后有非零模板（捕获里它总在角色上，
+  本实现同样如此），单独悬在天空上时会被 `NotEqual(0)` 跳过。
 
 ### 2.7 前发阴影（HairDepth prepass，参考实现）
 
@@ -324,6 +382,13 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
   -executeMethod SRCharacter.SRCharacterVerify.Run \
   -logFile Projects/02-SRCharacterShaderReserve/validation/verify.log
 # 3) 验证结束后删除 Assets/_SRCharacterVerify（连同 .meta）
+
+# 4) 截帧比对（可选）：构建独立 Player，再用 RenderDoc 注入截帧
+"D:/Program Files/Unity/Hub/Editor/2022.3.62f1/Editor/Unity.exe" \
+  -batchmode -quit -projectPath E:/GitHub/Glx.CustomURP/URPSample01 \
+  -executeMethod SRCharacter.SRCharacterCaptureBuild.Run
+# 产物：Builds/ShellCapture/ShellCapture.exe；用 RenderDoc（或 renderdoc_mcp capture_frame）截帧，
+# 对 5 个壳层 draw 取 pixel_history 即可得到 2.6.1 的数值。
 ```
 
 验证内容：
@@ -336,7 +401,7 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
    通过 `RenderPipeline.SubmitRenderRequest` 渲染 256×256（`Camera.Render()` 在 SRP 下会走内置管线），
    读回像素计数；随后依次：
    关闭 overlay、加一个位于相机与角色之间的红色不透明遮挡物、
-   加一片 50% alpha 的透明刘海 quad、加眼睛 proxy 球 + 位于其前方左半边的绿色刘海条、
+   加一个叠在角色上的透明壳球（逐层消融，见下）、加眼睛 proxy 球 + 位于其前方左半边的绿色刘海条、
    关闭 eye pass、关闭 feature 各渲染一次。finally 里恢复原 renderer data 与 MSAA。
 4. 前发阴影：主光改为横向（+X）、胶囊体临时切到 FACE、放一个小刘海 quad（Transparent / 组 3）；
    对比 `Enable Front Hair Shadow` 开/关的像素差，断言阴影落在**光源反侧**，再用距离 3/6
@@ -358,8 +423,23 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 [SRCharacterVerify] occluded center=RGBA(218, 36, 36, 255), character pixels with occluder=24
 [SRCharacterVerify] ok: occluder wins the depth test at the screen center
 [SRCharacterVerify] ok: character pixels are reduced behind an opaque occluder
-[SRCharacterVerify] transparent bangs center=RGBA(243, 132, 132, 191) (capsule center was RGBA(230, 178, 178, 255))
-[SRCharacterVerify] ok: semi-transparent bangs alpha-blend over the shaded character
+[SRCharacterVerify] transparent shell center=RGBA(147, 151, 153, 183) (capsule center was RGBA(230, 178, 178, 255))
+[SRCharacterVerify] ok: transparent shell composites over the shaded character
+[SRCharacterVerify] flat layer ablation: blue delta=30, red delta=5 (all=RGBA(147, 151, 153, 183), off=RGBA(152, 124, 123, 200))
+[SRCharacterVerify] ok: flat layer (5349) tints the shell centre blue
+[SRCharacterVerify] main layer ablation: center brightness delta=234 (off=RGBA(221, 230, 234, 200))
+[SRCharacterVerify] ok: main layer (5361) darkens the shell centre below the fade line
+[SRCharacterVerify] fresnel layer ablation: edge delta=66, centre delta=0 (edge=RGBA(232, 230, 230, 192), off=RGBA(210, 208, 208, 255))
+[SRCharacterVerify] ok: fresnel layer (5585) lights the grazing silhouette
+[SRCharacterVerify] ok: fresnel layer fades out when facing the camera
+[SRCharacterVerify] depth shell ablation: max channel delta=0
+[SRCharacterVerify] ok: depth shell (5404) writes depth only
+[SRCharacterVerify] outline layer masked: centre delta=0, band delta=0
+[SRCharacterVerify] ok: outline layer (5595) writes no colour by default (capture mask)
+[SRCharacterVerify] outline colour toggle: band brightness drop=371 (masked=RGBA(230, 178, 178, 255), visible=RGBA(98, 52, 65, 255))
+[SRCharacterVerify] ok: outline colour toggle paints the silhouette band
+[SRCharacterVerify] duplicate shell: centre delta=0 (single=RGBA(147, 151, 153, 183), twice=RGBA(147, 151, 153, 183))
+[SRCharacterVerify] ok: per-layer stencil guard dedupes overlapping shells
 [SRCharacterVerify] eye overlay: visible delta=42 (off=RGBA(90, 90, 90, 255), on=RGBA(104, 104, 104, 255)),
                      covered delta=0 (off=RGBA(50, 153, 50, 255), on=RGBA(50, 153, 50, 255))
 [SRCharacterVerify] ok: eye overlay adds a highlight on visible eye pixels
@@ -376,10 +456,11 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 遮挡测试同时验证了三点：feature 确实在 opaque 之后执行、G-Buffer 对场景深度做 `ZTest LEqual`、
 全屏着色不会把被遮挡的像素重新画出来（角色像素 5608 → 24，剩余为左侧描边边缘）。
 
-新增的三个行为测试：
+新增的行为测试：
 
-- **半透明刘海**：50% alpha 的红色 quad 叠在已着色的胶囊上，中心像素从 `(230,178,178)` 变为
-  `(243,132,132)`（红升、绿降），说明它走的是 alpha 混合而不是覆盖；
+- **半透明壳五层消融**：玻璃球叠在角色上，逐层关闭并断言各自的签名（平涂→蓝偏移、主层→压暗、
+  菲涅尔→只在掠射边缘、深度壳→颜色零变化、描边→默认不写颜色而开关后出现轮廓带），
+  复制一份重叠壳验证逐层 `NotEqual→Replace` 去重（中心差 0）。数值见 2.6.1；
 - **眼睛遮挡（bit0）**：眼睛 proxy 中心可见的一侧亮度 90→104（PS 9584 公式的加法高光生效；
   换公式前是 Blinn 高光，delta 249；新公式按抓帧常量产生更克制的折射高光），
   被绿色刘海条挡住的另一侧保持 `(50,153,50)` 不变——proxy 的深度测试失败置了 bit0，
@@ -390,9 +471,9 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 
 渲染结果：[validation/smoke_render.png](validation/smoke_render.png)（胶囊体为粉肤色 + 高光点，
 左侧可见深色描边；右侧绿色立方体为 URP/Lit 对照）、
-[smoke_transparent.png](validation/smoke_transparent.png)、
-[smoke_eye.png](validation/smoke_eye.png)、
-[smoke_hairshadow.png](validation/smoke_hairshadow.png)（红色为刘海 quad，右侧暗带为投影）。
+[smoke_transparent.png](validation/smoke_transparent.png)（角色上的玻璃壳：平涂蓝底 + 主层压暗 +
+掠射边缘光）、[smoke_eye.png](validation/smoke_eye.png)、
+[smoke_hairshadow.png](validation/smoke_hairshadow.png)（左侧暗块为刘海投影，测试中壳的着色层已关闭）。
 
 ## 5. 已知差异与限制
 
@@ -411,7 +492,7 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 | 面部 SDF 通道 | FaceMap.a（参考实现约定） | 同样用 A | 参考 StarRailNPRShader / HonkaiStarRailToonShader 的约定 |
 | 眼睛 proxy | 42 顶点 / 80 三角形独立网格，P08 也画 | 由用户指定 proxy 部件；eye pass 重画同一网格 | 没有 proxy 时整条眼睛链路不产生额外像素 |
 | 眼睛着色公式 | PS 9584：距离衰减 + 反射率 D + 解析折射 / 全反射分支 | 同名公式（`SREyeRefract`），常量见 2.5 | PASS\*（体积雾 LUT、SSAO、世界空间裁剪面未移植） |
-| 透明刘海排序 | P35 内与其它前向/透明物体混合排序 | Feature 在 `AfterRenderingOpaques` 末尾先画 | 与 URP 透明队列的相对顺序不同；单角色场景无影响 |
+| 透明壳排序 | P35 内与其它前向/透明物体混合排序 | Feature 在 `AfterRenderingOpaques` 末尾按层绘制 | 与 URP 透明队列的相对顺序不同；单角色场景无影响 |
 
 ### 与抓帧的模板差异
 
@@ -421,8 +502,8 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 - 眼睛 proxy 用**网格重画**实现（与抓帧一致），着色载荷按 2.5 的 PS 9584 公式移植；
   抓帧的材质类型判断（`normal.b * 65535 & 7 == 2` 时输出 0、不参与高光）
   在本实现中由 `_SREyeProxy` + G-Buffer area 判断替代。
-- 抓帧的透明刘海有 5 个 draw（0/24/10/11/11，其中 10 是描边、24 是 `Always→Replace` 变体）；
-  本实现每个材质只产生 fill + outline 两个 draw，`_SRStencilRef` 由材质设置决定去重键。
+- 抓帧的透明壳 5 个 draw（stencil ref 0/24/10/11/11）在本实现中同样是 5 个独立 pass + 同一个
+  `NotEqual→Replace` 机制，ref 默认值照抄抓帧；平涂层的 ref 0 要求背后模板非零（捕获里壳总在角色上）。
 
 ## 6. 下一轮建议
 
@@ -431,6 +512,6 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 3. 把全局 ramp 扩成 per-character LUT（8×N 浮点纹理 + material id 索引），对齐抓帧的 8×8 RGBA16F 小图。
 4. 若需要在正式场景使用：恢复 P08 的 GPU 蒙皮预计算（VS+GS Stream-Out 或 Compute），
    避免 SkinnedMeshRenderer 的 CPU 蒙皮开销。
-5. PS 9584（2.5）与 PS 15531（2.6）的常量/公式均已解码；剩余：把 2.6 的五层结构移植进
-   `SRCharacter/Transparent`（主层 PS 15531 + 平涂层 PS 15507 + 菲涅尔层 PS 15503 + 深度/描边壳
-   5404/5595），替换当前 fill+outline 两 pass 的占位实现。
+5. PS 9584（2.5）与 PS 15531（2.6）的常量/公式均已解码并移植；五层结构已按捕获顺序落地，
+   回归/消融/截帧比对见 2.6.1。剩余未解：`t0` 贴图身份、`cb1[3]·v0.w` 的几何含义、
+   DSS 的精确 blend/stencil 数值（MCP 在 D3D11 下不导出）。

@@ -42,6 +42,14 @@ namespace SRCharacter
 
         // Transparent hair material.
         public static readonly int Alpha = Shader.PropertyToID("_SRAlpha");
+        public static readonly int TransparentRefFlat = Shader.PropertyToID("_SRStencilRefFlat");
+        public static readonly int TransparentRefMain = Shader.PropertyToID("_SRStencilRefMain");
+        public static readonly int TransparentRefDepth = Shader.PropertyToID("_SRStencilRefDepth");
+        public static readonly int TransparentRefRim = Shader.PropertyToID("_SRStencilRefRim");
+        public static readonly int TransparentRefOutline = Shader.PropertyToID("_SRStencilRefOutline");
+        public static readonly int TransparentHeightLine = Shader.PropertyToID("_SRHeightLine");
+        public static readonly int TransparentOutlineVisible = Shader.PropertyToID("_SROutlineColorVisible");
+        public static readonly int TransparentCull = Shader.PropertyToID("_Cull");
 
         public const string AreaFaceKeyword = "_SR_AREA_FACE";
         public const string HairShadeKeyword = "_SR_SHADE_HAIR";

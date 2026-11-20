@@ -22,6 +22,13 @@ namespace SRCharacter
         [Tooltip("Semi-transparent hair / bangs submitted from the transparent queue with a stencil first-layer guard.")]
         public bool enableTransparent = true;
 
+        [Header("Transparent layers (ablation switches, capture eids 5349/5361/5404/5585/5595)")]
+        public bool enableTransparentFlat = true;
+        public bool enableTransparentShade = true;
+        public bool enableTransparentDepthShell = true;
+        public bool enableTransparentRim = true;
+        public bool enableTransparentOutline = true;
+
         [Header("Front hair shadow (reference-based, not in the capture)")]
         [Tooltip("Render hair/bangs into a half-res depth texture and sample it in the face shading with a light-direction offset.")]
         public bool enableFrontHairShadow = true;

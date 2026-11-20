@@ -56,6 +56,45 @@ CBUFFER_START(UnityPerMaterial)
     // Semi-transparent hair: output alpha = base alpha * _SRAlpha * vertex alpha.
     float  _SRAlpha;
 
+    // Semi-transparent five-layer constants (capture P35 eids 5349/5361/5404/5585/5595,
+    // README 2.6). Defaults are the decoded values; per-layer stencil refs match the capture.
+    float4 _SRPaletteLow;        // cb2[38] palette stop (low)
+    float4 _SRPaletteMid;        // cb2[39] palette stop (mid)
+    float4 _SRPaletteHigh;       // cb2[40] palette stop (high; unobservable in the capture)
+    float4 _SRGradientDark;      // cb0[285] gradient dark colour (t0.x == 1)
+    float4 _SRAboveLineColor;    // cb0[288] "above line" gradient colour
+    float4 _SRFlatTint;          // cb0[287] flat layer colour
+    float4 _SRMainRimColor;      // cb0[131] rim colour (HDR)
+    float4 _SRMainAbsorbTint;    // cb2[33] absorption tint + weight (a)
+    float4 _SRMainAbsorbLit;     // cb0[289] absorption tint, lit
+    float4 _SRMainAbsorbSpec;    // cb0[290] absorption tint, specular
+    float4 _SRRimLayerTint;      // cb0[291] fresnel layer colour
+    float4 _SRLayerOutlineColor; // PS 15524 cb0[290] outline colour
+
+    float  _SRPaletteBase;       // cb0[87].y palette ramp base height (world Y)
+    float  _SRPaletteRange;      // cb2[37].w palette ramp range
+    float  _SRPaletteOffset;     // cb2[37].z palette stop offset
+    float  _SRHeightLine;        // cb0[293].x + cb0[293].w fade line (world Y)
+    float  _SRHeightFade;        // cb0[297].w flag1 bias (scaled by 0.01)
+    float  _SRFlatBrightness;    // cb0[297].z flat layer brightness add
+    float  _SRFlatAlpha;         // cb0[299].z below-line alpha term (shared by flat/main)
+    float  _SRMainRimExponent;   // cb0[300].x
+    float  _SRMainFresnelExponent; // cb0[300].y
+    float  _SRMainAlphaCut;      // 1 - cb0[298].z
+    float  _SRMainSpecExponent;  // cb0[96].y
+    float  _SRMainSpecCutoff;    // cb0[97].z
+    float  _SRMainSpecIntensity; // cb0[96].w
+    float  _SRRimLayerExponent;  // cb0[300].y of PS 15503 (4)
+    float  _SRRimLayerAlpha;     // cb0[299].y
+    float  _SRLayerOutlineAlpha; // sat(cb0[299].y)
+    float  _SRDepthShellExtrude; // shell extrusion scale (capture 0)
+    float  _SROutlineColorVisible; // 0 = capture (colour writes masked), 1 = visible band
+    float  _SRStencilRefFlat;
+    float  _SRStencilRefMain;
+    float  _SRStencilRefDepth;
+    float  _SRStencilRefRim;
+    float  _SRStencilRefOutline;
+
     // Eye overlay (stencil bit0): only meshes flagged as eye proxies run the two eye passes.
     // The shading terms are the decoded PS 9584 constants (see README 2.5).
     float  _SREyeProxy;

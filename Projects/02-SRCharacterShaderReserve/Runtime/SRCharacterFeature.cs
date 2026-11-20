@@ -104,6 +104,8 @@ namespace SRCharacter
 
             if (settings.enableFrontHairShadow)
                 renderer.EnqueuePass(m_HairDepthPass);
+            else
+                Shader.SetGlobalTexture(SRCharacterShaderIDs.HairDepth, Texture2D.whiteTexture);
 
             renderer.EnqueuePass(m_ShadingPass);
 

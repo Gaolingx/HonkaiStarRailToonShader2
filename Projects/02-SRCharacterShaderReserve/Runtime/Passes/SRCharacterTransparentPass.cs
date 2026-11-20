@@ -5,14 +5,18 @@ using UnityEngine.Rendering.Universal;
 namespace SRCharacter
 {
     /// <summary>
-    /// Semi-transparent hair / bangs (capture P35, eids 5349/5361/5404/5585/5595).
-    /// These meshes never enter the G-buffer: they are alpha-blended into the lit target after
-    /// the fullscreen shading and the eye overlay, with a stencil first-layer guard and a
-    /// back-face outline. Both passes come from the same renderer (two ShaderTagIds).
+    /// Semi-transparent ornament shell (capture P35, eids 5349/5361/5404/5585/5595).
+    /// The capture draws the same mesh five times as global layers, not as a per-renderer
+    /// pass chain, so each layer gets its own ShaderTagId and its own DrawRenderers call
+    /// in capture order: flat -> main shade -> depth shell -> fresnel -> outline.
+    /// The layer toggles exist for the ablation suite in SRCharacterVerify.
     /// </summary>
     internal sealed class SRCharacterTransparentPass : ScriptableRenderPass
     {
-        private static readonly ShaderTagId s_FillTag = new ShaderTagId("SRCharacterTransparent");
+        private static readonly ShaderTagId s_FlatTag = new ShaderTagId("SRCharacterTransparentFlat");
+        private static readonly ShaderTagId s_ShadeTag = new ShaderTagId("SRCharacterTransparentShade");
+        private static readonly ShaderTagId s_DepthShellTag = new ShaderTagId("SRCharacterTransparentDepthShell");
+        private static readonly ShaderTagId s_RimTag = new ShaderTagId("SRCharacterTransparentRim");
         private static readonly ShaderTagId s_OutlineTag = new ShaderTagId("SRCharacterTransparentOutline");
 
         private readonly LayerMask m_LayerMask;
@@ -44,25 +48,37 @@ namespace SRCharacter
                 context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
 
-                SortingSettings sorting = new SortingSettings(renderingData.cameraData.camera)
-                {
-                    criteria = SortingCriteria.CommonTransparent
-                };
-                DrawingSettings drawing = new DrawingSettings(s_FillTag, sorting)
-                {
-                    perObjectData = PerObjectData.None,
-                    enableDynamicBatching = false,
-                    enableInstancing = true
-                };
-                drawing.SetShaderPassName(1, s_OutlineTag);
-
                 FilteringSettings filtering = new FilteringSettings(RenderQueueRange.transparent, m_LayerMask);
 
-                context.DrawRenderers(renderingData.cullResults, ref drawing, ref filtering);
+                DrawLayer(context, ref renderingData, filtering, s_FlatTag, m_Settings.enableTransparentFlat);
+                DrawLayer(context, ref renderingData, filtering, s_ShadeTag, m_Settings.enableTransparentShade);
+                DrawLayer(context, ref renderingData, filtering, s_DepthShellTag, m_Settings.enableTransparentDepthShell);
+                DrawLayer(context, ref renderingData, filtering, s_RimTag, m_Settings.enableTransparentRim);
+                DrawLayer(context, ref renderingData, filtering, s_OutlineTag, m_Settings.enableTransparentOutline);
             }
 
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
+        }
+
+        private static void DrawLayer(ScriptableRenderContext context, ref RenderingData renderingData,
+            FilteringSettings filtering, ShaderTagId tag, bool enabled)
+        {
+            if (!enabled)
+                return;
+
+            SortingSettings sorting = new SortingSettings(renderingData.cameraData.camera)
+            {
+                criteria = SortingCriteria.CommonTransparent
+            };
+            DrawingSettings drawing = new DrawingSettings(tag, sorting)
+            {
+                perObjectData = PerObjectData.None,
+                enableDynamicBatching = false,
+                enableInstancing = true
+            };
+
+            context.DrawRenderers(renderingData.cullResults, ref drawing, ref filtering);
         }
 
         private static Texture GetRamp(Texture2D ramp)

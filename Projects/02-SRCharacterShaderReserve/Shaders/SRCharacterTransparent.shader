@@ -1,55 +1,88 @@
 // SRCharacter/Transparent
-// Semi-transparent hair / bangs (capture P35, eids 5349/5361/5404/5585/5595).
-// The capture never writes these meshes into the G-buffer: they are alpha-blended straight
-// into the lit HDR target, with a stencil-based first-layer guard and a back-face outline:
-//   1. fill:    Stencil Comp != Ref, Pass Replace  (NOT_EQUAL dedup of overlapping shells)
-//   2. outline: Cull Front, ZWrite On, back-face stencil Replace
+// Semi-transparent ornament shell (capture P35, eids 5349/5361/5404/5585/5595).
+// The capture draws the same 219-vertex mesh five times, in this order:
+//   1. flat      5349  PS 15507: palette * (1 + cb0[297].z) * cb0[287], discards above the height line
+//   2. main      5361  PS 15531: height palette + fresnel rim + stylised specular
+//   3. depth     5404  PS 15520: colour writes off, writes the back-side shell depth
+//   4. rim       5585  PS 15503: palette * cb0[291], alpha = (1 - N.V)^4
+//   5. outline   5595  PS 15524: palette * cb0[290]; the captured pass masks its colour writes,
+//                               leaving only the depth/stencil effect (band left by layer 4's ref)
+// The decoded constants are Vector properties (not Color): Unity sRGB-decodes a Color
+// property on upload, which would shift the captured linear values (see README 2.6).
+// All colour layers are SrcAlpha/OneMinusSrcAlpha with ZWrite off; every layer carries its own
+// stencil ref (capture 0 / 24 / 10 / 11 / 11) with NOT_EQUAL -> REPLACE, so overlapping shells
+// dedupe per layer instead of blocking the stack.
 // The material is drawn by SRCharacterTransparentPass, not by URP's forward pass.
 Shader "SRCharacter/Transparent"
 {
     Properties
     {
         [Header(Textures)]
-        _BaseMap ("Base Map", 2D) = "white" {}
+        _BaseMap ("Base Map (hair depth prepass only)", 2D) = "white" {}
         [Toggle(_NORMALMAP)] [Normal] _NormalMap ("Normal Map", 2D) = "bump" {}
-        _ILMMap ("ILM Map (R=spec mask, G=shadow shape, B=gloss, A=material id)", 2D) = "white" {}
-        _EmissionMap ("Emission Map", 2D) = "black" {}
 
         [Header(Surface)]
         _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
         _NormalScale ("Normal Scale", Range(0, 2)) = 1
-        _EmissionColor ("Emission Color", Color) = (0, 0, 0, 1)
-        _SREmissionIntensity ("Emission Intensity", Range(0, 8)) = 0
-        _SRVertexColorWeight ("Vertex Color Tint", Range(0, 1)) = 0
-        _SRAlpha ("Alpha", Range(0, 1)) = 0.5
+        _SRAlpha ("Global Alpha", Range(0, 1)) = 1
+        _SRVertexColorWeight ("Vertex Color Weight", Range(0, 1)) = 0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2
-        [Toggle(_ALPHATEST_ON)] _AlphaClipEnabled ("Alpha Clip", Float) = 0
+        [Toggle(_ALPHATEST_ON)] _AlphaClipEnabled ("Alpha Clip (hair depth pass)", Float) = 0
         _AlphaClip ("Alpha Clip Threshold", Range(0, 1)) = 0.05
 
         [Header(Stencil)]
-        [HideInInspector] _SRStencilRef ("Stencil Ref (group << 6 | material id)", Int) = 24
         _SRArea ("Area (1 body, 2 face, 3 hair)", Int) = 3
-        _SRShadingGroup ("Shading Group (0..3)", Int) = 0
-        _SRMaterialID ("Material ID (0..63)", Int) = 24
+        _SRStencilRefFlat ("Flat Ref (capture 0)", Int) = 0
+        _SRStencilRefMain ("Main Ref (capture 24)", Int) = 24
+        _SRStencilRefDepth ("Depth Shell Ref (capture 10)", Int) = 10
+        _SRStencilRefRim ("Fresnel Ref (capture 11)", Int) = 11
+        _SRStencilRefOutline ("Outline Ref (capture 11)", Int) = 11
 
-        [Header(Toon Shadow)]
-        _SRShadowSoftness ("Shadow Softness", Range(0.001, 0.5)) = 0.1
+        [Header(Height Palette (PS 15531))]
+        _SRHeightLine ("Height Line, world Y (cb0[293])", Float) = -15.063829
+        _SRHeightFade ("Height Fade Bias (cb0[297].w)", Float) = 0.06
+        _SRPaletteBase ("Palette Base Y (cb0[87].y)", Float) = -15.925059
+        _SRPaletteRange ("Palette Range (cb2[37].w)", Range(0.01, 8)) = 0.5
+        _SRPaletteOffset ("Palette Stop Offset (cb2[37].z)", Float) = 0.65
+        _SRPaletteLow ("Palette Low Stop (cb2[38])", Vector) = (0.933333, 0.886275, 0.862745, 0.5)
+        _SRPaletteMid ("Palette Mid Stop (cb2[39])", Vector) = (0.866667, 0.796078, 0.776471, 0.5)
+        _SRPaletteHigh ("Palette High Stop (cb2[40], unobservable)", Vector) = (0.866667, 0.796078, 0.776471, 0.5)
+        _SRGradientDark ("Gradient Dark (cb0[285], t0.x = 1)", Vector) = (0, 0.165493, 0.5, 1)
+        _SRAboveLineColor ("Above Line Colour (cb0[288])", Vector) = (1, 1, 1, 1)
 
-        [Header(Rim and Outline)]
-        _RimColor ("Rim Color", Color) = (1, 1, 1, 1)
-        _SRRimIntensity ("Rim Intensity", Range(0, 4)) = 0.3
-        _SRRimWidth ("Rim Width", Range(0.1, 16)) = 4
-        _OutlineColor ("Outline Color", Color) = (0, 0, 0, 1)
+        [Header(Flat Layer (eid 5349))]
+        _SRFlatTint ("Flat Tint (cb0[287])", Vector) = (0.462077, 0.672443, 1, 1)
+        _SRFlatBrightness ("Flat Brightness Add (cb0[297].z)", Float) = 0.59
+        _SRFlatAlpha ("Below-Line Alpha (cb0[299].z)", Range(0, 1)) = 0.686
+
+        [Header(Main Layer (eid 5361))]
+        _SRMainRimColor ("Rim Colour (cb0[131], HDR)", Vector) = (2.244329, 2.244329, 2.244329, 1)
+        _SRMainRimExponent ("Rim Exponent (cb0[300].x)", Float) = 4
+        _SRMainFresnelExponent ("Fresnel Exponent (cb0[300].y)", Float) = 1.37
+        _SRMainAlphaCut ("Alpha Cut (1 - cb0[298].z)", Range(0, 1)) = 0.065
+        _SRMainSpecExponent ("Spec Exponent (cb0[96].y)", Float) = 21.8
+        _SRMainSpecCutoff ("Spec Cutoff (cb0[97].z)", Float) = 0.502
+        _SRMainSpecIntensity ("Spec Intensity (cb0[96].w)", Float) = 2.17
+        _SRMainAbsorbTint ("Absorption Tint (cb2[33])", Vector) = (1, 0.91213, 0.867925, 0.5)
+        _SRMainAbsorbLit ("Absorption Lit (cb0[289])", Vector) = (0.882075, 0.950156, 1, 1)
+        _SRMainAbsorbSpec ("Absorption Spec (cb0[290])", Vector) = (1, 1, 1, 1)
+
+        [Header(Depth Shell (eid 5404))]
+        _SRDepthShellExtrude ("Depth Shell Extrude", Float) = 0
+
+        [Header(Fresnel Layer (eid 5585))]
+        _SRRimLayerTint ("Rim Layer Tint (cb0[291])", Vector) = (1.259696, 1.259696, 1.259696, 1)
+        _SRRimLayerExponent ("Rim Layer Exponent", Float) = 4
+        _SRRimLayerAlpha ("Rim Layer Alpha (cb0[299].y)", Range(0, 1)) = 1
+
+        [Header(Outline Colour Layer (eid 5595))]
+        _SRLayerOutlineColor ("Outline Layer Colour (cb0[290])", Vector) = (0.132076, 0.039249, 0.061282, 1)
+        _SRLayerOutlineAlpha ("Outline Layer Alpha", Range(0, 1)) = 1
+        _SROutlineColorVisible ("Outline Colour Visible (capture = 0)", Range(0, 1)) = 0
         _OutlineWidth ("Outline Width", Range(0, 2)) = 0.25
         _SROutlineWidthScale ("Outline Width Scale", Range(0, 4)) = 1
         _OutlineZOffset ("Outline Z Offset", Range(-1, 1)) = 0
-        [Toggle(_OUTLINE_NORMAL_TANGENT)] _OutlineNormalTangent ("Outline uses tangent as normal", Float) = 0
-
-        [Header(Indirect)]
-        _SRIndirectIntensity ("Indirect Intensity", Range(0, 4)) = 1
     }
-
-    CustomEditor "SRCharacter.SRCharacterShaderGUI"
 
     SubShader
     {
@@ -61,13 +94,13 @@ Shader "SRCharacter/Transparent"
         }
 
         // ------------------------------------------------------------------
-        // Alpha-blended fill with a stencil first-layer guard.
-        // Capture DSS 8553 / 15533: depth GREATER_EQUAL, ZWrite Off, stencil Replace.
+        // Layer 1 (eid 5349, PS 15507): flat bright colour, fragments above the
+        // height line are discarded.
         // ------------------------------------------------------------------
         Pass
         {
-            Name "SRCharacterTransparent"
-            Tags { "LightMode" = "SRCharacterTransparent" }
+            Name "SRCharacterTransparentFlat"
+            Tags { "LightMode" = "SRCharacterTransparentFlat" }
 
             Cull [_Cull]
             ZWrite Off
@@ -76,7 +109,7 @@ Shader "SRCharacter/Transparent"
 
             Stencil
             {
-                Ref [_SRStencilRef]
+                Ref [_SRStencilRefFlat]
                 ReadMask 255
                 WriteMask 255
                 Comp NotEqual
@@ -87,94 +120,256 @@ Shader "SRCharacter/Transparent"
 
             HLSLPROGRAM
             #pragma target 3.5
-            #pragma vertex TransparentVertex
-            #pragma fragment TransparentFragment
+            #pragma vertex SRTransparentVertex
+            #pragma fragment TransparentFlatFragment
+            #pragma multi_compile_instancing
+
+            #include "SRCharacterTransparentCommon.hlsl"
+
+            half4 TransparentFlatFragment(SRCharacterVaryings input) : SV_Target
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+
+                clip(_SRHeightLine - input.positionWS.y);
+
+                float3 palette = SRTransparentPalette(input.positionWS.y);
+                float3 rgb = palette * (1.0 + _SRFlatBrightness) * _SRFlatTint.rgb;
+                float alpha = _SRFlatAlpha * SRTransparentVertexAlpha(input.color) * _SRAlpha;
+                return half4(rgb, alpha);
+            }
+            ENDHLSL
+        }
+
+        // ------------------------------------------------------------------
+        // Layer 2 (eid 5361, PS 15531): main shading. No main light, no toon ramp;
+        // the colour is the world-height palette times a fresnel/absorption term
+        // and a stylised Blinn highlight, and alpha comes from the height line
+        // and the fresnel term (see README 2.6).
+        // ------------------------------------------------------------------
+        Pass
+        {
+            Name "SRCharacterTransparentShade"
+            Tags { "LightMode" = "SRCharacterTransparentShade" }
+
+            Cull [_Cull]
+            ZWrite Off
+            ZTest LEqual
+            Blend SrcAlpha OneMinusSrcAlpha
+
+            Stencil
+            {
+                Ref [_SRStencilRefMain]
+                ReadMask 255
+                WriteMask 255
+                Comp NotEqual
+                Pass Replace
+                Fail Keep
+                ZFail Keep
+            }
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex SRTransparentVertex
+            #pragma fragment TransparentShadeFragment
             #pragma multi_compile_instancing
             #pragma shader_feature_local_fragment _ _NORMALMAP
-            #pragma shader_feature_local_fragment _ _ALPHATEST_ON
-            #pragma shader_feature_local_fragment _SR_SHADE_HAIR
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
 
-            #include "SRCharacterCommon.hlsl"
+            #include "SRCharacterTransparentCommon.hlsl"
 
-            TEXTURE2D(_SRRampCool);         SAMPLER(sampler_SRRampCool);
-            TEXTURE2D(_SRRampWarm);         SAMPLER(sampler_SRRampWarm);
-            TEXTURE2D(_SRHairRampCool);     SAMPLER(sampler_SRHairRampCool);
-            TEXTURE2D(_SRHairRampWarm);     SAMPLER(sampler_SRHairRampWarm);
-
-            #define SR_RAMP_ROWS 16.0
-
-            SRCharacterVaryings TransparentVertex(SRCharacterAttributes input)
-            {
-                SRCharacterVaryings output = (SRCharacterVaryings)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                output.positionWS = positionWS;
-                output.positionCS = TransformWorldToHClip(positionWS);
-                output.normalWS = TransformObjectToWorldNormal(input.normalOS);
-                output.tangentWS = float4(TransformObjectToWorldDir(input.tangentOS.xyz), input.tangentOS.w * GetOddNegativeScale());
-                output.uv = SRTransformBaseMapUV(input.uv);
-                output.uv2 = input.uv2;
-                output.color = input.color;
-                return output;
-            }
-
-            half3 SampleRamp(uint materialId, float rampU)
-            {
-                float rampV = (materialId + 0.5) / SR_RAMP_ROWS;
-                float2 rampUV = float2(saturate(rampU), rampV);
-                #if defined(_SR_SHADE_HAIR)
-                    float3 cool = SAMPLE_TEXTURE2D(_SRHairRampCool, sampler_SRHairRampCool, rampUV).rgb;
-                    float3 warm = SAMPLE_TEXTURE2D(_SRHairRampWarm, sampler_SRHairRampWarm, rampUV).rgb;
-                #else
-                    float3 cool = SAMPLE_TEXTURE2D(_SRRampCool, sampler_SRRampCool, rampUV).rgb;
-                    float3 warm = SAMPLE_TEXTURE2D(_SRRampWarm, sampler_SRRampWarm, rampUV).rgb;
-                #endif
-                return lerp(cool, warm, saturate(1.0 - rampU));
-            }
-
-            half4 TransparentFragment(SRCharacterVaryings input) : SV_Target
+            half4 TransparentShadeFragment(SRCharacterVaryings input) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
 
-                half4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
-                half alpha = baseMap.a * _BaseColor.a * _SRAlpha * lerp(1.0h, input.color.a, _SRVertexColorWeight);
+                float worldY = input.positionWS.y;
+                float3 normalWS = SRGetNormalWS(input.normalWS, input.tangentWS, input.uv);
+                float3 viewDirWS = normalize(_WorldSpaceCameraPos - input.positionWS);
+                float3 palette = SRTransparentPalette(worldY);
 
-                #if defined(_ALPHATEST_ON)
-                    clip(alpha - _AlphaClip);
-                #endif
+                // v5.w (threshold) and v6.y (world Y) in the capture vertex stage.
+                float threshold = _SRHeightLine;
+                bool flag1 = (threshold - 0.01 * _SRHeightFade) < worldY;
+                bool flag2 = threshold < worldY;
 
-                half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, input.uv);
-                half3 albedo = baseMap.rgb * _BaseColor.rgb * lerp(1.0h, input.color.rgb, _SRVertexColorWeight);
-                half3 emission = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, input.uv).rgb * _EmissionColor.rgb * _SREmissionIntensity;
+                float3 gradient = _SRGradientDark.rgb;   // t0.x samples 1 on every traced pixel
+                if (flag1)
+                    gradient = _SRAboveLineColor.rgb;
+
+                float nv = saturate(dot(normalWS, viewDirWS));
+                float logOneMinusNv = log2(max(1.0 - nv, 1e-8));
+                float rim = min(exp2(logOneMinusNv * _SRMainRimExponent), 1.0);
+                float fres = max(exp2(logOneMinusNv * _SRMainFresnelExponent), 0.001);
+                // Quadratic rim blend, not a lerp: g' = (1 - rim) * g + rim^2 * rimColour.
+                gradient = (1.0 - rim) * gradient + rim * rim * _SRMainRimColor.rgb;
+
+                // The capture blends three stylised normal-space hair vectors into L;
+                // the engine equivalent is the main light direction.
+                Light mainLight = GetMainLight();
+                float3 halfDir = normalize(mainLight.direction + viewDirWS);
+                float nh = saturate(dot(normalWS, halfDir));
+                float specPower = exp2(log2(max(nh, 1e-8)) * _SRMainSpecExponent);
+                float specMask = saturate((specPower - _SRMainSpecCutoff) * 10.0);
+                float spec = (specMask * specMask * (3.0 - 2.0 * specMask))
+                    * _SRMainSpecIntensity * (flag2 ? 1.0 : 0.0);
+
+                float3 absorb = 1.0 + _SRMainAbsorbTint.a * (_SRMainAbsorbTint.rgb - 1.0);
+                float3 tintLit = lerp(_SRMainAbsorbLit.rgb, _SRMainAbsorbSpec.rgb, spec);
+                float3 tint = (absorb * tintLit - 0.1) * (spec + fres) + 0.1;
+                float blendWeight = saturate(spec + (1.0 - _SRFlatAlpha) + (flag2 ? 0.0 : 1.0) + fres);
+                float3 rgb = palette * lerp(gradient, tint, blendWeight);
+
+                float alpha = saturate(max(fres - _SRMainAlphaCut, 0.0) + spec
+                    + (flag2 ? 0.0 : _SRFlatAlpha)) * SRTransparentVertexAlpha(input.color) * _SRAlpha;
+                return half4(rgb, alpha);
+            }
+            ENDHLSL
+        }
+
+        // ------------------------------------------------------------------
+        // Layer 3 (eid 5404, PS 15520): depth-only. Writes the back-side shell
+        // depth so layer 5 only survives near the silhouette.
+        // ------------------------------------------------------------------
+        Pass
+        {
+            Name "SRCharacterTransparentDepthShell"
+            Tags { "LightMode" = "SRCharacterTransparentDepthShell" }
+
+            Cull Front
+            ZWrite On
+            ZTest LEqual
+            ColorMask 0
+            Blend Off
+
+            Stencil
+            {
+                Ref [_SRStencilRefDepth]
+                ReadMask 255
+                WriteMask 255
+                Comp NotEqual
+                Pass Replace
+                Fail Keep
+                ZFail Keep
+            }
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex SRTransparentDepthShellVertex
+            #pragma fragment TransparentDepthShellFragment
+            #pragma multi_compile_instancing
+
+            #include "SRCharacterTransparentCommon.hlsl"
+
+            half4 TransparentDepthShellFragment(SRTransparentShellVaryings input) : SV_Target
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+                return 0;
+            }
+            ENDHLSL
+        }
+
+        // ------------------------------------------------------------------
+        // Layer 4 (eid 5585, PS 15503): fresnel shell, visible only at grazing angles.
+        // ------------------------------------------------------------------
+        Pass
+        {
+            Name "SRCharacterTransparentRim"
+            Tags { "LightMode" = "SRCharacterTransparentRim" }
+
+            Cull [_Cull]
+            ZWrite Off
+            ZTest LEqual
+            Blend SrcAlpha OneMinusSrcAlpha
+
+            Stencil
+            {
+                Ref [_SRStencilRefRim]
+                ReadMask 255
+                WriteMask 255
+                Comp NotEqual
+                Pass Replace
+                Fail Keep
+                ZFail Keep
+            }
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex SRTransparentVertex
+            #pragma fragment TransparentRimFragment
+            #pragma multi_compile_instancing
+            #pragma shader_feature_local_fragment _ _NORMALMAP
+
+            #include "SRCharacterTransparentCommon.hlsl"
+
+            half4 TransparentRimFragment(SRCharacterVaryings input) : SV_Target
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
 
                 float3 normalWS = SRGetNormalWS(input.normalWS, input.tangentWS, input.uv);
                 float3 viewDirWS = normalize(_WorldSpaceCameraPos - input.positionWS);
+                float3 palette = SRTransparentPalette(input.positionWS.y);
 
-                Light mainLight = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
-                float remappedNoL = saturate(dot(normalWS, mainLight.direction) * 0.5 + 0.5);
-                float lit = smoothstep(1.0 - ilm.g - _SRShadowSoftness, 1.0 - ilm.g + _SRShadowSoftness, remappedNoL);
-                lit *= mainLight.shadowAttenuation;
+                float nv = saturate(dot(normalWS, viewDirWS));
+                float rim = max(pow(1.0 - nv, _SRRimLayerExponent), 0.001);
 
-                half3 diffuse = albedo * lerp(SampleRamp((uint)_SRMaterialID, remappedNoL), 1.0, lit);
-                half3 indirect = SampleSH(normalWS) * albedo * _SRIndirectIntensity;
+                float3 rgb = palette * _SRRimLayerTint.rgb;
+                float alpha = rim * _SRRimLayerAlpha * SRTransparentVertexAlpha(input.color) * _SRAlpha;
+                return half4(rgb, alpha);
+            }
+            ENDHLSL
+        }
 
-                float rim = pow(1.0 - saturate(dot(normalWS, viewDirWS)), max(_SRRimWidth, 0.001));
-                half3 rimColor = _RimColor.rgb * (_SRRimIntensity * rim) * mainLight.color;
+        // ------------------------------------------------------------------
+        // Layer 5 (eid 5595, PS 15524): outline colour shell. The capture masks its
+        // colour writes; with the layer-4 stencil ref already written, only the
+        // silhouette band is left for this pass to touch.
+        // ------------------------------------------------------------------
+        Pass
+        {
+            Name "SRCharacterTransparentOutline"
+            Tags { "LightMode" = "SRCharacterTransparentOutline" }
 
-                return half4(diffuse + indirect + rimColor + emission, alpha);
+            Cull Front
+            ZWrite On
+            ZTest LEqual
+            Blend SrcAlpha OneMinusSrcAlpha
+
+            Stencil
+            {
+                Ref [_SRStencilRefOutline]
+                ReadMask 255
+                WriteMask 255
+                Comp NotEqual
+                Pass Replace
+                Fail Keep
+                ZFail Keep
+            }
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex SRTransparentOutlineVertex
+            #pragma fragment TransparentOutlineFragment
+            #pragma multi_compile_instancing
+
+            #include "SRCharacterTransparentCommon.hlsl"
+
+            half4 TransparentOutlineFragment(SRTransparentShellVaryings input) : SV_Target
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+
+                float3 palette = SRTransparentPalette(input.positionWS.y);
+                float3 rgb = palette * _SRLayerOutlineColor.rgb;
+                float alpha = _SRLayerOutlineAlpha * SRTransparentVertexAlpha(input.color) * _SRAlpha;
+                // Multiplying colour and alpha by 0 is the capture's colour-write mask:
+                // SrcAlpha = 0 leaves the destination untouched while depth/stencil still apply.
+                return half4(rgb * _SROutlineColorVisible, alpha * _SROutlineColorVisible);
             }
             ENDHLSL
         }
 
         // ------------------------------------------------------------------
         // Front hair shadow input (reference-based, not in the capture):
-        // the bangs never enter the G-buffer, so they are rasterized here into
-        // the hair depth target (linear01 eye depth, MIN blend) for the
-        // fullscreen face shading. Alpha is clipped so soft strand tips fade out.
+        // the shell never enters the G-buffer, so it is rasterized here into the
+        // hair depth target (linear01 eye depth, MIN blend) for the fullscreen
+        // face shading. Alpha is clipped so soft strand tips fade out.
         // ------------------------------------------------------------------
         Pass
         {
@@ -229,96 +424,6 @@ Shader "SRCharacter/Transparent"
 
                 float linear01 = saturate(-TransformWorldToView(input.positionWS).z / max(_ProjectionParams.z, 0.001));
                 return half4(linear01, 0.0, 0.0, 1.0);
-            }
-            ENDHLSL
-        }
-
-        // ------------------------------------------------------------------
-        // Back-face outline of the transparent piece (capture eids 5404/5595, DSS 1935/15538).
-        // Cull Front leaves only back faces, so a single stencil state reproduces the
-        // captured back-face pass: Replace the material ref and write depth.
-        // ------------------------------------------------------------------
-        Pass
-        {
-            Name "SRCharacterTransparentOutline"
-            Tags { "LightMode" = "SRCharacterTransparentOutline" }
-
-            Cull Front
-            ZWrite On
-            ZTest LEqual
-            Blend SrcAlpha OneMinusSrcAlpha
-
-            Stencil
-            {
-                Ref [_SRStencilRef]
-                ReadMask 255
-                WriteMask 255
-                Comp NotEqual
-                Pass Replace
-                Fail Keep
-                ZFail Keep
-            }
-
-            HLSLPROGRAM
-            #pragma target 3.5
-            #pragma vertex OutlineVertex
-            #pragma fragment OutlineFragment
-            #pragma multi_compile_instancing
-            #pragma shader_feature_local_vertex _OUTLINE_NORMAL_TANGENT
-            #pragma shader_feature_local_fragment _ _ALPHATEST_ON
-
-            #include "SRCharacterCommon.hlsl"
-
-            struct OutlineVaryings
-            {
-                float4 positionCS : SV_POSITION;
-                float2 uv         : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            OutlineVaryings OutlineVertex(SRCharacterAttributes input)
-            {
-                OutlineVaryings output = (OutlineVaryings)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-
-                #if defined(_OUTLINE_NORMAL_TANGENT)
-                    float3 normalOS = input.tangentOS.xyz;
-                #else
-                    float3 normalOS = input.normalOS;
-                #endif
-
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                float3 normalWS = TransformObjectToWorldNormal(normalOS);
-                float3 normalVS = TransformWorldToViewDir(normalWS, true);
-                float3 positionVS = TransformWorldToView(positionWS);
-                float distanceToCamera = -positionVS.z;
-
-                float fovFix = IsPerspectiveProjection()
-                    ? 2.414 / unity_CameraProjection._m11
-                    : 1.5996 / unity_CameraProjection._m11;
-                float vertexWidth = max(input.color.a, 0.05);
-                float width = _OutlineWidth * _SROutlineWidthScale * vertexWidth
-                    * clamp(fovFix * 0.025, 0.04, 0.1) * distanceToCamera * 0.0588;
-
-                normalVS.z = -0.1;
-                positionVS += normalize(normalVS) * width;
-                positionVS.z += _OutlineZOffset * distanceToCamera;
-
-                output.positionCS = TransformWViewToHClip(positionVS);
-                output.uv = SRTransformBaseMapUV(input.uv);
-                return output;
-            }
-
-            half4 OutlineFragment(OutlineVaryings input) : SV_Target
-            {
-                UNITY_SETUP_INSTANCE_ID(input); 
-                float alpha = 1.0;
-                #if defined(_ALPHATEST_ON)
-                    alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a * _BaseColor.a * _SRAlpha;
-                    clip(alpha - _AlphaClip);
-                #endif
-                return half4(_OutlineColor.rgb, _OutlineColor.a * alpha);
             }
             ENDHLSL
         }

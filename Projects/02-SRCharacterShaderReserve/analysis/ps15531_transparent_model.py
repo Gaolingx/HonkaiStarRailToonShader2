@@ -31,6 +31,16 @@ Decoded constants (PS):
   cb2[39]     (0.866667, 0.796078, 0.776471, 0.5)  palette stop (mid)
   cb2[40]     unused in this frame ((1 - s1) = 0 everywhere), left as cb2[39]
 
+Other layers of the same mesh (same palette function):
+  eid 5349 PS 15507: flat(world_y)      = palette * 1.59 * cb0[287], alpha 0.686,
+                                        discards fragments above the fade line
+                    cb0[287] = (0.462077, 0.672443, 1.0), cb0[297].z = 0.59, cb0[299].z = 0.686
+  eid 5585 PS 15503: rim_layer()        = palette * cb0[291], alpha = (1 - N.V)^4
+                    cb0[291] = 1.259696 grey, cb0[300] = (1.0, 4.0), cb0[299].y = 1.0
+  eid 5595 PS 15524: outline_layer()    = palette * cb0[290], alpha = 1.0
+                    cb0[290] = (0.1320755, 0.0392488, 0.0612818); the captured pass masks colour
+  eid 5404 PS 15520: depth-only (returns 0) + extruded shell from VS 15518
+
 Vertex stage supplies:
   v3 = view direction (normal space), v4 = normal (normal space),
   v5.w = height threshold (cb0[293].x + cb0[293].w in this frame), v6.y = world Y,
@@ -108,17 +118,20 @@ def height_threshold(sel, mask):
     r1 = lerp(CB0[293][3], CB0[294][1], mask)
     return r0 + r1
 
-def shade(normal, view, world_y, t0_x=1.0, vert_alpha=1.0, sel=0.0, mask=0.0):
-    """PS 15531 instructions 0..80. sel = 0 when vertex alpha > 0."""
-    # 0..20 vertical three-stop palette over world Y
+def palette(world_y):
+    """Instructions 0..20, shared by all four shading variants."""
     u = sat((world_y - CB0[87][1]) / max(CB2[37][3], 0.001))
     s1 = smoothstep(u)
     v = sat(2.0 * ((world_y - CB0[87][1]) - CB2[37][2]))
     s2 = smoothstep(v)
     mid = sat(s1 - s2)
-    palette = tuple(2.0 * sat(s2 * c38 * CB2[38][3] + mid * c39 * CB2[39][3]
-                              + (1.0 - s1) * c40 * CB2[40][3])
-                    for c38, c39, c40 in zip(CB2[38], CB2[39], CB2[40]))
+    return tuple(2.0 * sat(s2 * c38 * CB2[38][3] + mid * c39 * CB2[39][3]
+                          + (1.0 - s1) * c40 * CB2[40][3])
+                 for c38, c39, c40 in zip(CB2[38][:3], CB2[39][:3], CB2[40][:3]))
+
+def shade(normal, view, world_y, t0_x=1.0, vert_alpha=1.0, sel=0.0, mask=0.0):
+    """PS 15531 instructions 0..80 (main layer). sel = 0 when vertex alpha > 0."""
+    p = palette(world_y)
 
     # 21..28 gradient colour; flag1 swaps it for the "above line" colour
     thr = height_threshold(sel, mask)
@@ -152,48 +165,98 @@ def shade(normal, view, world_y, t0_x=1.0, vert_alpha=1.0, sel=0.0, mask=0.0):
     tint = tuple((a * c - 0.1) * (spec + fres) + 0.1 for a, c in zip(absorb, tint_lit))
     k = sat(spec + (1.0 - CB0[299][2]) + (1.0 if flag2 else 0.0) + fres)
     shaded = tuple(c + k * (t - c) for c, t in zip(g, tint))
-    rgb = tuple(p * s for p, s in zip(palette, shaded))
+    rgb = tuple(pl * s for pl, s in zip(p, shaded))
 
     # 75..80 alpha
     alpha = sat(max(fres - (1.0 - CB0[298][2]), 0.0) + spec
                 + (0.0 if flag2 else CB0[299][2])) * vert_alpha
     return {"flag1": flag1, "flag2": flag2, "rim": rim, "fres": fres,
-            "palette": palette, "shaded": shaded, "color": rgb + (alpha,)}
+            "palette": p, "shaded": shaded, "color": rgb + (alpha,)}
+
+# --- the other draws of the same mesh (same palette, different layers) -------------
+
+CB0_287 = (0.462077, 0.672443, 1.0)                    # eid 5349 flat layer colour
+CB0_297_Z = 0.59                                       # eid 5349 brightness add
+CB0_299_Z = 0.686                                      # eid 5349/5361 below-line alpha
+CB0_291 = 1.259696                                     # eid 5585 rim layer colour (grey)
+CB0_290_OUTLINE = (0.1320755, 0.0392488, 0.0612818)    # eid 5595 outline colour
+
+def flat(world_y, vert_alpha=1.0, threshold=-15.063829):
+    """PS 15507 (eid 5349): palette * (1 + cb0[297].z) * cb0[287], discard above the line."""
+    if threshold < world_y:
+        return None
+    p = palette(world_y)
+    return tuple(c * (1.0 + CB0_297_Z) * k for c, k in zip(p, CB0_287)) + (vert_alpha * CB0_299_Z,)
+
+def rim_layer(normal, view, world_y, vert_alpha=1.0):
+    """PS 15503 (eid 5585): palette * cb0[291], alpha = (1 - N.V)^4 (cb0[300]=(1,4))."""
+    p = palette(world_y)
+    fres = max((1.0 - sat(dot(normal, view))) ** 4.0, 0.001)
+    return tuple(c * CB0_291 for c in p) + (fres * vert_alpha,)
+
+def outline_layer(world_y, vert_alpha=1.0):
+    """PS 15524 (eid 5595): palette * cb0[290], alpha = sat(cb0[299].y)."""
+    p = palette(world_y)
+    return tuple(c * k for c, k in zip(p, CB0_290_OUTLINE)) + (1.0 * vert_alpha,)
 
 PIXELS = [
     # (x, y) 1850,50: below the fade line, no specular; input from the full trace
-    dict(name="A (1850,50)",
+    dict(fn="main", name="A (1850,50)",
          normal=(-0.40516403317451477, 0.5469121336936951, 0.7020222544670105),
          view=(0.14880625903606415, 0.6751595735549927, 0.7224935293197632),
          world_y=-15.069393157958984,
          expected=(0.06496578454971313, 0.14191217720508575, 0.29787707328796387, 0.7192324995994568)),
     # 1790,100: above the fade line -> flag2, alpha collapses to the Fresnel term
-    dict(name="B (1790,100)",
+    dict(fn="main", name="B (1790,100)",
          normal=(0.5505584478378296, 0.19538147747516632, 0.7918654680252075),
          view=(0.12706725299358368, 0.6822180151939392, 0.7200124859809875),
          world_y=-15.05612564086914,
          expected=(0.18083414435386658, 0.17136122286319733, 0.16971103847026825, 0.06582669913768768)),
     # 1830,90: above the line, facing the camera -> alpha 0
-    dict(name="C (1830,90)",
+    dict(fn="main", name="C (1830,90)",
          normal=(0.17907372117042542, 0.6494989991188049, 0.7050023078918457),
          view=(0.13604655861854553, 0.6752385497093201, 0.7249274849891663),
          world_y=-15.056537628173828,
          expected=(0.09408207982778549, 0.08780487626791, 0.0857090950012207, 0.0)),
     # 1785,60: below the line, grazing view -> largest alpha
-    dict(name="D (1785,60)",
+    dict(fn="main", name="D (1785,60)",
          normal=(0.14357835054397583, -0.14175209403038025, 0.9543756246566772),
          view=(0.13578873872756958, 0.6871286630630493, 0.7137234210968018),
          world_y=-15.06935977935791,
          expected=(0.17063087224960327, 0.2165420949459076, 0.3210846781730652, 0.902813196182251)),
+    # eid 5349 (PS 15507): flat bright layer, same pixel
+    dict(fn="flat", name="flat (1850,50)", world_y=-15.086004257202148,
+         expected=(0.6524543166160583, 0.8820905089378357, 1.2785927057266235, 0.6859999895095825)),
+    # eid 5585 (PS 15503): rim layer, body pixel and silhouette pixel
+    dict(fn="rim", name="rim (1850,50)",
+         normal=(-0.35515066981315613, 0.565811038017273, 0.7110313773155212),
+         view=(0.14880453050136566, 0.6751554608345032, 0.7224934101104736),
+         world_y=-15.0682954788208,
+         expected=(1.1229419708251953, 1.0450360774993896, 1.018500566482544, 0.0009999871253967285)),
+    dict(fn="rim", name="rim (1778,40)",
+         normal=(-0.04235444217920303, -0.41384413838386536, 0.881273090839386),
+         view=(0.13938546180725098, 0.6904275417327881, 0.7098408937454224),
+         world_y=-15.077583312988281,
+         expected=(1.1206881999969482, 1.0419867038726807, 1.015583872795105, 0.19682376086711884)),
+    # eid 5595 (PS 15524): outline colour layer (masked in the captured pass)
+    dict(fn="outline", name="outline (1778,40)", world_y=-15.086871147155762,
+         expected=(0.11726845055818558, 0.0323721244931221, 0.04926663637161255, 0.9999999403953552)),
 ]
+
+FUNCS = {"main": shade, "flat": flat, "rim": rim_layer, "outline": outline_layer}
 
 def main():
     errors = []
     for p in PIXELS:
-        got = shade(p["normal"], p["view"], p["world_y"])
-        print(p["name"], "flag1=%d flag2=%d" % (got["flag1"], got["flag2"]),
-              "color=", tuple(round(c, 6) for c in got["color"]))
-        for g, e in zip(got["color"], p["expected"]):
+        fn = FUNCS[p["fn"]]
+        args = {k: v for k, v in p.items() if k not in ("fn", "name", "expected")}
+        got = fn(**args)
+        if got is None:
+            errors.append("%s: discarded" % p["name"])
+            continue
+        color = got["color"] if isinstance(got, dict) else got
+        print(p["name"], "color=", tuple(round(c, 6) for c in color))
+        for g, e in zip(color, p["expected"]):
             if abs(g - e) > 2e-4:
                 errors.append("%s: %.6f != %.6f" % (p["name"], g, e))
     if errors:

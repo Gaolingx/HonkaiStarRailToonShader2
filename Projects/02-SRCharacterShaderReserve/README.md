@@ -209,6 +209,35 @@ validation/
 - 由 `SRCharacterTransparentPass` 在 `AfterRenderingOpaques` 末尾用 `RenderQueueRange.transparent`
   绘制（两个 ShaderTagId 分别对应 fill / outline）；URP 的透明队列不会重复绘制它。
 
+#### 一条网格、五个 draw（P35 eid 5349 / 5361 / 5404 / 5585 / 5595）
+
+同一个 219 顶点网格在 P35 里被 5 个不同材质各画一次，全部写 RT 5279 + 深度 9515：
+
+| eid | VS / PS | 角色 | 该 draw 实测常量 |
+|---|---|---|---|
+| 5349 | 15505 / 15507 | 平涂亮层：`2·sat(色板)·(1+cb0[297].z)·cb0[287]`，alpha=`v2.x·cb0[299].z`；**超过高度线的片元 discard**（`v5.w < v6.y`） | cb0[297].z=0.59、cb0[287]=(0.4621,0.6724,1.0)、cb0[299].z=0.686 |
+| 5361 | 15526 / 15531 | 主着色层（见下节） | 见下节 |
+| 5404 | 15518 / 15520 | 深度-only：PS 返回 0；VS 沿法线偏移 `(cb0[298].w+cb0[299].x)·0.01`（本帧 0），另加 `cb1[3].xyz·v0.w` | 该像素深度 0.08086→0.09279 |
+| 5585 | 15502 / 15503 | 边缘菲涅尔层：`色板·cb0[291]`，alpha 只在掠射角出现：`(1+A·(max((1-N·V)^B,0.001)-1))·v2.y·sat(cb0[299].y)` | cb0[291]=1.2597 灰、cb0[300]=(1.0,4.0)、cb0[299].y=1 |
+| 5595 | 15522 / 15524 | 描边色层：`色板·cb0[290]`，alpha=`sat(cb0[299].y)`；本 pass 颜色写入关闭（见像素历史） | cb0[290]≈(0.1321,0.0392,0.0613) 暗红 |
+
+像素历史（(1850,50) 与轮廓像素 (1778,40)）确认了混合与分工：
+
+- 5349：shaderOut `(0.652,0.882,1.279, a=0.686)` → postMod `(0.664,0.742,1.0)`，正好是
+  `0.686·src + 0.314·dst`（dst=`(0.695,0.445,0.414)`）——`SrcAlpha/OneMinusSrcAlpha`、不写深度。
+- 5361：shaderOut `(0.065,0.142,0.298, a=0.719)` → postMod `(0.232,0.309,0.492)`，同一条混合公式。
+- 5404：shaderOut 全 0，深度被改写 `0.08086→0.09279`（写的是另一侧表面的深度）。
+- 5585：shaderOut `(1.123,1.045,1.019)`，该像素 alpha=0.001（几乎不可见）；轮廓像素 (1778,40)
+  上 alpha=0.197 → postMod `(0.223,0.328,0.383)`，即只在边缘发光的壳层。
+- 5595：shaderOut `(0.117,0.032,0.049, 1.0)`，但 postMod 完全不变 → 该 pass 的**颜色写入被屏蔽**，
+  只剩深度/模板效果（描边色只在别的 pass 里使用）。
+- 5349 与 5361 在同一像素命中的是不同 primitive（70 / 217），世界 Y 也不同（-15.086 / -15.069）——
+  多层重叠时靠 stencil `NOT_EQUAL → REPLACE` 去重（前一轮结论，DSS 本轮未复核）。
+- P16 阴影（eid 3836/3848，512×512 视口写进 1536×2560 的 D16 目标，当时绑定的是 CS 392
+  光源剔除）复用了其中两个 PS：3836=PS 15503（无 discard），3848=PS 15507（按高度线 discard），
+  即透明壳也参与投影。
+- 复刻脚本同时覆盖四个着色变体（共 8 个 trace 像素，含轮廓像素），全部 < 2e-4。
+
 #### PS 15531 着色载荷（eid 5361 已解码）
 
 复刻脚本 [analysis/ps15531_transparent_model.py](analysis/ps15531_transparent_model.py)，
@@ -402,5 +431,6 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 3. 把全局 ramp 扩成 per-character LUT（8×N 浮点纹理 + material id 索引），对齐抓帧的 8×8 RGBA16F 小图。
 4. 若需要在正式场景使用：恢复 P08 的 GPU 蒙皮预计算（VS+GS Stream-Out 或 Compute），
    避免 SkinnedMeshRenderer 的 CPU 蒙皮开销。
-5. PS 9584（2.5）与 PS 15531（2.6）的常量/公式均已解码；剩余：把 PS 15531 的着色移植进
-   `SRCharacter/Transparent` 的 fill pass（替换当前的 toon ramp 占位），再补抓帧的 3 段材质分件（ref 10/11/24）。
+5. PS 9584（2.5）与 PS 15531（2.6）的常量/公式均已解码；剩余：把 2.6 的五层结构移植进
+   `SRCharacter/Transparent`（主层 PS 15531 + 平涂层 PS 15507 + 菲涅尔层 PS 15503 + 深度/描边壳
+   5404/5595），替换当前 fill+outline 两 pass 的占位实现。

@@ -276,6 +276,7 @@ PASS_ORDER = [
     "SRCharacterTransparentRim",
     "SRCharacterTransparentOutline",
     "SRCharacterHairDepth",
+    "ShadowCaster",
 ]
 
 EXPECTED_DEFAULTS = {

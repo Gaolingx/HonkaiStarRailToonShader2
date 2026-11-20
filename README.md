@@ -123,6 +123,7 @@ G-Buffer 载荷：
 | P35 透明刘海 | 1056 idx 几何 → 相机 HDR + depth | `SRCharacterTransparent` fill/outline | PASS |
 | P36 tex9621/tex5288 | 后光照 mask/effect | 未重建；仅导出 `_SRCharacterMask` | NOT PORTED |
 | P27 tex9580 | 世界软影 + 每物体投影（后者只写头发组 0xC0） | 未移植；脸部组 0 不采样 tex9580（抓帧 18,268 个皮肤像素全 255） | NOT PORTED（不影响刘海阴影） |
+| P16 阴影 18188 | 1536×2560 D16 per-object 阴影 atlas，512×512 tile；eid 3836/3848 画透明壳 | `SRCharacter/Transparent` 的 `ShadowCaster` 由 URP 主光阴影 pass 绘制 | PASS\*（合并为一个无 discard pass；阴影 map 交给 URP） |
 | 前发阴影 `_SRHairDepthTexture` | 抓帧无此机制 | 半分辨率 R32F 线性深度（MIN）+ FACE 偏移采样 | REFERENCE-BASED（参考 StarRailNPRShader） |
 | P00–P02 SO 缓冲 | GPU 蒙皮顶点流 | Unity `SkinnedMeshRenderer` | NOT PORTED |
 
@@ -158,6 +159,7 @@ G-Buffer 载荷：
 | 眼睛遮挡 bit0 + 眼睛高光 | PASS\* | 标记 pass（[SRCharacter.shader:SRCharacterEyeMark](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacter.shader)）+ 加法高光 pass（`SRCharacterEyeShade`）；**载荷按 PS 9584 解码公式**：距离衰减 `(1-(d/5)^2)^2`、反射率 D、解析折射 / 全反射分支，常量见 [02 §2.5](Projects/02-SRCharacterShaderReserve/README.md#25-眼睛遮挡stencil-bit0) |
 | PS 9584 常量解码 | 通过 | `debug_pixel --trace` 逐指令取值（eid 5015，全反射与折射各一个像素）；[复刻脚本](Projects/02-SRCharacterShaderReserve/analysis/ps9584_eye_model.py) 与抓帧输出误差 < 1e-5 |
 | 半透明刘海 / stencil bit0 机制 | PASS\* | [SRCharacterTransparent.shader](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterTransparent.shader)（alpha 混合 + `NOT_EQUAL` 第一层去重 + 背面描边）+ [SRCharacterTransparentPass.cs](Projects/02-SRCharacterShaderReserve/Runtime/Passes/SRCharacterTransparentPass.cs) |
+| 透明壳投影（P16） | PASS\* | [SRCharacterTransparent.shader](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterTransparent.shader) 的 `ShadowCaster`（`ApplyShadowBias` + punctual shadow 变体；结构参考 StarRailNPRShader 的 `BodyShadow`） |
 | 全屏 pass 消费 bit0 | PASS | 组 1..3 `WriteMask 1 / Pass=Zero`（DSS 655），组 0 不写（DSS 662） |
 | 角色遮罩 + bloom/tonemap（P36–P55） | NOT PORTED | 未重建后处理链 |
 
@@ -165,7 +167,8 @@ G-Buffer 载荷：
 
 **能证明的**：绑定槽位与状态语义逐项对应（见 3.1/3.5），且每个阶段都有行为证据：
 关闭 feature → 0 像素；关闭 overlay → 全屏着色仍生效；加入遮挡物 → 被遮挡像素不再被角色覆盖；
-50% alpha 刘海 → 中心颜色按 alpha 混合；眼睛 proxy 被刘海条挡住的一侧不出现加法高光（bit0 生效）。
+50% alpha 刘海 → 中心颜色按 alpha 混合；眼睛 proxy 被刘海条挡住的一侧不出现加法高光（bit0 生效）；
+移除透明壳 → 接收面上的 716 个变暗像素归零（不透明对照球仍有 318 个，证明阴影链本身有效）。
 
 **不能证明的**：与抓帧图像逐像素一致。原因：
 

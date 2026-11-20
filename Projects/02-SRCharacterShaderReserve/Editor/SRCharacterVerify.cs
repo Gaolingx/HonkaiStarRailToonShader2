@@ -85,6 +85,7 @@ namespace SRCharacter
             CheckShader(characterShader);
             CheckShader(shadingShader);
             CheckShader(transparentShader);
+            CheckPass(transparentShader, "ShadowCaster");
 
             SRCharacterFeature feature = ScriptableObject.CreateInstance<SRCharacterFeature>();
             feature.settings.ResolveShaders();
@@ -107,6 +108,21 @@ namespace SRCharacter
 
             foreach (ShaderMessage message in messages)
                 Debug.LogWarning($"[SRCharacterVerify] {shader.name}:{message.line} {message.message}");
+        }
+
+        private static void CheckPass(Shader shader, string lightMode)
+        {
+            for (int i = 0; i < shader.passCount; i++)
+            {
+                ShaderTagId tag = shader.FindPassTagValue(i, new ShaderTagId("LightMode"));
+                if (string.Equals(tag.name, lightMode, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    Check(true, $"{shader.name} has a {lightMode} pass");
+                    return;
+                }
+            }
+
+            Error($"{shader.name} has no {lightMode} pass");
         }
 
         private static void RunSmokeTest()
@@ -254,12 +270,18 @@ namespace SRCharacter
                 shellMaterial.SetFloat(SRCharacterShaderIDs.Alpha, 1f);
                 shellMaterial.SetFloat(SRCharacterShaderIDs.TransparentHeightLine, 1000f); // stay below the fade line
                 shellMaterial.SetFloat("_OutlineWidth", 12f);                              // widen the silhouette band
+                shellMaterial.SetFloat(SRCharacterShaderIDs.Area, 1f);                     // not a hair-depth caster
 
                 GameObject shell = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 shell.name = "SRCharacterVerifyShell";
                 shell.transform.position = new Vector3(0f, 0f, -0.9f);
                 shell.transform.localScale = Vector3.one * 0.5f;
                 shell.GetComponent<Renderer>().sharedMaterial = shellMaterial;
+
+                // The P35 layers are colour-only; the shell now also casts the P16 shadow onto
+                // the capsule behind the measured pixel, so disable main-light shadows here.
+                LightShadows previousShellShadows = light.shadows;
+                light.shadows = LightShadows.None;
 
                 int shellCenter = (rt.height / 2) * rt.width + rt.width / 2;
                 int shellEdge = shellCenter + 17;   // grazing band inside the silhouette
@@ -392,14 +414,19 @@ namespace SRCharacter
 
                 Vector3 casterScreen = camera.WorldToScreenPoint(hairCaster.transform.position);
 
+                // Batch-mode render requests can serve the previous feature state on the first
+                // frame after a settings change; render once to settle before measuring.
                 feature.settings.enableFrontHairShadow = false;
+                RenderAndGetPixels(camera, rt);
                 Color32[] hairShadowOff = RenderAndGetPixels(camera, rt);
 
                 feature.settings.enableFrontHairShadow = true;
                 feature.settings.hairShadowDistance = 3f;
+                RenderAndGetPixels(camera, rt);
                 Color32[] hairShadowNear = RenderAndGetPixels(camera, rt);
 
                 feature.settings.hairShadowDistance = 6f;
+                RenderAndGetPixels(camera, rt);
                 Color32[] hairShadowFar = RenderAndGetPixels(camera, rt);
 
                 MeasureDarkening(hairShadowOff, hairShadowNear, rt.width, 5,
@@ -433,6 +460,7 @@ namespace SRCharacter
                 Object.DestroyImmediate(hairCaster);
                 Object.DestroyImmediate(hairCasterMaterial);
                 Object.DestroyImmediate(testRamp);
+                light.shadows = previousShellShadows;
 
                 // --- Eye overlay (capture eids 4968/4989): the proxy is redrawn against the G-buffer
                 // depth; where it is covered (the green bangs bar) the ZFail marks stencil bit 0 and
@@ -493,6 +521,82 @@ namespace SRCharacter
                 Object.DestroyImmediate(eyeOccluderMaterial);
                 Object.DestroyImmediate(eye);
                 Object.DestroyImmediate(eyeMaterial);
+
+                // --- Transparent shadow caster (capture P16 eids 3836/3848: the shell is
+                // rasterized into the character's per-object shadow tile). URP drives the
+                // ShadowCaster pass from its main-light caster list. The colour layers are
+                // switched off and a validation receiver writes the main-light shadow
+                // attenuation, so the shell appears/disappears as a shadow-only delta.
+                feature.settings.enableTransparent = false;
+                Quaternion previousShadowLightRotation = light.transform.rotation;
+                LightShadows previousTestShadows = light.shadows;
+                light.transform.rotation = Quaternion.identity; // rays +Z, from the camera side into the scene
+                light.shadows = LightShadows.Soft;
+                Debug.Log($"[SRCharacterVerify] shadow settings: light={light.shadows}, " +
+                          $"pipeline={urpAsset.supportsMainLightShadows}, distance={urpAsset.shadowDistance}");
+
+                Material shadowShellMaterial = new Material(Shader.Find(SRCharacterShaderIDs.TransparentShaderName));
+                shadowShellMaterial.SetFloat(SRCharacterShaderIDs.Alpha, 1f);
+                shadowShellMaterial.SetFloat(SRCharacterShaderIDs.Area, 1f);
+                GameObject shadowShell = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                shadowShell.name = "SRCharacterVerifyShadowShell";
+                shadowShell.transform.position = new Vector3(0f, 0f, -0.9f);
+                shadowShell.transform.localScale = Vector3.one * 0.5f;
+                shadowShell.GetComponent<Renderer>().sharedMaterial = shadowShellMaterial;
+
+                Material receiverMaterial = new Material(Shader.Find("SRCharacter/ShadowTest"));
+                GameObject shadowReceiver = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                shadowReceiver.name = "SRCharacterVerifyShadowReceiver";
+                shadowReceiver.transform.position = new Vector3(0f, 0f, -0.5f);
+                shadowReceiver.transform.localScale = new Vector3(0.9f, 0.9f, 1f);
+                shadowReceiver.GetComponent<Renderer>().sharedMaterial = receiverMaterial;
+
+                Material opaqueCasterMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                opaqueCasterMaterial.SetColor("_BaseColor", Color.white);
+                GameObject opaqueCaster = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                opaqueCaster.name = "SRCharacterVerifyOpaqueCaster";
+                opaqueCaster.transform.position = shadowShell.transform.position;
+                opaqueCaster.transform.localScale = shadowShell.transform.localScale;
+                opaqueCaster.GetComponent<Renderer>().sharedMaterial = opaqueCasterMaterial;
+
+                opaqueCaster.SetActive(true);
+                Color32[] opaqueOn = RenderAndGetPixels(camera, rt);
+                opaqueCaster.SetActive(false);
+                Color32[] opaqueOff = RenderAndGetPixels(camera, rt);
+                int opaqueShadowPixels = 0;
+                for (int i = 0; i < opaqueOn.Length; i++)
+                {
+                    if (Brightness(opaqueOff[i]) - Brightness(opaqueOn[i]) > 30)
+                        opaqueShadowPixels++;
+                }
+                Debug.Log($"[SRCharacterVerify] opaque caster control: darkened pixels={opaqueShadowPixels}");
+                Check(opaqueShadowPixels > 40, "main light shadows reach the validation receiver");
+                Object.DestroyImmediate(opaqueCaster);
+                Object.DestroyImmediate(opaqueCasterMaterial);
+
+                shadowShell.SetActive(true);
+                Color32[] shadowOn = RenderAndGetPixels(camera, rt);
+                SaveRenderTexture(rt, "smoke_shadowcaster.png");
+
+                shadowShell.SetActive(false);
+                Color32[] shadowOff = RenderAndGetPixels(camera, rt);
+
+                int shellShadowPixels = 0;
+                for (int i = 0; i < shadowOn.Length; i++)
+                {
+                    if (Brightness(shadowOff[i]) - Brightness(shadowOn[i]) > 30)
+                        shellShadowPixels++;
+                }
+                Debug.Log($"[SRCharacterVerify] transparent shadow caster: darkened pixels={shellShadowPixels}");
+                Check(shellShadowPixels > 40, "transparent ShadowCaster (P16) darkens the shadow receiver");
+
+                feature.settings.enableTransparent = true;
+                light.transform.rotation = previousShadowLightRotation;
+                light.shadows = previousTestShadows;
+                Object.DestroyImmediate(shadowShell);
+                Object.DestroyImmediate(shadowShellMaterial);
+                Object.DestroyImmediate(shadowReceiver);
+                Object.DestroyImmediate(receiverMaterial);
 
                 feature.SetActive(false);
                 int disabledPixels = RenderAndCount(camera, rt, out _, out _, out _);

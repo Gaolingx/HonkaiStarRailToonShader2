@@ -70,14 +70,15 @@ Runtime/
     SRCharacterTransparentPass.cs 半透明刘海（alpha 混合 + 第一层去重 + 描边）
 Shaders/
   SRCharacter.shader             几何阶段全部 pass：GBuffer / Outline / EyeMark / EyeShade / Overlay / ShadowCaster / DepthOnly / DepthNormals
-  SRCharacterTransparent.shader  半透明壳：平涂 / 主层 / 深度壳 / 菲涅尔 / 描边五个层 pass + HairDepth
+  SRCharacterTransparent.shader  半透明壳：平涂 / 主层 / 深度壳 / 菲涅尔 / 描边五个层 pass + HairDepth + ShadowCaster
   SRCharacterTransparentCommon.hlsl  五层共用的色板、顶点与挤出壳函数
   SRCharacterShading.shader      全屏 toon 着色（每 group 一个材质实例）
   SRCharacterCommon.hlsl         材质 CBUFFER、法线、面部 SDF
   SRCharacterDefines.hlsl        模板/area/bit0 编码（HLSL 侧）
 Editor/
   SRCharacterShaderGUI.cs        由 group/id 自动计算 `_SRStencilRef`、切换 `_SR_AREA_FACE`
-  SRCharacterVerify.cs           批处理验证入口（编译检查 + 胶囊体冒烟渲染 + 五层消融）
+  SRCharacterVerify.cs           批处理验证入口（编译检查 + 胶囊体冒烟渲染 + 五层消融 + 投影验证）
+  SRCharacterShadowTest.shader   验证专用接收面：输出主光 shadowAttenuation，证明透明壳进入阴影图
   SRCharacterCaptureBuild.cs     构建 RenderDoc 截帧用的独立 Player（验证用）
 analysis/
   extract_stencil_refs.py        从 RenderDoc XML 提取逐 draw 的 StencilRef
@@ -102,6 +103,10 @@ validation/
 
 所有 pass 统一 `RenderPassEvent.AfterRenderingOpaques`（同事件按 enqueue 顺序执行），
 保证角色深度测试能用到场景深度、主光阴影已解析。
+
+P16 的透明壳投影不在上述 enqueue 列表里：`SRCharacter/Transparent` 的 `ShadowCaster` pass
+由 URP 主光阴影 pass 在 `AfterRenderingOpaques` 之前绘制（与 `SRCharacter/Character` 的
+`ShadowCaster` 同一路径）。
 
 ### 2.2 G-Buffer 载荷（对抓帧的工程化取舍）
 
@@ -208,7 +213,14 @@ validation/
   由 `SRCharacterTransparentPass` 在 `AfterRenderingOpaques` 末尾**按捕获顺序**各发一次
   `DrawRenderers`（层是全局顺序，不是每个 renderer 内部的 pass 链；多片壳交叠时顺序才正确）。
 - 每层一个 stencil ref（捕获 0 / 24 / 10 / 11 / 11），统一 `Comp NotEqual, Pass Replace`：
-  重叠壳按层去重，而不阻塞层叠。前发阴影 prepass 仍是第六个 pass（`SRCharacterHairDepth`）。
+  重叠壳按层去重，而不阻塞层叠。前发阴影 prepass 仍是第六个绘制 pass（`SRCharacterHairDepth`），
+  它和五层一样由 `SRCharacterTransparentPass` 绘制。
+- **投影**：P16（eid 3836/3848，512×512 视口写进 1536×2560 的 per-object 阴影 tile）把同一网格画两次：
+  3836 复用 PS 15503（无 discard），3848 复用 PS 15507（按高度线 discard）。本实现合并为一个
+  URP `ShadowCaster` pass（取无 discard 的并集，高度线只属于颜色层），由 URP 主光阴影列表驱动，
+  透明队列因此也参与投影。两个抓帧 PS 都不采样贴图，所以投影 pass **不读 `UnityPerMaterial`**
+  （同时避免 SRP Batcher 在共享材质时把颜色层 CBUFFER 绑坏），也不做 alpha clip；
+  pass 结构对齐参考实现的 `BodyShadow`（`ApplyShadowBias` + `_CASTING_PUNCTUAL_LIGHT_SHADOW`）。
 - 层常量全部是材质属性，默认值 = 解码值；**这些常量是线性值，属性类型用 `Vector` 而非 `Color`**：
   Unity 在 Linear 色彩空间下会对 `Color` 属性做一次 sRGB→线性解码（截帧比对时实测到了这个偏差，
   见 2.6.1），`Vector` 原样上传。
@@ -284,7 +296,7 @@ ok: all 8 trace pixels, 2 composites and shader defaults reproduced
 - 8 个抓帧 trace 像素（4 个 PS 15531 分支像素 + 平涂/菲涅尔/描边层）误差 < 2e-4；
 - 2 个合成校验：`0.686·flat + 0.314·dst` 复现 postMod `(0.664,0.742,1.0)`、主层叠加复现
   `(0.232,0.309,0.492)`（抓帧 readback 为 3 位小数，容差 1e-2）；
-- shader 一致性：解析 `SRCharacterTransparent.shader` 的 34 个默认值 + 6 个 pass 顺序，与解码常量逐项比对
+- shader 一致性：解析 `SRCharacterTransparent.shader` 的 34 个默认值 + 7 个 pass 顺序，与解码常量逐项比对
   （任何一边漂移都会失败）。
 
 **2. Unity 消融**（`SRCharacterVerify`，玻璃球叠在角色上，逐层关闭）：
@@ -321,6 +333,19 @@ ok: all 8 trace pixels, 2 composites and shader defaults reproduced
 - 未比对项：blend/stencil 的 DSS 数值——本环境的 RenderDoc MCP 在 D3D11 下不导出该状态（与上一轮抓帧分析
   的限制相同），混合语义由像素历史逐位验证；`[0]` 号 ref 的平涂层需要背后有非零模板（捕获里它总在角色上，
   本实现同样如此），单独悬在天空上时会被 `NotEqual(0)` 跳过。
+
+**4. 投影验证（P16）**（`SRCharacterVerify` 最后一段；接收面 shader 见
+[Editor/SRCharacterShadowTest.shader](Editor/SRCharacterShadowTest.shader)，直接输出主光 `shadowAttenuation`）：
+
+| 场景 | 变暗像素 | 结论 |
+|---|---|---|
+| 不透明 URP Lit 对照球 | 318 | 主光阴影链在测试管线内工作 |
+| 透明壳，`ShadowCaster` 开启 | 716 | 透明队列进入主光阴影图 |
+| 移除透明壳 | 0 | 差异完全来自壳的投影 |
+
+结果图：[validation/smoke_shadowcaster.png](validation/smoke_shadowcaster.png)。
+注意：投影 pass 不读 `UnityPerMaterial`；早期版本在投影 pass 里做 `_BaseMap` alpha clip，
+在 SRP Batcher 开启时会把共享材质的颜色层 CBUFFER 绑坏（壳变黑），去掉贴图读取后恢复。
 
 ### 2.7 前发阴影（HairDepth prepass，参考实现）
 

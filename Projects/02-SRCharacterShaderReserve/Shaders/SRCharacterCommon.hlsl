@@ -17,6 +17,7 @@ TEXTURE2D(_FaceSDFMap);     SAMPLER(sampler_FaceSDFMap);
 CBUFFER_START(UnityPerMaterial)
     float4 _BaseMap_ST;
     float4 _BaseColor;
+    float4 _BackColor;          // back-face albedo tint (capture PS 8537 cb0[89])
     float4 _EmissionColor;
     float4 _OutlineColor;
     float4 _RimColor;
@@ -27,6 +28,7 @@ CBUFFER_START(UnityPerMaterial)
     float  _NormalScale;
     float  _AlphaClip;
     float  _Cull;
+    float  _BackFaceUV2;        // 1 = back faces sample the second UV set (capture cb0[226].y)
     float  _OutlineWidth;
     float  _OutlineZOffset;
     float  _SROutlineWidthScale;
@@ -146,6 +148,32 @@ float3 SRGetNormalWS(float3 normalWS, float4 tangentWS, float2 uv)
 #else
     return normalize(normalWS);
 #endif
+}
+
+// Dual-face rendering (capture P08 Cull None draws, e.g. eid 977 / PS 8537; the same
+// select appears in PS 7229). On back faces the game samples the second UV set for the
+// base and ILM maps, multiplies by a second colour constant and negates the normal before
+// lighting. Here the G-buffer normal is the lighting normal, so the flip lands in the
+// G-buffer write. Front faces and Cull Back materials fall through unchanged.
+// Same layout as StarRailNPRShader's SetupDualFaceRendering + _BackColor.
+float3 SRDualFaceNormal(float3 normalWS, FRONT_FACE_TYPE isFrontFace)
+{
+    return normalWS * IS_FRONT_VFACE(isFrontFace, 1.0, -1.0);
+}
+
+float2 SRDualFaceUV(float2 uv0, float2 uv1, FRONT_FACE_TYPE isFrontFace)
+{
+    return IS_FRONT_VFACE(isFrontFace, uv0, _BackFaceUV2 > 0.5 ? uv1 : uv0);
+}
+
+float3 SRDualFaceBaseColor(FRONT_FACE_TYPE isFrontFace)
+{
+    return IS_FRONT_VFACE(isFrontFace, _BaseColor.rgb, _BackColor.rgb);
+}
+
+float SRDualFaceBaseAlpha(FRONT_FACE_TYPE isFrontFace)
+{
+    return IS_FRONT_VFACE(isFrontFace, _BaseColor.a, _BackColor.a);
 }
 
 // Face SDF shadow (adapted from HonkaiStarRailToonShader, MIT).

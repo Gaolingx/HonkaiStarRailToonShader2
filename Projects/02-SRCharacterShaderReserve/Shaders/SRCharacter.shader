@@ -17,6 +17,8 @@ Shader "SRCharacter/Character"
 
         [Header(Surface)]
         _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
+        _BackColor ("Back Face Color", Color) = (1, 1, 1, 1)
+        [ToggleUI] _BackFaceUV2 ("Back Face Uses UV2", Float) = 1
         _NormalScale ("Normal Scale", Range(0, 2)) = 1
         _EmissionColor ("Emission Color", Color) = (0, 0, 0, 1)
         _SREmissionIntensity ("Emission Intensity", Range(0, 8)) = 1
@@ -142,19 +144,23 @@ Shader "SRCharacter/Character"
                 return output;
             }
 
-            GBufferOutput GBufferFragment(SRCharacterVaryings input)
+            GBufferOutput GBufferFragment(
+                SRCharacterVaryings input,
+                FRONT_FACE_TYPE isFrontFace : FRONT_FACE_SEMANTIC)
             {
                 UNITY_SETUP_INSTANCE_ID(input);
 
-                half4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
-                half3 albedo = baseMap.rgb * _BaseColor.rgb * lerp(1.0h, input.color.rgb, _SRVertexColorWeight);
+                float2 texUV = SRDualFaceUV(input.uv, input.uv2, isFrontFace);
+                half4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, texUV);
+                half3 albedo = baseMap.rgb * SRDualFaceBaseColor(isFrontFace)
+                    * lerp(1.0h, input.color.rgb, _SRVertexColorWeight);
 
                 #if defined(_ALPHATEST_ON)
-                    clip(baseMap.a * _BaseColor.a - _AlphaClip);
+                    clip(baseMap.a * SRDualFaceBaseAlpha(isFrontFace) - _AlphaClip);
                 #endif
 
-                half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, input.uv);
-                float3 normalWS = SRGetNormalWS(input.normalWS, input.tangentWS, input.uv);
+                half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, texUV);
+                float3 normalWS = SRGetNormalWS(SRDualFaceNormal(input.normalWS, isFrontFace), input.tangentWS, texUV);
 
                 float faceLit = 1.0;
                 #if defined(_SR_AREA_FACE)
@@ -384,19 +390,22 @@ Shader "SRCharacter/Character"
                 return output;
             }
 
-            half4 OverlayFragment(SRCharacterVaryings input) : SV_Target
+            half4 OverlayFragment(
+                SRCharacterVaryings input,
+                FRONT_FACE_TYPE isFrontFace : FRONT_FACE_SEMANTIC) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
 
-                half4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
+                float2 texUV = SRDualFaceUV(input.uv, input.uv2, isFrontFace);
+                half4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, texUV);
                 #if defined(_ALPHATEST_ON)
-                    clip(baseMap.a * _BaseColor.a - _AlphaClip);
+                    clip(baseMap.a * SRDualFaceBaseAlpha(isFrontFace) - _AlphaClip);
                 #endif
 
-                half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, input.uv);
-                half3 emission = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, input.uv).rgb * _EmissionColor.rgb * _SREmissionIntensity;
+                half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, texUV);
+                half3 emission = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, texUV).rgb * _EmissionColor.rgb * _SREmissionIntensity;
 
-                float3 normalWS = SRGetNormalWS(input.normalWS, input.tangentWS, input.uv);
+                float3 normalWS = SRGetNormalWS(SRDualFaceNormal(input.normalWS, isFrontFace), input.tangentWS, texUV);
                 float3 viewDirWS = normalize(_WorldSpaceCameraPos - input.positionWS);
 
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
@@ -699,6 +708,7 @@ Shader "SRCharacter/Character"
                 float4 positionOS : POSITION;
                 float3 normalOS   : NORMAL;
                 float2 uv         : TEXCOORD0;
+                float2 uv2        : TEXCOORD1;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -706,6 +716,7 @@ Shader "SRCharacter/Character"
             {
                 float4 positionCS : SV_POSITION;
                 float2 uv         : TEXCOORD0;
+                float2 uv2        : TEXCOORD1;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -732,14 +743,18 @@ Shader "SRCharacter/Character"
 
                 output.positionCS = positionCS;
                 output.uv = input.uv * _BaseMap_ST.xy + _BaseMap_ST.zw;
+                output.uv2 = input.uv2;
                 return output;
             }
 
-            half4 ShadowCasterFragment(Varyings input) : SV_Target
+            half4 ShadowCasterFragment(
+                Varyings input,
+                FRONT_FACE_TYPE isFrontFace : FRONT_FACE_SEMANTIC) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 #if defined(_ALPHATEST_ON)
-                    clip(SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a * _BaseColor.a - _AlphaClip);
+                    float2 texUV = SRDualFaceUV(input.uv, input.uv2, isFrontFace);
+                    clip(SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, texUV).a * SRDualFaceBaseAlpha(isFrontFace) - _AlphaClip);
                 #endif
                 return 0;
             }
@@ -768,6 +783,7 @@ Shader "SRCharacter/Character"
             {
                 float4 positionOS : POSITION;
                 float2 uv         : TEXCOORD0;
+                float2 uv2        : TEXCOORD1;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -775,6 +791,7 @@ Shader "SRCharacter/Character"
             {
                 float4 positionCS : SV_POSITION;
                 float2 uv         : TEXCOORD0;
+                float2 uv2        : TEXCOORD1;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -785,14 +802,18 @@ Shader "SRCharacter/Character"
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.uv = input.uv * _BaseMap_ST.xy + _BaseMap_ST.zw;
+                output.uv2 = input.uv2;
                 return output;
             }
 
-            half4 DepthOnlyFragment(Varyings input) : SV_Target
+            half4 DepthOnlyFragment(
+                Varyings input,
+                FRONT_FACE_TYPE isFrontFace : FRONT_FACE_SEMANTIC) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 #if defined(_ALPHATEST_ON)
-                    clip(SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a * _BaseColor.a - _AlphaClip);
+                    float2 texUV = SRDualFaceUV(input.uv, input.uv2, isFrontFace);
+                    clip(SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, texUV).a * SRDualFaceBaseAlpha(isFrontFace) - _AlphaClip);
                 #endif
                 return 0;
             }
@@ -822,6 +843,7 @@ Shader "SRCharacter/Character"
                 float4 positionOS : POSITION;
                 float3 normalOS   : NORMAL;
                 float2 uv         : TEXCOORD0;
+                float2 uv2        : TEXCOORD1;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -830,6 +852,7 @@ Shader "SRCharacter/Character"
                 float4 positionCS : SV_POSITION;
                 float3 normalWS   : TEXCOORD0;
                 float2 uv         : TEXCOORD1;
+                float2 uv2        : TEXCOORD2;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -841,16 +864,20 @@ Shader "SRCharacter/Character"
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 output.uv = input.uv * _BaseMap_ST.xy + _BaseMap_ST.zw;
+                output.uv2 = input.uv2;
                 return output;
             }
 
-            half4 DepthNormalsFragment(Varyings input) : SV_Target
+            half4 DepthNormalsFragment(
+                Varyings input,
+                FRONT_FACE_TYPE isFrontFace : FRONT_FACE_SEMANTIC) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 #if defined(_ALPHATEST_ON)
-                    clip(SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a * _BaseColor.a - _AlphaClip);
+                    float2 texUV = SRDualFaceUV(input.uv, input.uv2, isFrontFace);
+                    clip(SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, texUV).a * SRDualFaceBaseAlpha(isFrontFace) - _AlphaClip);
                 #endif
-                float3 normalWS = normalize(input.normalWS);
+                float3 normalWS = normalize(SRDualFaceNormal(input.normalWS, isFrontFace));
                 #if defined(_GBUFFER_NORMALS_OCT)
                     float2 octNormalWS = PackNormalOctQuadEncode(normalWS);
                     float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);

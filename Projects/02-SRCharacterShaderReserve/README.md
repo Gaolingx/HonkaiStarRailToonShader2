@@ -368,6 +368,46 @@ ok: all 8 trace pixels, 2 composites and shader defaults reproduced
 验证（`smoke_hairshadow.png`）：横向主光下，刘海 quad 的阴影落在**光源反侧**；距离 3→6 时
 变暗像素质心 X 从 110.7 移到 112.8、最右像素 121→125。
 
+### 2.8 双面渲染（Cull Off + 背面着色）
+
+抓帧 P08 有 **42 个 `D3D11_CULL_NONE`** draw（同一 pass 内另有 149 个 Cull Back、16 个 Cull Front 描边），
+eid 977（11970 index，`rast 531`）就是 §1 表里标注的“双面” draw。它的 PS 8537 声明了
+`SV_IsFrontFace`（`dcl_input_ps_sgv nointerpolation v8.x, isfrontface`），前 9 条指令就是双面选择：
+
+```
+0: sample t0(v1.xy) * cb0[88]     // 正面：UV0 × 颜色 A
+2: sample t0(v1.zw) * cb0[89]     // 背面：UV1 × 颜色 B
+4: movc r0.xyz, v8.x, r0, r1      // SV_IsFrontFace 选色
+5: if_z v8.x → ILM 也按 v1.zw 采样，否则 v1.xy
+...
+513: movc r2.w, v8.x, 1.0, -1.0   // 背面法线取反
+514: mul r4.xyz, r2.w, r4.xyzx     // 之后参与 N·V / 边缘项
+```
+
+VS 8531 把 UV0 变换后写 `o1.xy`、UV1 原样写 `o1.zw`（`mov o1.zw, v4.xxxy`），所以 `v1.zw` 就是第二套 UV。
+PS 7229（eid 1680/1737/…）是同一套逻辑，但**背面是否改用 UV2 多一个 `cb0[226].y` 开关**：
+`uv = (back && cb0[226].y) ? v1.zw : v1.xy`（第 0-3 行）。同一支双面 PS 同时用于 Cull Back 与 Cull None
+draw（例：PS 5972 有 59 个 Back + 4 个 None），正面分支在 Cull Back draw 上是 no-op，
+所以本实现不按 `_Cull` 分支，只在片元里做 `SV_IsFrontFace` 选择。
+
+本实现的对应关系：
+
+| 抓帧 | 本实现 |
+|---|---|
+| `SV_IsFrontFace`（PS 8537/7229 等 13 支 PS） | `FRONT_FACE_TYPE ... : FRONT_FACE_SEMANTIC`：GBuffer / Overlay / ShadowCaster / DepthOnly / DepthNormals |
+| 背面 UV1 采样（PS 8537）+ `cb0[226].y` 开关（PS 7229） | `SRDualFaceUV`（[SRCharacterCommon.hlsl:164](Shaders/SRCharacterCommon.hlsl)）+ 材质 `_BackFaceUV2`（默认 1） |
+| 背面颜色常量 `cb0[89]` | `SRDualFaceBaseColor` / `SRDualFaceBaseAlpha`（[:169](Shaders/SRCharacterCommon.hlsl)）+ 材质 `_BackColor`，alpha clip 也用它的 alpha |
+| 背面法线取反（PS 8537 第 513-514 行） | `SRDualFaceNormal`（[:159](Shaders/SRCharacterCommon.hlsl)） |
+| `CULL_NONE` rasterizer | 材质 `_Cull`（默认 2 = Back；设 0 = Off 即双面绘制） |
+
+边界：
+
+- 描边仍是固定的 `Cull Front`，透明壳按抓帧是 `Cull Back`，都不走这条通用双面路径（见 §5）；
+- 本实现的 G-buffer normal 就是全屏着色的光照法线，所以法线翻转落在 G-buffer 写入处
+  （抓帧 PS 8537 写入的八面体法线取自未翻转的顶点法线，翻转只作用于它自己的光照项；
+  两种载体表达的是同一件事：**着色用背面翻转后的法线**）；
+- 抓帧里 `_BackFaceUV2` 的开关是逐材质常量（`cb0[226].y`），默认值按参考实现 Body 的 1 处理。
+
 ## 3. 使用步骤
 
 1. 把 `02-SRCharacterShaderReserve` 整个目录复制到 `Assets/` 下（例如 `Assets/SRCharacterShaderReserve`）。
@@ -379,7 +419,9 @@ ok: all 8 trace pixels, 2 composites and shader defaults reproduced
 4. 给角色部件建材质（`SRCharacter/Character`），按部件设置：
    - `_SRArea`：1 body / 2 face / 3 hair；
    - `_SRShadingGroup`：0 普通、3 头发（对应抓帧 0xE0）；`_SRMaterialID`：ramp 行号（0..63）；
-   - 自定义 Inspector 会据此自动写 `_SRStencilRef = group<<6 | id`（0x10 / 0x1F / 0xE0 即默认组合）。
+   - 自定义 Inspector 会据此自动写 `_SRStencilRef = group<<6 | id`（0x10 / 0x1F / 0xE0 即默认组合）；
+   - 双面部件（抓帧里 skirt/cloth 的 `CULL_NONE` draw）把 `_Cull` 设为 `Off`，用 `_BackColor` 指定背面颜色；
+     `_BackFaceUV2`（默认开）让背面改采第二套 UV，关闭时背面沿用 UV0（对应抓帧 PS 7229 的 `cb0[226].y`）。
 5. 在角色根节点挂 `SRCharacterRenderer`，设置同样的 area/group/id，并把 `Head` 指向头骨
    （面部 SDF 需要头骨的 right/forward/up）。
    - 眼睛 proxy 部件同样挂 `SRCharacterRenderer`，勾选 **Eye Proxy**，area 设为 Face、group 设为 2；
@@ -469,6 +511,16 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
                      covered delta=0 (off=RGBA(50, 153, 50, 255), on=RGBA(50, 153, 50, 255))
 [SRCharacterVerify] ok: eye overlay adds a highlight on visible eye pixels
 [SRCharacterVerify] ok: eye overlay is skipped where stencil bit0 marks bangs occlusion
+[SRCharacterVerify] dual face: cull back=RGBA(230, 178, 178, 255), cull off=RGBA(128, 128, 128, 255)
+[SRCharacterVerify] ok: Cull Off rasterizes the back face
+[SRCharacterVerify] dual face back colour: green case=RGBA(28, 230, 28, 255), red case=RGBA(230, 28, 28, 255)
+[SRCharacterVerify] ok: the back face uses _BackColor
+[SRCharacterVerify] ok: swapping _BackColor swaps the back face colour
+[SRCharacterVerify] dual face UV2: on=RGBA(0, 0, 255, 255), off=RGBA(255, 0, 0, 255)
+[SRCharacterVerify] ok: back faces sample UV2 when _BackFaceUV2 is on
+[SRCharacterVerify] ok: back faces fall back to UV0 when _BackFaceUV2 is off
+[SRCharacterVerify] dual face normal flip: front=RGBA(128, 128, 128, 255), back=RGBA(128, 128, 128, 255), delta=0
+[SRCharacterVerify] ok: the back face normal is flipped before shading
 [SRCharacterVerify] front hair shadow: caster.x=104.2, near(d=3) count=813 centroidX=110.7 maxX=121, far(d=6) count=966 centroidX=112.8 maxX=125
 [SRCharacterVerify] ok: front hair shadow darkens face pixels
 [SRCharacterVerify] ok: front hair shadow lands on the side opposite the light
@@ -493,6 +545,10 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
   所以“组位相等”成立，唯一能挡住加法的是 bit0，能区分 bit0 是否生效；
 - **前发阴影（参考实现）**：横向主光 + 小刘海 quad；开/关前置深度后做像素差，
   变暗像素质心在刘海**右侧**（光源反侧），距离 3→6 时质心 110.7→112.8、最右 121→125。
+- **双面渲染（Cull Off）**：背面朝相机的 quad 在 `_Cull=2` 时露出背后的角色、`_Cull=0` 时被 quad 覆盖；
+  `_BaseColor`/`_BackColor` 互换 → 中心像素跟着换色；4×1 红/蓝探测贴图 + `uv0` 取左半、`uv2` 取右半，
+  `_BackFaceUV2` 开 → 蓝、关 → 红；开启边缘光后背面与正面的中心像素完全相同（delta 0），
+  说明背面法线在着色前被翻转（否则 `1 - N·V` 会得到满额边缘光）。
 
 渲染结果：[validation/smoke_render.png](validation/smoke_render.png)（胶囊体为粉肤色 + 高光点，
 左侧可见深色描边；右侧绿色立方体为 URP/Lit 对照）、
@@ -518,6 +574,7 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 | 眼睛 proxy | 42 顶点 / 80 三角形独立网格，P08 也画 | 由用户指定 proxy 部件；eye pass 重画同一网格 | 没有 proxy 时整条眼睛链路不产生额外像素 |
 | 眼睛着色公式 | PS 9584：距离衰减 + 反射率 D + 解析折射 / 全反射分支 | 同名公式（`SREyeRefract`），常量见 2.5 | PASS\*（体积雾 LUT、SSAO、世界空间裁剪面未移植） |
 | 透明壳排序 | P35 内与其它前向/透明物体混合排序 | Feature 在 `AfterRenderingOpaques` 末尾按层绘制 | 与 URP 透明队列的相对顺序不同；单角色场景无影响 |
+| 双面渲染 | P08 42 个 `CULL_NONE` draw（eid 977 等）：背面 UV1 + 第二颜色 + 法线翻转（PS 8537/7229） | `_Cull=0` + `SV_IsFrontFace`（GBuffer/Overlay/ShadowCaster/DepthOnly/DepthNormals）+ `_BackColor`/`_BackFaceUV2` | 描边仍 Cull Front、透明壳按抓帧 Cull Back；细节见 2.8 |
 
 ### 与抓帧的模板差异
 

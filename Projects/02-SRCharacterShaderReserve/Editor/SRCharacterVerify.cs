@@ -522,6 +522,123 @@ namespace SRCharacter
                 Object.DestroyImmediate(eye);
                 Object.DestroyImmediate(eyeMaterial);
 
+                // --- Dual-face (capture P08 Cull None draws, eid 977 / PS 8537 and PS 7229):
+                // the game rasterizes some meshes without culling, takes a second colour constant
+                // on back faces, may sample the second UV set there (cb0[226].y) and negates the
+                // normal before lighting. The outline pass is off for this block: a zero-width
+                // outline shell would sit exactly on the visible back face.
+                bool previousOutline = feature.settings.enableOutline;
+                feature.settings.enableOutline = false;
+
+                Material dualFaceMaterial = new Material(characterShader);
+                dualFaceMaterial.SetFloat("_Cull", 0f);
+                dualFaceMaterial.SetFloat("_OutlineWidth", 0f);
+                dualFaceMaterial.SetFloat("_SRSpecIntensity", 0f);
+                dualFaceMaterial.SetFloat("_SRRimIntensity", 0f);
+                dualFaceMaterial.SetFloat("_BackFaceUV2", 1f);
+                dualFaceMaterial.SetColor("_BaseColor", Color.gray);
+                dualFaceMaterial.SetColor("_BackColor", Color.gray);
+
+                GameObject dualFaceQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                dualFaceQuad.name = "SRCharacterVerifyDualFace";
+                dualFaceQuad.transform.position = new Vector3(0f, 0f, -2.4f);
+                dualFaceQuad.transform.localScale = new Vector3(1.2f, 1.2f, 1f);
+                dualFaceQuad.GetComponent<Renderer>().sharedMaterial = dualFaceMaterial;
+                dualFaceQuad.AddComponent<SRCharacterRenderer>().Apply();
+
+                // Clone the built-in quad mesh so UV edits do not touch the shared primitive asset.
+                Mesh quadMesh = Object.Instantiate(dualFaceQuad.GetComponent<MeshFilter>().sharedMesh);
+                quadMesh.name = "SRCharacterVerifyDualFaceMesh";
+                dualFaceQuad.GetComponent<MeshFilter>().sharedMesh = quadMesh;
+
+                // The stock Quad's normal points along -Z and the camera looks along +Z.
+                bool quadFacesCamera = quadMesh.normals.Length > 0 && quadMesh.normals[0].z < 0f;
+                Quaternion frontRotation = quadFacesCamera ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
+                Quaternion backRotation = quadFacesCamera ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
+
+                int dualCenter = (rt.height / 2) * rt.width + rt.width / 2;
+                dualFaceQuad.transform.rotation = backRotation;
+
+                dualFaceMaterial.SetFloat("_Cull", 2f);
+                Color32[] dualCulled = RenderAndGetPixels(camera, rt);
+                dualFaceMaterial.SetFloat("_Cull", 0f);
+                Color32[] dualVisible = RenderAndGetPixels(camera, rt);
+                Debug.Log($"[SRCharacterVerify] dual face: cull back={dualCulled[dualCenter]}, cull off={dualVisible[dualCenter]}");
+                Check(Distance(dualCulled[dualCenter], dualVisible[dualCenter]) > 24,
+                    "Cull Off rasterizes the back face");
+
+                // Back faces take _BackColor instead of _BaseColor (PS 8537 movc on SV_IsFrontFace).
+                dualFaceMaterial.SetColor("_BaseColor", new Color(0.9f, 0.1f, 0.1f, 1f));
+                dualFaceMaterial.SetColor("_BackColor", new Color(0.1f, 0.9f, 0.1f, 1f));
+                Color32[] backColorGreen = RenderAndGetPixels(camera, rt);
+                dualFaceMaterial.SetColor("_BaseColor", new Color(0.1f, 0.9f, 0.1f, 1f));
+                dualFaceMaterial.SetColor("_BackColor", new Color(0.9f, 0.1f, 0.1f, 1f));
+                Color32[] backColorRed = RenderAndGetPixels(camera, rt);
+                Debug.Log($"[SRCharacterVerify] dual face back colour: green case={backColorGreen[dualCenter]}, " +
+                          $"red case={backColorRed[dualCenter]}");
+                Check(backColorGreen[dualCenter].g > backColorGreen[dualCenter].r + 24,
+                    "the back face uses _BackColor");
+                Check(backColorRed[dualCenter].r > backColorRed[dualCenter].g + 24,
+                    "swapping _BackColor swaps the back face colour");
+
+                // UV2 switch (PS 7229: uv = back face && cb0[226].y ? uv2 : uv0).
+                Texture2D uvProbe = new Texture2D(4, 1, TextureFormat.RGBA32, false, true)
+                {
+                    name = "SRCharacterVerifyUVProbe"
+                };
+                uvProbe.SetPixels(new[]
+                {
+                    new Color(1f, 0f, 0f, 1f), new Color(1f, 0f, 0f, 1f),
+                    new Color(0f, 0f, 1f, 1f), new Color(0f, 0f, 1f, 1f)
+                });
+                uvProbe.Apply();
+
+                Vector2[] quadUV = quadMesh.uv;
+                Vector2[] quadUV2 = new Vector2[quadUV.Length];
+                for (int i = 0; i < quadUV.Length; i++)
+                {
+                    quadUV[i] = new Vector2(0.05f + 0.4f * quadUV[i].x, 0.5f);
+                    quadUV2[i] = new Vector2(0.55f + 0.4f * quadUV[i].x, 0.5f);
+                }
+                quadMesh.uv = quadUV;
+                quadMesh.uv2 = quadUV2;
+
+                dualFaceMaterial.SetTexture("_BaseMap", uvProbe);
+                dualFaceMaterial.SetColor("_BaseColor", Color.white);
+                dualFaceMaterial.SetColor("_BackColor", Color.white);
+                dualFaceMaterial.SetFloat("_BackFaceUV2", 1f);
+                Color32[] uv2On = RenderAndGetPixels(camera, rt);
+                dualFaceMaterial.SetFloat("_BackFaceUV2", 0f);
+                Color32[] uv2Off = RenderAndGetPixels(camera, rt);
+                Debug.Log($"[SRCharacterVerify] dual face UV2: on={uv2On[dualCenter]}, off={uv2Off[dualCenter]}");
+                Check(uv2On[dualCenter].b > uv2On[dualCenter].r + 24,
+                    "back faces sample UV2 when _BackFaceUV2 is on");
+                Check(uv2Off[dualCenter].r > uv2Off[dualCenter].b + 24,
+                    "back faces fall back to UV0 when _BackFaceUV2 is off");
+
+                // Normal flip: with the rim layer on, an unflipped back-face normal would give
+                // rim = (1 - N.V) = 1 instead of 0, so the front and back pixels must match.
+                dualFaceMaterial.SetTexture("_BaseMap", Texture2D.whiteTexture);
+                dualFaceMaterial.SetColor("_BaseColor", new Color(0.5f, 0.5f, 0.5f, 1f));
+                dualFaceMaterial.SetColor("_BackColor", new Color(0.5f, 0.5f, 0.5f, 1f));
+                dualFaceMaterial.SetFloat("_SRRimIntensity", 1f);
+                dualFaceMaterial.SetFloat("_SRRimWidth", 1f);
+
+                dualFaceQuad.transform.rotation = frontRotation;
+                Color32[] flipFront = RenderAndGetPixels(camera, rt);
+                dualFaceQuad.transform.rotation = backRotation;
+                Color32[] flipBack = RenderAndGetPixels(camera, rt);
+                int flipDelta = Distance(flipFront[dualCenter], flipBack[dualCenter]);
+                Debug.Log($"[SRCharacterVerify] dual face normal flip: front={flipFront[dualCenter]}, " +
+                          $"back={flipBack[dualCenter]}, delta={flipDelta}");
+                Check(flipDelta <= 6, "the back face normal is flipped before shading");
+
+                Object.DestroyImmediate(dualFaceQuad);
+                Object.DestroyImmediate(dualFaceMaterial);
+                Object.DestroyImmediate(uvProbe);
+                Object.DestroyImmediate(quadMesh);
+                feature.settings.enableOutline = previousOutline;
+
                 // --- Transparent shadow caster (capture P16 eids 3836/3848: the shell is
                 // rasterized into the character's per-object shadow tile). URP drives the
                 // ShadowCaster pass from its main-light caster list. The colour layers are

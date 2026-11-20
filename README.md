@@ -17,7 +17,8 @@
 | 半透明刘海（50% alpha quad） | 通过：中心像素 `(230,178,178)` → `(243,132,132)`，红升绿降 |
 | 眼睛遮挡 bit0（proxy + 前方刘海条） | 通过：可见侧亮度 90 → 104（PS 9584 公式）；被挡侧保持 `(50,153,50)` 不变 |
 | 前发阴影（HairDepth prepass + 脸部采样，参考实现） | 通过：刘海 quad 的阴影落在主光反侧；距离 3→6 时质心 X 110.7→112.8、最右像素 121→125 |
-| 总体结论 | **PARTIAL**：角色核心 pass 链、眼睛 bit0、半透明刘海、前发阴影已重建并验证；P27（只作用于头发组）、P36 遮罩 + bloom、GPU 蒙皮未移植 |
+| 双面渲染（`Cull Off` + 背面 UV2 / 颜色 / 法线翻转） | 通过：背面光栅化、`_BackColor` 换色、`_BackFaceUV2` 切 UV、法线翻转（正/背面像素 delta 0）4 项断言 |
+| 总体结论 | **PARTIAL**：角色核心 pass 链、眼睛 bit0、半透明刘海、前发阴影、双面渲染已重建并验证；P27（只作用于头发组）、P36 遮罩 + bloom、GPU 蒙皮未移植 |
 
 完整证据：[02-SRCharacterShaderReserve/validation/verify.log](Projects/02-SRCharacterShaderReserve/validation/verify.log)、
 [smoke_render.png](Projects/02-SRCharacterShaderReserve/validation/smoke_render.png)、
@@ -152,7 +153,8 @@ G-Buffer 载荷：
 | 高光 / 边缘光 / 自发光（加法叠加） | PASS\* | [SRCharacter.shader:322-340](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacter.shader#L322) |
 | 主光阴影 | PASS\* | 全屏与叠加均采样 URP 主光阴影 |
 | 环境光 | PARTIAL | `SampleSH` 近似；抓帧的 GI/雾（P29）未解码 |
-| 法线贴图 | PASS\* | `SRGetNormalWS`（[Common:87](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterCommon.hlsl#L87)） |
+| 法线贴图 | PASS\* | `SRGetNormalWS`（[Common:142](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterCommon.hlsl#L142)） |
+| 双面渲染（CULL_NONE 背面着色） | PASS | `SV_IsFrontFace` + `SRDualFace{UV,BaseColor,Normal}`（[Common:159](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterCommon.hlsl#L159)、[Character:147](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacter.shader#L147)）；抓帧 eid 977 / PS 8537、PS 7229：背面取 UV1 + `_BackColor` + 法线翻转 |
 | GPU 蒙皮 / Stream-Out / indirect | NOT PORTED | P00–P02 |
 | 屏幕空间阴影（P27） | NOT PORTED | 抓帧 ps 9571(Ref 192) / ps 9572(Ref 128) 采样 tex9580；每物体投影只写头发组（0xE0），脸部 ps 661(Ref 0) 只采样 albedo |
 | 前发阴影（刘海投脸） | PASS\*（参考实现） | [SRCharacterHairDepthPass.cs](Projects/02-SRCharacterShaderReserve/Runtime/Passes/SRCharacterHairDepthPass.cs) + [SRCharacterShading.shader](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterShading.shader)（`SRFrontHairShadow`，抓帧无对应） |

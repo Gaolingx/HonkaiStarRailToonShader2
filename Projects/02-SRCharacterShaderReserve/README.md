@@ -79,6 +79,7 @@ Editor/
   SRCharacterVerify.cs           批处理验证入口（编译检查 + 胶囊体冒烟渲染）
 analysis/
   extract_stencil_refs.py        从 RenderDoc XML 提取逐 draw 的 StencilRef
+  ps9584_eye_model.py            PS 9584 公式复刻 + 两个抓帧像素的回归（debug_pixel --trace）
 validation/
   verify.log                     最近一次验证日志（exit=0）
   smoke_render.png               冒烟渲染结果（胶囊体 + 对照立方体）
@@ -170,8 +171,30 @@ validation/
   只有两个 eye pass 会额外重画它。
 - **bit0 生命周期**：GBuffer 写材质 ID 时 bit0=0；组 1..3 的全屏 pass 再清一次（镜像 DSS 655）；
   眼睛标记置位；眼睛高光消费并清零。组 0 的全屏 pass 不写（镜像 DSS 662）。
-- 着色载荷用屏幕空间 GBuffer（albedo / normal / 深度）＋主光，复现抓帧 PS 9584 的“屏幕空间眼睛着色”结构；
-  其常量与虹膜折射公式未解码，参数以材质属性（`_SREyeColor/SpecIntensity/Shininess/FresnelPower/RimIntensity`）表达。
+- **着色载荷（PS 9584 已解码）**：用 `debug_pixel --trace` 在 eid 5015 上取两个像素（全反射路径与折射路径）
+  逐指令读寄存器；复刻脚本 [analysis/ps9584_eye_model.py](analysis/ps9584_eye_model.py) 与抓帧输出误差 < 1e-5。
+  公式（`SRCharacterEyeShade` / `SREyeRefract`）：
+  - 输入：G-Buffer albedo（眼睛贴图）、世界法线、深度反推世界坐标；`L` = 主光方向，`V` = 相机方向。
+  - 距离衰减：`fade = (1 - (d / _SREyeFadeDistance)^2)^2`（抓帧 cb3[9].w = 5、cb3[11].z = 2）。
+  - 高光反射率：`t = sqrt(sat(r^2 / (d^2 + 1)))`，`D = sat((max(N·V, -t) + t)^2 / (4t))`（cb3[11].x = 1）；
+    高光 `= D * albedo * light * _SREyeSpecIntensity`（cb3[10].x = 1）。
+  - Fresnel tint：`halfCos = sqrt(sat((1 + V·L) / 2))`，`tint = lerp(0.04, 1, (1 - halfCos)^5)`
+    （cb3[16] = (0, 1)、基底 0.04）。
+  - 虹膜遮罩：抓帧取 G-Buffer normal.a（采样像素 0.624）；`k = sat(mask * r / d)`、
+    `s = sat((1 - mask)^2 + 1 / (3.6 * N·L + 0.4))`。
+  - 分支：`2*D*N·L - V·L >= sqrt(1 - k^2)` 走全反射路径（折射系数 A = 1、透射余弦 = |N·L|），
+    否则执行 PS 9584 的解析折射块（`SREyeRefract`，按反汇编逐条移植）。
+  - 折射色 `= sat((s^2 / 2π) / ((D*q + N·L*p) * A^2) * tint)`，
+    透射 `= s / (((3√s + k)k/4) / (cosT + 0.001) + s)`；
+    最终 `+= 折射色 * N·V * light * 透射`。
+  - 未移植：t2 的 3D 体积雾 LUT、t4 的屏幕空间 AO、cb3[49..53] 的 4 个世界空间裁剪面
+    （该帧 4 个面均 disabled、像素都在面内，乘数为 1）。
+- **抓帧通道更正**：材质类型是 `normal.b * 65535 & 7`（不是 `.a`）；`normal.rg` 是八面体法线，
+  `normal.a` 是虹膜遮罩（像素值 0.624）。本实现 G-Buffer 存世界法线 + device depth，
+  因此法线直接读 RGB，遮罩改为材质属性 `_SREyeIrisMask`（默认 0.624）。
+- 可调参数（默认 = 抓帧值）：`_SREyeIrisMask 0.624`、`_SREyeIrisBase 0.04`、`_SREyeSpecRadius 1`、
+  `_SREyeFadeDistance 5`、`_SREyeSpecIntensity 1`、`_SREyeLightIntensity 1`
+  （抓帧 cb3[9].rgb ≈ (2.0, 1.505, 1.008)，可通过该参数放大）。
 
 ### 2.6 半透明刘海
 
@@ -282,7 +305,7 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 [SRCharacterVerify] ok: character pixels are reduced behind an opaque occluder
 [SRCharacterVerify] transparent bangs center=RGBA(243, 132, 132, 191) (capsule center was RGBA(230, 178, 178, 255))
 [SRCharacterVerify] ok: semi-transparent bangs alpha-blend over the shaded character
-[SRCharacterVerify] eye overlay: visible delta=249 (off=RGBA(90, 90, 90, 255), on=RGBA(173, 173, 173, 255)),
+[SRCharacterVerify] eye overlay: visible delta=42 (off=RGBA(90, 90, 90, 255), on=RGBA(104, 104, 104, 255)),
                      covered delta=0 (off=RGBA(50, 153, 50, 255), on=RGBA(50, 153, 50, 255))
 [SRCharacterVerify] ok: eye overlay adds a highlight on visible eye pixels
 [SRCharacterVerify] ok: eye overlay is skipped where stencil bit0 marks bangs occlusion
@@ -302,7 +325,8 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 
 - **半透明刘海**：50% alpha 的红色 quad 叠在已着色的胶囊上，中心像素从 `(230,178,178)` 变为
   `(243,132,132)`（红升、绿降），说明它走的是 alpha 混合而不是覆盖；
-- **眼睛遮挡（bit0）**：眼睛 proxy 中心可见的一侧亮度 90→173（加法高光生效），
+- **眼睛遮挡（bit0）**：眼睛 proxy 中心可见的一侧亮度 90→104（PS 9584 公式的加法高光生效；
+  换公式前是 Blinn 高光，delta 249；新公式按抓帧常量产生更克制的折射高光），
   被绿色刘海条挡住的另一侧保持 `(50,153,50)` 不变——proxy 的深度测试失败置了 bit0，
   高光 pass 因此跳过。注意该测试里刘海条本身也是 group 2 的角色材质，
   所以“组位相等”成立，唯一能挡住加法的是 bit0，能区分 bit0 是否生效；
@@ -331,7 +355,7 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 | ramp / 材质参数 | per-character LUT | feature 级全局 ramp + 材质属性 | 多角色不同配色时需要扩展为 per-character 表 |
 | 面部 SDF 通道 | FaceMap.a（参考实现约定） | 同样用 A | 参考 StarRailNPRShader / HonkaiStarRailToonShader 的约定 |
 | 眼睛 proxy | 42 顶点 / 80 三角形独立网格，P08 也画 | 由用户指定 proxy 部件；eye pass 重画同一网格 | 没有 proxy 时整条眼睛链路不产生额外像素 |
-| 眼睛着色公式 | PS 9584：屏幕空间 + 虹膜折射（常量不可得） | 屏幕空间 specular + Fresnel 高光 | 结构与门控一致，具体数值不可比 |
+| 眼睛着色公式 | PS 9584：距离衰减 + 反射率 D + 解析折射 / 全反射分支 | 同名公式（`SREyeRefract`），常量见 2.5 | PASS\*（体积雾 LUT、SSAO、世界空间裁剪面未移植） |
 | 透明刘海排序 | P35 内与其它前向/透明物体混合排序 | Feature 在 `AfterRenderingOpaques` 末尾先画 | 与 URP 透明队列的相对顺序不同；单角色场景无影响 |
 
 ### 与抓帧的模板差异
@@ -339,9 +363,9 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 - 抓帧的 0xE0 头发组由第 1 个全屏 pass（ref 192）着色；本实现组 3 同时也是 hair ramp 的选择依据。
 - 眼睛高光的 Ref 直接复用材质 `_SRStencilRef`（`ReadMask 0x81` 会忽略低 6 位），
   因此要求眼睛 proxy 与脸部同属 group 2；抓帧里同样是 `Ref 0x80`。
-- 眼睛 proxy 用**网格重画**实现（与抓帧一致），没有做抓帧 PS 9584 的虹膜/折射常量还原；
-  着色载荷是可配置的屏幕空间高光。抓帧的材质类型判断（`normal.a*65535 & 7 == 2` 时输出 0）
-  在本实现中由 `_SREyeProxy` + GBuffer area 判断替代。
+- 眼睛 proxy 用**网格重画**实现（与抓帧一致），着色载荷按 2.5 的 PS 9584 公式移植；
+  抓帧的材质类型判断（`normal.b * 65535 & 7 == 2` 时输出 0、不参与高光）
+  在本实现中由 `_SREyeProxy` + G-Buffer area 判断替代。
 - 抓帧的透明刘海有 5 个 draw（0/24/10/11/11，其中 10 是描边、24 是 `Always→Replace` 变体）；
   本实现每个材质只产生 fill + outline 两个 draw，`_SRStencilRef` 由材质设置决定去重键。
 
@@ -352,5 +376,5 @@ cp -r Projects/02-SRCharacterShaderReserve/{Runtime,Shaders,Editor} \
 3. 把全局 ramp 扩成 per-character LUT（8×N 浮点纹理 + material id 索引），对齐抓帧的 8×8 RGBA16F 小图。
 4. 若需要在正式场景使用：恢复 P08 的 GPU 蒙皮预计算（VS+GS Stream-Out 或 Compute），
    避免 SkinnedMeshRenderer 的 CPU 蒙皮开销。
-5. 解码 PS 9584 / 15531 的 CB 常量后，把眼睛高光换成抓帧的虹膜折射公式，
-   并给透明刘海补上抓帧的 3 段材质分件（ref 10/11/24）。
+5. PS 9584 已完成（2.5：常量 + 全反射/折射两条路径）；剩余：给透明刘海补上抓帧的 3 段材质分件
+   （ref 10/11/24），并按同样方法解码 PS 15531 的 CB。

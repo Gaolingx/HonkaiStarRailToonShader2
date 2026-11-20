@@ -15,7 +15,7 @@
 | 全屏模板着色独立性（关闭 overlay） | 通过：仍 5608 px |
 | 深度遮挡（相机与角色之间放不透明物体） | 通过：屏幕中心被遮挡物占据，角色像素 5608 → 24 |
 | 半透明刘海（50% alpha quad） | 通过：中心像素 `(230,178,178)` → `(243,132,132)`，红升绿降 |
-| 眼睛遮挡 bit0（proxy + 前方刘海条） | 通过：可见侧亮度 90 → 173；被挡侧保持 `(50,153,50)` 不变 |
+| 眼睛遮挡 bit0（proxy + 前方刘海条） | 通过：可见侧亮度 90 → 104（PS 9584 公式）；被挡侧保持 `(50,153,50)` 不变 |
 | 前发阴影（HairDepth prepass + 脸部采样，参考实现） | 通过：刘海 quad 的阴影落在主光反侧；距离 3→6 时质心 X 110.7→112.8、最右像素 121→125 |
 | 总体结论 | **PARTIAL**：角色核心 pass 链、眼睛 bit0、半透明刘海、前发阴影已重建并验证；P27（只作用于头发组）、P36 遮罩 + bloom、GPU 蒙皮未移植 |
 
@@ -44,6 +44,7 @@ Projects/
     Shaders/                      GBuffer/描边/眼睛/加法叠加/半透明刘海 + 全屏分组着色 + 公共 HLSL
     Editor/                       材质 Inspector + 批处理验证入口
     analysis/extract_stencil_refs.py
+    analysis/ps9584_eye_model.py
     validation/                   verify.log + smoke_render / smoke_transparent / smoke_eye / smoke_hairshadow.png
 ```
 
@@ -154,7 +155,8 @@ G-Buffer 载荷：
 | GPU 蒙皮 / Stream-Out / indirect | NOT PORTED | P00–P02 |
 | 屏幕空间阴影（P27） | NOT PORTED | 抓帧 ps 9571(Ref 192) / ps 9572(Ref 128) 采样 tex9580；每物体投影只写头发组（0xE0），脸部 ps 661(Ref 0) 只采样 albedo |
 | 前发阴影（刘海投脸） | PASS\*（参考实现） | [SRCharacterHairDepthPass.cs](Projects/02-SRCharacterShaderReserve/Runtime/Passes/SRCharacterHairDepthPass.cs) + [SRCharacterShading.shader](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterShading.shader)（`SRFrontHairShadow`，抓帧无对应） |
-| 眼睛遮挡 bit0 + 眼睛高光 | PASS\* | 标记 pass（[SRCharacter.shader:SRCharacterEyeMark](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacter.shader)）+ 加法高光 pass（`SRCharacterEyeShade`）；公式为可配置的屏幕空间高光，非抓帧虹膜折射 |
+| 眼睛遮挡 bit0 + 眼睛高光 | PASS\* | 标记 pass（[SRCharacter.shader:SRCharacterEyeMark](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacter.shader)）+ 加法高光 pass（`SRCharacterEyeShade`）；**载荷按 PS 9584 解码公式**：距离衰减 `(1-(d/5)^2)^2`、反射率 D、解析折射 / 全反射分支，常量见 [02 §2.5](Projects/02-SRCharacterShaderReserve/README.md#25-眼睛遮挡stencil-bit0) |
+| PS 9584 常量解码 | 通过 | `debug_pixel --trace` 逐指令取值（eid 5015，全反射与折射各一个像素）；[复刻脚本](Projects/02-SRCharacterShaderReserve/analysis/ps9584_eye_model.py) 与抓帧输出误差 < 1e-5 |
 | 半透明刘海 / stencil bit0 机制 | PASS\* | [SRCharacterTransparent.shader](Projects/02-SRCharacterShaderReserve/Shaders/SRCharacterTransparent.shader)（alpha 混合 + `NOT_EQUAL` 第一层去重 + 背面描边）+ [SRCharacterTransparentPass.cs](Projects/02-SRCharacterShaderReserve/Runtime/Passes/SRCharacterTransparentPass.cs) |
 | 全屏 pass 消费 bit0 | PASS | 组 1..3 `WriteMask 1 / Pass=Zero`（DSS 655），组 0 不写（DSS 662） |
 | 角色遮罩 + bloom/tonemap（P36–P55） | NOT PORTED | 未重建后处理链 |
@@ -242,7 +244,7 @@ rm -rf E:/GitHub/Glx.CustomURP/URPSample01/Assets/_SRCharacterVerify*
 | 2 | P36 角色遮罩 + bloom/tonemap（P37–P55） | 角色不会参与 bloom 强度控制，最终观感差异大 |
 | 3 | GPU 蒙皮 / Stream-Out（P00–P02） | 大场景 CPU 开销与逐帧顶点流构建方式不同 |
 | 4 | CB / shader 解码（`GetCBufferVariableContents`、`debug_pixel`） | 才能把 ramp/SDF/LUT 公式从“推断”提升为“证实” |
-| 5 | per-character LUT、附加光/雾、眼睛虹膜折射公式（PS 9584）、透明刘海 3 段材质分件 | 细节与多角色场景 |
+| 5 | per-character LUT、附加光/雾、眼睛公式未移植部分（t2 体积雾 LUT / t4 SSAO / 世界空间裁剪面）、透明刘海 3 段材质分件 | 细节与多角色场景 |
 
 ## 7. 文档索引
 

@@ -57,13 +57,16 @@ CBUFFER_START(UnityPerMaterial)
     float  _SRAlpha;
 
     // Eye overlay (stencil bit0): only meshes flagged as eye proxies run the two eye passes.
+    // The shading terms are the decoded PS 9584 constants (see README 2.5).
     float  _SREyeProxy;
     float4 _SREyeColor;
-    float  _SREyeSpecIntensity;
-    float  _SREyeShininess;
-    float  _SREyeFresnelPower;
-    float  _SREyeRimIntensity;
+    float  _SREyeSpecIntensity;     // cb3[10].x (capture 1.0)
     float  _SREyeShadowStrength;
+    float  _SREyeIrisMask;          // G-buffer normal.a in the capture (0.624 at the sampled pixel)
+    float  _SREyeIrisBase;          // base refraction tint (capture 0.04)
+    float  _SREyeSpecRadius;        // cb3[11].x (capture 1.0); also scales the refraction radius
+    float  _SREyeFadeDistance;      // cb3[9].w (capture 5.0)
+    float  _SREyeLightIntensity;    // cb3[9].rgb was (2.0, 1.505, 1.008)
 CBUFFER_END
 
 struct SRCharacterAttributes

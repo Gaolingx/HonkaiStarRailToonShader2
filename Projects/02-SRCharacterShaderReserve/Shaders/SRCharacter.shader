@@ -64,11 +64,13 @@ Shader "SRCharacter/Character"
         [Header(Eye Overlay and Stencil Bit 0)]
         _SREyeProxy ("Eye Proxy (0 or 1)", Float) = 0
         _SREyeColor ("Eye Highlight Color", Color) = (1, 1, 1, 1)
-        _SREyeSpecIntensity ("Eye Spec Intensity", Range(0, 4)) = 1
-        _SREyeShininess ("Eye Spec Shininess", Range(1, 256)) = 32
-        _SREyeFresnelPower ("Eye Fresnel Power", Range(0.1, 8)) = 3
-        _SREyeRimIntensity ("Eye Rim Intensity", Range(0, 4)) = 0.5
+        _SREyeSpecIntensity ("Eye Spec Intensity (cb3[10].x)", Range(0, 4)) = 1
         _SREyeShadowStrength ("Eye Main-light Shadow Strength", Range(0, 1)) = 1
+        _SREyeIrisMask ("Eye Iris Mask (capture normal.a)", Range(0, 1)) = 0.624
+        _SREyeIrisBase ("Eye Iris Base Tint", Range(0, 1)) = 0.04
+        _SREyeSpecRadius ("Eye Spec Radius (cb3[11].x)", Range(0, 4)) = 1
+        _SREyeFadeDistance ("Eye Distance Fade (cb3[9].w)", Range(0.1, 100)) = 5
+        _SREyeLightIntensity ("Eye Light Intensity (cb3[9].rgb = 2.0/1.5/1.0)", Range(0, 8)) = 1
     }
 
     CustomEditor "SRCharacter.SRCharacterShaderGUI"
@@ -538,6 +540,49 @@ Shader "SRCharacter/Character"
                 return output;
             }
 
+            // PS 9584 instructions 111..166: analytic refraction of the light through the eye
+            // surface. Only the non total-internal-reflection path needs it; the TIR path uses
+            // (1, |N.L|). Inputs are D (reflectance), nl = N.L, cnt = sqrt(1 - k^2), vl = V.L,
+            // k = refraction radius. Returns (refracted cos factor, transmission cos factor).
+            float2 SREyeRefract(float D, float nl, float cnt, float vl, float k)
+            {
+                float sn = 2.0 * D * nl - vl;
+                float r7z = k / sqrt(max(1.0 - sn * sn, 1e-4));
+                float r7w = nl - sn * D;
+                float r8w = r7w * r7z;
+                float r9w = 2.0 * nl;
+                r9w = r9w * nl - 1.0;
+                float cw = (-sn * vl + r9w) * r7z;
+                r9w = 1.0 - D * D - nl * nl - vl * vl;
+                float r7y = 2.0 * D * nl;
+                r7y = sqrt(max(r7y * vl + r9w, 1e-4)) * r7z;
+                r9w = nl * (2.0 * r7y);
+                float r10x = D * cnt + nl;
+                r7z = r7z * r7w + r10x;
+                r7w = vl * cnt + cw + 1.0;
+                float r10y = r7w * r7y;
+                float r10z = r7w * r7z;
+                float r10w = r7z * r9w;
+                float r11x = r10z * (r10w * 0.25 - 0.5 * r10y);
+                r10w *= -2.0 * r10y + r10w;
+                r10y = r10y * r10y + r10w;
+                r10w = r7w * r7w;
+                r7w = (-0.5 * (vl * cnt + r7w) - 0.5) * r10z;
+                r7w = r10x * r10w + r7w;
+                r7z = r7z * r7w + r10y;
+                r7w = 2.0 * r11x;
+                r10x = max(r7z * r7z + r11x * r11x, 0.001);
+                r7w /= r10x;
+                r7z *= r7w;
+                r7w = 1.0 - r7w * r11x;
+                r7y = r7w * r8w + r7y * r7z;
+                cw = r7w * cw + r9w * r7z;
+                r7y = D * cnt + r7y;
+                float r5x = vl * cnt + cw;
+                float r5w = 1.0 / sqrt(max(2.0 * r5x + 2.0, 1e-4));
+                return float2(saturate(r5w * (nl + r7y)), saturate(r5w * (r5x + 1.0)));
+            }
+
             half4 EyeShadeFragment(EyeShadeVaryings input) : SV_Target
             {
                 clip(_SREyeProxy - 0.5);
@@ -557,19 +602,66 @@ Shader "SRCharacter/Character"
                 float4 positionWS4 = mul(unity_MatrixInvVP, float4(input.ndc, normalDepth.a, 1.0));
                 float3 positionWS = positionWS4.xyz / positionWS4.w;
                 float3 normalWS = normalize(normalDepth.rgb);
-                float3 viewDirWS = normalize(_WorldSpaceCameraPos - positionWS);
+
+                float3 toCamera = _WorldSpaceCameraPos - positionWS;
+                float dist = max(length(toCamera), 1e-4);
+                float3 viewDirWS = toCamera / dist;
 
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(positionWS));
-                float3 halfDirWS = normalize(mainLight.direction + viewDirWS);
-                float specular = pow(saturate(dot(normalWS, halfDirWS)), max(_SREyeShininess, 1.0));
-                float fresnel = pow(1.0 - saturate(dot(normalWS, viewDirWS)), max(_SREyeFresnelPower, 0.001));
+                float3 lightDirWS = mainLight.direction;
+
+                float nl = saturate(dot(normalWS, lightDirWS));
+                float nvRaw = dot(normalWS, viewDirWS);
+                float nv = saturate(nvRaw);
+                float vl = dot(viewDirWS, lightDirWS);
+
+                // PS 9584 cb3[9].w = 5 and cb3[11].z = 2: (1 - (d / fadeDistance)^2)^2.
+                float fade01 = saturate(1.0 - (dist * dist) / max(_SREyeFadeDistance * _SREyeFadeDistance, 1e-4));
+                float fade = fade01 * fade01;
+
+                // PS 9584 cb3[11].x = 1: reflectance from the eye radius / distance.
+                float specT = sqrt(saturate(_SREyeSpecRadius * _SREyeSpecRadius / (dist * dist + 1.0)));
+                float specX = max(nvRaw, -specT) + specT;
+                float specular = saturate(specX * specX / max(4.0 * specT, 1e-6));
+
+                // cb3[16] = (0, 1): the G-buffer normal.a is the eye mask in the capture. The
+                // half-vector cosine comes from V.L because our key light is directional.
+                float irisMask = saturate(_SREyeIrisMask);
+                float halfCos = sqrt(saturate((1.0 + vl) * 0.5));
+                float fresnel5 = pow(1.0 - halfCos, 5.0);
+                float3 tint = _SREyeIrisBase + (1.0 - _SREyeIrisBase) * fresnel5;
+
+                float radius = saturate(irisMask * _SREyeSpecRadius / dist);
+                float strength = saturate((1.0 - irisMask) * (1.0 - irisMask) + 1.0 / (3.6 * nl + 0.4));
+
+                float cnt = sqrt(saturate(1.0 - radius * radius));
+                float sn = 2.0 * specular * nl - vl;
+                float refracted = 1.0;
+                float transCos = abs(nl);
+                if (sn < cnt)
+                {
+                    float2 r = SREyeRefract(specular, nl, cnt, vl, radius);
+                    refracted = r.x;
+                    transCos = r.y;
+                }
+
+                float s2 = strength * strength;
+                float q = sqrt(saturate(s2 + nl * nl * (1.0 - s2)));
+                float p = sqrt(saturate(specular * specular * (1.0 - s2) + s2));
+                float a2 = refracted * refracted * (s2 - 1.0) + 1.0;
+                float refraction = saturate((s2 * 0.15915494) / max((specular * q + nl * p) * a2 * a2, 1e-5));
+                float3 refractionColor = saturate(refraction * tint);
+
+                float transmission = strength /
+                    (((3.0 * sqrt(strength) + radius) * radius * 0.25) / (transCos + 0.001) + strength);
 
                 float3 lightColor = mainLight.color * mainLight.distanceAttenuation
-                    * lerp(1.0, mainLight.shadowAttenuation, _SREyeShadowStrength);
+                    * lerp(1.0, mainLight.shadowAttenuation, _SREyeShadowStrength)
+                    * (fade * _SREyeLightIntensity);
 
                 half3 color = _SREyeColor.rgb
-                    * (specular * _SREyeSpecIntensity + fresnel * _SREyeRimIntensity)
-                    * lightColor;
+                    * (specular * albedo.rgb * lightColor * _SREyeSpecIntensity
+                     + refractionColor * nv * lightColor * transmission);
                 return half4(color, 1.0);
             }
             ENDHLSL

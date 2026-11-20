@@ -114,9 +114,13 @@ P35 的前 4 个全屏材质 pass 之后还有 4 个 240-index draw（eid 4968/4
 全屏材质 pass 的 bit0 清理：4906/4924/4948（组 1–3）用 DSS 655（ReadMask 0xC0 / WriteMask 1 / Pass=Zero）；
 4956（组 0）用 DSS 662（WriteMask 0，不清）。P27 的屏幕空间阴影也用同一 bit0 做标记（Ref 1 / W1 / ZFail Replace，eid 4371…）。
 
-`4989` 的 PS（9584）用屏幕空间 GBuffer 采样：t0=tex9503 albedo、t1=tex9507 normal（`normal.a*65535 & 7` 解材质类型）、
-t3=tex514 深度、t4=tex3403，并用 `unity_MatrixInvVP` 反推世界坐标——即“屏幕空间眼睛着色”，不是简单的几何高光。
-常量内容仍不可得（见 §6），本仓库只复现其模板门控与加法载荷。
+`4989` 的 PS（9584）用屏幕空间 GBuffer 采样：t0=tex9503 albedo、t1=tex9507 normal（`normal.rg` 为八面体法线，
+`normal.b*65535 & 7` 解材质类型，`normal.a` 是虹膜遮罩）、t3=tex514 深度、t4=tex3403（屏幕空间 AO），
+并用 `unity_MatrixInvVP` 反推世界坐标——即“屏幕空间眼睛着色”，不是简单的几何高光。
+
+常量与公式已在第二轮解码（`debug_pixel --trace`，eid 5015）：距离衰减 `(1-(d/5)^2)^2`（cb3[9].w=5、cb3[11].z=2）、
+反射率 `D`（cb3[11].x=1）、Fresnel 基底 0.04 + `(1-halfCos)^5`、虹膜透射 `s`，以及全反射 / 解析折射两条分支；
+逐像素复刻误差 < 1e-5。实现与常量表见 [02 §2.5](../02-SRCharacterShaderReserve/README.md#25-眼睛遮挡stencil-bit0)。
 
 半透明刘海：VB 41839 / IB 15331（219 顶点 / 352 三角形）只在 P16 阴影与 P35 出现，**从不进入 P08 GBuffer**：
 
@@ -177,7 +181,8 @@ blend 213 = `SRC_ALPHA / INV_SRC_ALPHA`；PS 15531 输出 alpha = 软边系数 �
 
 | 待办 | 状态 | 说明 |
 |---|---|---|
-| CB 内容（cb0 4560B） | 仍未知 | CB 仍未解码；重建模块用 URP 自己的 CB 布局，不声称字节级对应 |
+| CB 内容（cb0 4560B） | 仍未知 | 角色主 CB 仍未解码；重建模块用 URP 自己的 CB 布局，不声称字节级对应 |
+| PS 9584 的 CB 常量 | **已解码** | `debug_pixel --trace`（eid 5015）读出 cb3[9..16]、cb2[68]/[78] 等实际值，见 §4.1 与 02 §2.5 |
 | toon ramp / SDF 采样方式 | 部分 | 按 256x16 与 8x8 LUT 的尺寸证据实现了 ramp 行选择与面部 SDF；HSR 的具体采样公式仍是推断 |
 | tex9511 / tex5288 消费者语义 | 部分 | 重建中 9511 语义映射为角色 mask（R=剪影/G=阴影形状/A=面部 lit），5288 未重建 |
 | P30/P31 与 P32–P34 功能 | 仍未知 | 未重建 |

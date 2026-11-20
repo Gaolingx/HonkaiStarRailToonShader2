@@ -355,12 +355,16 @@ namespace SRCharacter
                 // --- Eye overlay (capture eids 4968/4989): the proxy is redrawn against the G-buffer
                 // depth; where it is covered (the green bangs bar) the ZFail marks stencil bit 0 and
                 // the additive highlight is skipped. Visible eye pixels must get brighter.
+                // PS 9584 constants decoded from frame 13063 / eid 5015 (see README 2.5):
+                // iris mask 0.624, base tint 0.04, spec radius 1, distance fade 5.
                 Material eyeMaterial = new Material(characterShader);
                 eyeMaterial.SetColor("_BaseColor", new Color(0.35f, 0.35f, 0.35f, 1f));
                 eyeMaterial.SetColor("_SREyeColor", Color.white);
                 eyeMaterial.SetFloat("_SREyeSpecIntensity", 1f);
-                eyeMaterial.SetFloat("_SREyeShininess", 8f);
-                eyeMaterial.SetFloat("_SREyeRimIntensity", 1f);
+                eyeMaterial.SetFloat("_SREyeIrisMask", 0.624f);
+                eyeMaterial.SetFloat("_SREyeIrisBase", 0.04f);
+                eyeMaterial.SetFloat("_SREyeSpecRadius", 1f);
+                eyeMaterial.SetFloat("_SREyeFadeDistance", 5f);
 
                 GameObject eye = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 eye.name = "SRCharacterVerifyEyeProxy";
